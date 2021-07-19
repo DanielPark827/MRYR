@@ -1,0 +1,83 @@
+{
+  "project_info": {
+    "project_number": "44162215003",
+    "firebase_url": "https://mryr-3c428.firebaseio.com",
+    "project_id": "mryr-3c428",
+    "storage_bucket": "mryr-3c428.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:44162215003:android:415961f5ef9c52b2e6a37e",
+        "android_client_info": {
+          "package_name": "com.myroomyourroom.mryr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "44162215003-1j11lpgos7i6refl0taeul3vqmk8h466.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYpmXZBu-yVRnSatq-eVwQn6fqgnVQ3FU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "44162215003-1j11lpgos7i6refl0taeul3vqmk8h466.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "44162215003-5d5us761ef4s63ahk4bhagctadsgi8nc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.myroomyourroom.mryr"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:44162215003:android:a43e8acf1e013767e6a37e",
+        "android_client_info": {
+          "package_name": "com.myroomyourroom.mryr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "44162215003-1j11lpgos7i6refl0taeul3vqmk8h466.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYpmXZBu-yVRnSatq-eVwQn6fqgnVQ3FU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "44162215003-1j11lpgos7i6refl0taeul3vqmk8h466.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "44162215003-5d5us761ef4s63ahk4bhagctadsgi8nc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.myroomyourroom.mryr"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>내방니방</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>mryr</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>kakao_rediect_uri</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>kakao7383d5477fb65e9b079fa9dfcfe3b67a</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleIdentifier</key>
+			<string></string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
+	<key>KAKAO_APP_KEY</key>
+	<string>7383d5477fb65e9b079fa9dfcfe3b67a</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>kakao7383d5477fb65e9b079fa9dfcfe3b67a</string>
+		<string>kakaokompassauth</string>
+		<string>storykompassauth</string>
+		<string>kakaolink</string>
+		<string>kakaotalk-4.5.0</string>
+		<string>kakaostory-2.9.0</string>
+		<string>storylink</string>
+	</array>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
+		<true/>
+	</dict>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>App would like to use your AppleMusic for communication purposes</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>App would like to use your Calendars for communication purposes</string>
+	<key>NSCameraUsageDescription</key>
+	<string>카메라 접근을 허용하지 않으면, 매물사진을 올리실 수 없습니다.</string>
+	<key>NSContactsUsageDescription</key>
+	<string>App would like to use your Contacts for communication purposes</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>**[선택 접근권한] 매물등록과 주변 매물검색을 위해서 사용자의 위치정보가 필요합니다.**
+            ※ 동의하지 않아도 서비스 이용은 가능하지만, 위치 기능의 사용이 제한될 수 있습니다.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>**[선택 접근권한] 매물등록과 주변 매물검색을 위해서 사용자의 위치정보가 필요합니다.**
+            ※ 동의하지 않아도 서비스 이용은 가능하지만, 위치 기능의 사용이 제한될 수 있습니다.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>**[선택 접근권한] 매물등록과 주변 매물검색을 위해서 사용자의 위치정보가 필요합니다.**
+            ※ 동의하지 않아도 서비스 이용은 가능하지만, 위치 기능의 사용이 제한될 수 있습니다.</string>
+	<key>NSMotionUsageDescription</key>
+	<string>App would like to use your Motion for communication purposes</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>사진 라이브러리 접근을 허용하지 않으면, 매물사진을 올리실 수 없습니다.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>사진 라이브러리 접근을 허용하지 않으면, 매물사진을 올리실 수 없습니다.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>App would like to use your SpeechRecognition for communication purposes</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
+	<key>UILaunchStoryboardName</key>
+	<string>LaunchScreen</string>
+	<key>UIMainStoryboardFile</key>
+	<string>Main</string>
+	<key>UIRequiresFullScreen</key>
+	<true/>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+	<key>io.flutter.embedded_views_preview</key>
+	<string>YES</string>
+</dict>
+</plist>
