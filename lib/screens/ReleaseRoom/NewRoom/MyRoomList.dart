@@ -136,6 +136,7 @@ class _MyRoomListState extends State<MyRoomList>
                 ),
                 onPressed: () {
                   Navigator.pop(context);
+                //  navigationNumProvider.setNum(3 /* socket: socket*/);
                 }),
             title: SvgPicture.asset(
               MryrLogoInReleaseRoomTutorialScreen,
@@ -356,19 +357,9 @@ class _MyRoomListState extends State<MyRoomList>
                                                     ),
                                                     Row(
                                                       children: [
-                                                        Text(GlobalProfile.roomSalesInfoList[index].monthlyRentFeesOffer == null ?
-                                                            "0만원" :
-                                                      GlobalProfile.roomSalesInfoList[index].monthlyRentFeesOffer <= 0 ?
-                                                          GlobalProfile
-                                                              .roomSalesInfoList[
-                                                                  index]
-                                                              .depositFeesOffer
-                                                              .toString() +  "만원" + " / 전세" :
-                                                      GlobalProfile
-                                                          .roomSalesInfoList[
-                                                      index]
-                                                          .monthlyRentFeesOffer
-                                                          .toString() +  "만원" + " / 월세",
+
+                                                        Text(
+                                                          GlobalProfile.roomSalesInfoList[index].jeonse == true?       GlobalProfile.roomSalesInfoList[index].depositFeesOffer.toString()+"만원 / 전세" :       GlobalProfile.roomSalesInfoList[index].monthlyRentFeesOffer.toString()+"만원 / 월세",
                                                           style: TextStyle(
                                                               fontWeight:
                                                                   FontWeight
@@ -567,6 +558,30 @@ class _MyRoomListState extends State<MyRoomList>
                                                 //
                                                 //
                                                 // }
+
+
+                                                //메인 단기매물 리스트
+                                                mainShortList.clear();
+                                                var tmp= await ApiProvider().get('/RoomSalesInfo/ShortRooms');
+                                                if(null != tmp){
+                                                  for(int i = 0;i<tmp.length;i++){
+                                                    mainShortList.add(RoomSalesInfo.fromJson(tmp[i]));
+                                                  }
+                                                }
+
+
+                                                //메인 양도매물 리스트
+                                                mainTransferList.clear();
+                                                tmp = await ApiProvider().post('/RoomSalesInfo/MainTransferWithLike', jsonEncode(
+                                                    {
+                                                      "userID" : GlobalProfile.loggedInUser.userID
+                                                    }
+                                                ));
+                                                if(null != tmp){
+                                                  for(int i = 0;i<tmp.length;i++){
+                                                    mainTransferList.add(RoomSalesInfo.fromJsonLittle(tmp[i]));
+                                                  }
+                                                }
 
                                                 setState(() {});
 
@@ -792,6 +807,31 @@ class _MyRoomListState extends State<MyRoomList>
                                                         //
                                                         //
                                                         // }
+
+
+
+                                                        //메인 단기매물 리스트
+                                                        mainShortList.clear();
+                                                        var tmp= await ApiProvider().get('/RoomSalesInfo/ShortRooms');
+                                                        if(null != tmp){
+                                                          for(int i = 0;i<tmp.length;i++){
+                                                            mainShortList.add(RoomSalesInfo.fromJson(tmp[i]));
+                                                          }
+                                                        }
+
+
+                                                        //메인 양도매물 리스트
+                                                        mainTransferList.clear();
+                                                        tmp = await ApiProvider().post('/RoomSalesInfo/MainTransferWithLike', jsonEncode(
+                                                            {
+                                                              "userID" : GlobalProfile.loggedInUser.userID
+                                                            }
+                                                        ));
+                                                        if(null != tmp){
+                                                          for(int i = 0;i<tmp.length;i++){
+                                                            mainTransferList.add(RoomSalesInfo.fromJsonLittle(tmp[i]));
+                                                          }
+                                                        }
 
                                                         setState(() {});
 

@@ -638,8 +638,9 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                       FlagForFilter == false?
                       (globalRoomSalesInfoList==null) ? Container():
                       Expanded(
-                        child: ListView.builder(
+                        child: ListView.separated(
                           controller: _scrollController,
+                            separatorBuilder: (BuildContext context, int index) =>  (isShortForRoomList) ? Container(): Container(height:screenHeight*(4/640),color:hexToColor('#F8F8F8')),
                             physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                             shrinkWrap: true,
                           scrollDirection: Axis.vertical,
@@ -649,9 +650,9 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                             return Column(
                               children: [
                                 index == 0 && isShortForRoomList ?
-                                ListView.builder(
+                                ListView.separated(
                                     physics: NeverScrollableScrollPhysics(),
-
+                                    separatorBuilder: (BuildContext context, int index) => Container(height:screenHeight*(4/640),color:hexToColor('#F8F8F8')),
                                     shrinkWrap: true,
                                     scrollDirection: Axis.vertical,
                                     itemCount: nbnbRoom.length,
@@ -801,7 +802,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                           },
                                           child: Container(
                                             width: screenWidth,
-                                            height: screenHeight * 0.19375,
+                                            height: screenHeight * (110/620),
                                             decoration: BoxDecoration(
                                               /* boxShadow: [
                                         BoxShadow(
@@ -822,42 +823,39 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                                 SizedBox(width: screenWidth*(12/360),),
                                                 Column(
                                                   children: [
-                                                    SizedBox(height: screenHeight * 0.01875),
-                                                    Container(
-                                                      width: screenWidth * 0.3333333,
-                                                      height: screenHeight * 0.15625,
-                                                      child: ClipRRect(
-                                                          borderRadius: new BorderRadius.circular(4.0),
-                                                          child:     (nbnbRoom[index].imageUrl1=="BasicImage" || nbnbRoom[index].imageUrl1 == null)
-                                                              ?
-                                                          SvgPicture.asset(
-                                                            mryrInReviewScreen,
-                                                            width:
-                                                            screenHeight *
-                                                                (60 /
-                                                                    640),
-                                                            height:
-                                                            screenHeight *
-                                                                (60 /
-                                                                    640),
-                                                          )
-                                                              :  Stack(
-                                                                children: [
-                                                                  FittedBox(
-                                                            fit: BoxFit.cover,
-                                                            child:    getExtendedImage(get_resize_image_name(nbnbRoom[index].imageUrl1,360), 0,extendedController),
-                                                          ),
-                                                                  Center(
-                                                                    child: SvgPicture.asset(
-                                                                        RoomWaterMark,
-                                                                        width: screenWidth*(56/360),
-                                                                        height:screenHeight*(16/640)
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              )
-                                                      ),
-                                                    ),
+                                                    SizedBox(height: screenHeight * 0.00875),
+                                                    //양도이미지
+                                                    // Container(
+                                                    //   width: screenWidth * 0.3333333,
+                                                    //   height: screenWidth * (100/360),
+                                                    //   child: ClipRRect(
+                                                    //       borderRadius: new BorderRadius.circular(4.0),
+                                                    //       child:     (nbnbRoom[index].imageUrl1=="BasicImage" || nbnbRoom[index].imageUrl1 == null)
+                                                    //           ?
+                                                    //       FittedBox(
+                                                    //         fit: BoxFit.cover,
+                                                    //         child: SvgPicture.asset(
+                                                    //           mryrInReviewScreen,
+                                                    //
+                                                    //         ),
+                                                    //       )
+                                                    //           :  Stack(
+                                                    //             children: [
+                                                    //               FittedBox(
+                                                    //         fit: BoxFit.cover,
+                                                    //         child:    getExtendedImage(get_resize_image_name(nbnbRoom[index].imageUrl1,360), 0,extendedController),
+                                                    //       ),
+                                                    //               Center(
+                                                    //                 child: SvgPicture.asset(
+                                                    //                     RoomWaterMark,
+                                                    //                     width: screenWidth*(56/360),
+                                                    //                     height:screenHeight*(16/640)
+                                                    //                 ),
+                                                    //               ),
+                                                    //             ],
+                                                    //           )
+                                                    //   ),
+                                                    // ),
                                                   ],
                                                 ),
                                                 SizedBox(
@@ -1077,6 +1075,10 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                         tmpRoom
                                             .lng = first.coordinates.longitude;
                                       }
+                                      else{
+                                        finalLng = tmpRoom.lng;
+                                        finalLat = tmpRoom.lat;
+                                      }
                                       var detailReviewList = await ApiProvider()
                                           .post('/Review/ReviewListLngLat',
                                           jsonEncode({
@@ -1121,7 +1123,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                   },
                                   child: Container(
                                     width: screenWidth,
-                                    height: screenHeight * 0.19375,
+                                    height: screenHeight * (110/620),
                                     child: Padding(
                                       padding: EdgeInsets.only(
                                           left: screenWidth * 0.033333,
@@ -1131,25 +1133,22 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Column(
+                                            mainAxisAlignment: MainAxisAlignment.start,
                                             children: [
                                               SizedBox(height: screenHeight * 0.01875),
                                               Container(
                                                 width: screenWidth * 0.3333333,
-                                                height: screenHeight * 0.15625,
+                                                height: screenWidth * (100/360),
                                                 child: ClipRRect(
                                                     borderRadius: new BorderRadius.circular(4.0),
                                                     child:      globalRoomSalesInfoList[index].imageUrl1=="BasicImage"
                                                         ?
-                                                    SvgPicture.asset(
-                                                      mryrInReviewScreen,
-                                                      width:
-                                                      screenHeight *
-                                                          (60 /
-                                                              640),
-                                                      height:
-                                                      screenHeight *
-                                                          (60 /
-                                                              640),
+                                                    FittedBox(
+                                                      fit: BoxFit.cover,
+                                                      child: SvgPicture.asset(
+                                                        mryrInReviewScreen,
+
+                                                      ),
                                                     )
                                                         :  Stack(
                                                           children: [
@@ -1200,7 +1199,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                                                             screenWidth * 0.022222,
                                                                             screenHeight * 0.000225,
                                                                             screenWidth * 0.022222,
-                                                                            screenHeight * 0.003225),
+                                                                            screenHeight * 0.000225),
                                                                         child: Align(
                                                                           alignment: Alignment.center,
                                                                           child: Text(
@@ -1227,7 +1226,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                                                             screenWidth * 0.022222,
                                                                             screenHeight * 0.000225,
                                                                             screenWidth * 0.022222,
-                                                                            screenHeight * 0.003225),
+                                                                            0),
                                                                         child: Align(
                                                                           alignment: Alignment.center,
                                                                           child: Text(
@@ -1260,11 +1259,10 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                                   SizedBox(
                                                     height: screenHeight * 0.00625,
                                                   ),
-                                                  Text( globalRoomSalesInfoList[index].monthlyRentFeesOffer == null ? "0만원" :
-                                                      globalRoomSalesInfoList[index].monthlyRentFeesOffer <= 0 ?
-                                                    globalRoomSalesInfoList[index].depositFeesOffer.toString() +
-                                                        '만원 / 전세' : globalRoomSalesInfoList[index].monthlyRentFeesOffer.toString() +
-                                                          '만원 / 월세',
+
+                                                  Text(
+                                                    globalRoomSalesInfoList[index].jeonse == true?    globalRoomSalesInfoList[index].depositFeesOffer.toString()+"만원 / 전세" :      globalRoomSalesInfoList[index].monthlyRentFeesOffer.toString()+"만원 / 월세",
+
                                                     style: TextStyle(
                                                         fontSize: screenHeight * 0.025,
                                                         fontWeight: FontWeight.bold),
@@ -1354,7 +1352,8 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                         ),
                       ):
                       (globalRoomSalesInfoListFiltered==null)? Container(): Expanded(
-                        child: ListView.builder(
+                        child: ListView.separated(
+                            separatorBuilder: (BuildContext context, int index) =>   Container(height:screenHeight*(4/640),color:hexToColor('#F8F8F8')),
                           physics: ClampingScrollPhysics(),
                           shrinkWrap: true,
                           scrollDirection: Axis.vertical,
@@ -1363,263 +1362,6 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
 
                               Column(
                                 children: [
-                                  // index == 0?
-                                  // ListView.builder(
-                                  //     physics: NeverScrollableScrollPhysics(),
-                                  //
-                                  //     shrinkWrap: true,
-                                  //     scrollDirection: Axis.vertical,
-                                  //     itemCount: nbnbRoom.length,
-                                  //     itemBuilder: (BuildContext context, int index) {
-                                  //
-                                  //       return Column(children: [
-                                  //         GestureDetector(
-                                  //           onTap: () async {
-                                  //             //내방니방 직영 예약 날짜 받아오기
-                                  //             var tmp9 = await ApiProvider().post('/RoomSalesInfo/NbnbRoomDateSelect',jsonEncode({"roomID":nbnbRoom[index].id.toString()}));
-                                  //             GlobalProfile.reserveDateList.clear();
-                                  //             if(tmp9 != null){
-                                  //               for(int i =0 ; i< tmp9.length ;i++){
-                                  //                 ReserveDate _reserveDate = ReserveDate.fromJson(tmp9[i]);
-                                  //                 if((DateTime.now().year == _reserveDate.year && DateTime.now().month <= _reserveDate.month)
-                                  //                     || (DateTime.now().year +1 == _reserveDate.year && DateTime.now().month>_reserveDate.month))
-                                  //                   GlobalProfile.reserveDateList.add(_reserveDate);
-                                  //               }
-                                  //             }
-                                  //
-                                  //             GlobalProfile.detailReviewList.clear();
-                                  //
-                                  //             var detailReviewList = await ApiProvider()
-                                  //                 .post('/Review/SelectRoom',
-                                  //                 jsonEncode({"location":globalRoomSalesInfoList[index].location}));
-                                  //
-                                  //             if (detailReviewList != null) {
-                                  //               for (int i = 0;
-                                  //               i < detailReviewList.length;
-                                  //               ++i) {
-                                  //                 GlobalProfile.detailReviewList.add(
-                                  //                     DetailReview.fromJson(
-                                  //                         detailReviewList[i]));
-                                  //               }
-                                  //             }
-                                  //
-                                  //             res = await Navigator.push(
-                                  //                 context, // 기본 파라미터, SecondRoute로 전달
-                                  //                 MaterialPageRoute(
-                                  //                     builder: (context) =>
-                                  //                         DetailedRoomInformation(
-                                  //                           roomSalesInfo: nbnbRoom[index],
-                                  //                           nbnb: true,
-                                  //                         )) // SecondRoute를 생성하여 적재
-                                  //             );
-                                  //             extendedController.reset();
-                                  //             setState(() {
-                                  //
-                                  //             });
-                                  //           },
-                                  //           child: Container(
-                                  //             width: screenWidth,
-                                  //             height: screenHeight * 0.19375,
-                                  //             decoration: BoxDecoration(
-                                  //               /* boxShadow: [
-                                  //       BoxShadow(
-                                  //         color: Colors.grey.withOpacity(0.5),
-                                  //         spreadRadius: 1,
-                                  //         blurRadius: 2,
-                                  //         offset: Offset(
-                                  //             1, 1), // changes position of shadow
-                                  //       ),
-                                  //     ],*/
-                                  //
-                                  //
-                                  //               color: Color(0xffffffff),
-                                  //             ),
-                                  //             child: Row(
-                                  //               crossAxisAlignment: CrossAxisAlignment.start,
-                                  //               children: [
-                                  //                 SizedBox(width: screenWidth*(12/360),),
-                                  //                 Column(
-                                  //                   children: [
-                                  //                     SizedBox(height: screenHeight * 0.01875),
-                                  //                     Stack(
-                                  //                       children: [
-                                  //
-                                  //                         Container(
-                                  //                           width: screenWidth * 0.3333333,
-                                  //                           height: screenHeight * 0.15625,
-                                  //                           child: ClipRRect(
-                                  //                               borderRadius: new BorderRadius.circular(4.0),
-                                  //                               child:     (nbnbRoom[index].imageUrl1=="BasicImage" || nbnbRoom[index].imageUrl1 == null)
-                                  //                                   ?
-                                  //                               SvgPicture.asset(
-                                  //                                 mryrInReviewScreen,
-                                  //                                 width:
-                                  //                                 screenHeight *
-                                  //                                     (60 /
-                                  //                                         640),
-                                  //                                 height:
-                                  //                                 screenHeight *
-                                  //                                     (60 /
-                                  //                                         640),
-                                  //                               )
-                                  //                                   :  FittedBox(
-                                  //                                 fit: BoxFit.cover,
-                                  //                                 child:    getExtendedImage(get_resize_image_name(nbnbRoom[index].imageUrl1,360), 0,extendedController),
-                                  //                               )
-                                  //                           ),
-                                  //                         ),
-                                  //                         Positioned(
-                                  //                             right: 4,
-                                  //                             bottom: 4,
-                                  //                             child: Container(
-                                  //                               height : screenHeight*(16/640),
-                                  //                               decoration: BoxDecoration(
-                                  //                                 borderRadius: BorderRadius.all(
-                                  //                                     Radius.circular(
-                                  //                                         4.0) //                 <--- border radius here
-                                  //                                 ),
-                                  //                                 color: kPrimaryColor,
-                                  //                               ),
-                                  //                               child: Center(child: Text("  내방니방 직영  ",style: TextStyle(fontSize: screenWidth*(10/360),fontWeight: FontWeight.bold, color: Colors.white),)),
-                                  //                             ))
-                                  //                       ],
-                                  //                     ),
-                                  //                   ],
-                                  //                 ),
-                                  //                 SizedBox(
-                                  //                   width: screenWidth * 0.033333,
-                                  //                 ),
-                                  //                 Column(
-                                  //                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  //                   children: [
-                                  //                     Row(
-                                  //                       crossAxisAlignment: CrossAxisAlignment.start,
-                                  //                       children: [
-                                  //                         Column(
-                                  //                           mainAxisAlignment: MainAxisAlignment.start,
-                                  //                           children: [
-                                  //                             SizedBox(height: screenHeight * 0.01875),
-                                  //                             SizedBox(
-                                  //                               width: screenWidth*(180/360),
-                                  //                               child: Row(
-                                  //                                 children: [
-                                  //                                   Wrap(
-                                  //                                     alignment: WrapAlignment.center,
-                                  //                                     spacing: screenWidth * 0.011111,
-                                  //                                     children: [
-                                  //                                       Container(
-                                  //                                         height: screenHeight * 0.028125,
-                                  //                                         child: Padding(
-                                  //                                           padding: EdgeInsets.fromLTRB(
-                                  //                                               screenWidth * 0.022222,
-                                  //                                               screenHeight * 0.000225,
-                                  //                                               screenWidth * 0.022222,0),
-                                  //                                           child: Align(
-                                  //                                             alignment: Alignment.center,
-                                  //                                             child: Text(
-                                  //                                               "단기임대",
-                                  //                                               style: TextStyle(
-                                  //                                                   fontSize:
-                                  //                                                   screenWidth*TagFontSize,
-                                  //                                                   color: Colors.white,
-                                  //                                                   fontWeight: FontWeight.bold
-                                  //                                               ),
-                                  //                                             ),
-                                  //                                           ),
-                                  //                                         ),
-                                  //                                         decoration: BoxDecoration(
-                                  //                                           borderRadius:
-                                  //                                           new BorderRadius.circular(4.0),
-                                  //                                           color: kPrimaryColor,
-                                  //                                         ),
-                                  //                                       ),
-                                  //                                       Container(
-                                  //                                         height: screenHeight * 0.028125,
-                                  //                                         child: Padding(
-                                  //                                           padding: EdgeInsets.fromLTRB(
-                                  //                                               screenWidth * 0.022222,
-                                  //                                               screenHeight * 0.000225,
-                                  //                                               screenWidth * 0.022222,
-                                  //                                               0),
-                                  //                                           child: Align(
-                                  //                                             alignment: Alignment.center,
-                                  //                                             child: Text(
-                                  //                                               "이벤트",
-                                  //                                               style: TextStyle(
-                                  //                                                   fontSize:
-                                  //                                                   screenWidth*TagFontSize,
-                                  //                                                   color: Colors.white,
-                                  //                                                   fontWeight: FontWeight.bold
-                                  //                                               ),
-                                  //                                             ),
-                                  //                                           ),
-                                  //                                         ),
-                                  //                                         decoration: BoxDecoration(
-                                  //                                           borderRadius:
-                                  //                                           new BorderRadius.circular(4.0),
-                                  //                                           color: kPrimaryColor,
-                                  //                                         ),
-                                  //                                       )
-                                  //                                     ],
-                                  //                                   ),
-                                  //
-                                  //                                 ],
-                                  //                               ),
-                                  //                             ),
-                                  //                           ],
-                                  //                         ),
-                                  //                       ],
-                                  //                     ),
-                                  //                     SizedBox(
-                                  //                       height: screenHeight * 0.00625,
-                                  //                     ),
-                                  //                     Text(
-                                  //                       nbnbRoom[index].monthlyRentFeesOffer.toString() +
-                                  //                           '원 / 일',
-                                  //                       style: TextStyle(
-                                  //                           fontSize: screenHeight * 0.025,
-                                  //                           fontWeight: FontWeight.bold),
-                                  //                     ),
-                                  //                     SizedBox(
-                                  //                       height: screenHeight * 0.00625,
-                                  //                     ),
-                                  //                     /*  Text(nbnbRoom.termOfLeaseMin + ' ~ ' + nbnbRoom.termOfLeaseMax,
-                                  //             style: TextStyle(color: hexToColor("#44444444")),
-                                  //           ),*/
-                                  //                     Container(
-                                  //                       width: screenWidth*0.45,
-                                  //                       height: screenHeight*(50/640),
-                                  //                       child: Text(
-                                  //                         //   "rrrrjjrjrjrjrrjrjfsdjhfsdafjlksadhlkjsadhflkjdsalfj;alsdkfj;asldkjf;saldkjfas;ldfkjsal;dkfjsad;lfkjsad;flkjsdhflsajdhfasdjhfalskdjfhasdkfjhasdlkfjhasdkfjhasdlfkjhasdflkjash;sladkfjasl;dfkj",
-                                  //                         nbnbRoom[index].information==null?"":nbnbRoom[index].information,
-                                  //                         maxLines: 3,
-                                  //                         overflow: TextOverflow.ellipsis,
-                                  //                         style: TextStyle(
-                                  //                             color: hexToColor("#888888")),
-                                  //                       ),
-                                  //                     ),
-                                  //                     SizedBox(height: screenHeight*(3/640),),
-                                  //
-                                  //                   ],
-                                  //                 ),
-                                  //                 Spacer(),
-                                  //                 ClipPath(
-                                  //                     clipper:Triangle(),
-                                  //                     child:Container(
-                                  //                       width: screenWidth*(32/360),
-                                  //                       height:screenWidth*(32/360),
-                                  //                       color: kPrimaryColor,
-                                  //                     )
-                                  //                 )
-                                  //               ],
-                                  //             ),
-                                  //
-                                  //           ),
-                                  //         ),
-                                  //       ],);})
-                                  //     : Container(),
-                                  //
-                                  // index == 0? Container(width:screenWidth,height:3, color:kPrimaryColor):Container(),
 
 
                                   GestureDetector(
@@ -1816,7 +1558,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                                                           screenWidth * 0.022222,
                                                                           screenHeight * 0.000225,
                                                                           screenWidth * 0.022222,
-                                                                          screenHeight * 0.003225),
+                                                                          screenHeight * 0.000225),
                                                                       child: Align(
                                                                         alignment: Alignment.center,
                                                                         child: Text(
@@ -1843,7 +1585,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                                                           screenWidth * 0.022222,
                                                                           screenHeight * 0.000225,
                                                                           screenWidth * 0.022222,
-                                                                          screenHeight * 0.003225),
+                                                                          screenHeight * 0),
                                                                       child: Align(
                                                                         alignment: Alignment.center,
                                                                         child: Text(

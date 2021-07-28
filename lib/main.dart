@@ -265,6 +265,9 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider<ReleaseRoomAuthStateProvider>(
           create: (_) => ReleaseRoomAuthStateProvider(),
         ),
+        ChangeNotifierProvider<DummyProposeForBorrow>(
+          create: (_) => DummyProposeForBorrow(),
+        ),
         ChangeNotifierProvider<RoomListScreenProvider>(
           create: (_) => RoomListScreenProvider(),
         ),
@@ -274,9 +277,7 @@ class _MyAppState extends State<MyApp> {
       /*  ChangeNotifierProvider<SocketProvider>(
           create: (_) => new SocketProvider(),
         ),*/
-        ChangeNotifierProvider<DummyProposeForBorrow>(
-          create: (_) => new DummyProposeForBorrow(),
-        ),
+
         ChangeNotifierProvider<DummyUser>(
           create: (_) => new DummyUser(),
         ),
@@ -492,21 +493,21 @@ class _MainPageState extends State<MainPage> {
 
                 }
                 else if(index == 2){
-                  chatSum =0;
+
                   //쪽지함 리스트
                   chatInfoList.clear();
-                  var ye = await ApiProvider().post('/Note/MessageRoomListTest', jsonEncode({
-                    "userID" : GlobalProfile.loggedInUser.userID
-
+                  var ye = await ApiProvider().post(
+                      '/Note/MessageRoomListTest', jsonEncode({
+                    "userID": GlobalProfile.loggedInUser.userID
                   }));
-
-                  if (ye != null && ye  != false) {
-                    for (int i = 0; i < ye['result'].length; ++i) {
-                      chatInfoList.add(Chat.fromJson(ye['result'][i],ye['Contents'][i]));
+                  var tt = ye['result'];
+                  if (ye != null && ye != false) {
+                    for (int i = 0; i <
+                        ye['result'].length; ++i) {
+                      chatInfoList.add(Chat.fromJson(
+                          ye['result'][i], ye['Contents'][i]));
                     }
                   }
-
-
                   navigationNumProvider.setNum(index, /* socket: socket*/);
                   setState(() {
 

@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:kakao_flutter_sdk/all.dart';
 import 'package:mryr/network/ApiProvider.dart';
+import 'package:mryr/screens/BorrowRoom/model/ModelRoomLikes.dart';
 import 'package:mryr/screens/MoreScreen/model/NoticeModel.dart';
 import 'package:mryr/userData/NeedRoomInfo.dart';
 import 'package:mryr/userData/Review.dart';
@@ -29,10 +30,14 @@ class GlobalProfile {
   static List<NeedRoomInfo> listForMe2 = new List<NeedRoomInfo>();
   static List<ReserveDate> reserveDateList = new List<ReserveDate>();
 
+  static List<ModelRoomLikes> RoomLikesList = new List<ModelRoomLikes>();
+  static List<int> RoomLikesIdList = new List<int>();
+
+
 
   static List<CertificationPicture> certificationPicture= new List<CertificationPicture>();
 
-  static var banner;
+  static String banner;
   static User1 loggedInUser;
   static List<RoomSalesInfo> roomSalesInfoList = new List<RoomSalesInfo>();
   static RoomSalesInfo roomSalesInfo;//check

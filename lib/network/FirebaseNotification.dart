@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:mryr/constants/AppConfig.dart';
 import 'package:mryr/network/ApiProvider.dart';
@@ -26,7 +27,7 @@ class FirebaseNotifications {
   static String _fcmToken = '';
 
   FirebaseMessaging get getFirebaseMessaging => _firebaseMessaging;
- // SocketProvider socket;
+  // SocketProvider socket;
   LocalNotification _localNotification;
   String get getFcmToken => _fcmToken;
 
@@ -47,7 +48,7 @@ class FirebaseNotifications {
       return;
     }
     if(null == _localNotification) _localNotification = Provider.of<LocalNotiProvider>(context).localNotification;
-   // if(null == socket) socket = Provider.of<SocketProvider>(context);
+    // if(null == socket) socket = Provider.of<SocketProvider>(context);
 
     Future.microtask(() async {
       _firebaseMessaging = FirebaseMessaging();
@@ -81,16 +82,17 @@ class FirebaseNotifications {
       print(token);
     });
 
+
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
 
-        SystemSound.play(SystemSoundType.click);
-        AudioCache player = new AudioCache();
-        const alarmAudioPath = "sound/sound.mp3";
-        player.play(alarmAudioPath);
-        print('on message $message');
-
         Future.microtask(() async {
+          FlutterRingtonePlayer.playNotification();
+
+
+          print('on message!!!!!!!!!! $message');
+
+
           if(Platform.isAndroid) return (message['data']['res'] as String).split('|');
           return (message['res'] as String).split('|');
         }).then((strList) async {
@@ -124,7 +126,7 @@ class FirebaseNotifications {
               from: int.parse(strList[1]),
               to: int.parse(strList[2]),
               type: GetType(strList[3]),
-              index: int.parse(strList[4]),
+              index: (strList[4] == null|| strList[4] == "")? -100: int.parse(strList[4]),
               time: strList[5],
               isRead: 0,
             );

@@ -674,41 +674,128 @@ class _ReviewScreenInMap2State extends State<ReviewScreenInMap2> {
                               ),
                               Container(
                                   width: screenWidth * (124 / 360),
-                                  child: Text(
-                                    "기존 월세",
-                                    style: TextStyle(
-                                        fontSize: screenWidth * (12 / 360),
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xff222222)),
-                                  )),
-                              Container(
-                                  width: screenWidth * (80 / 360),
                                   height: screenHeight * (30 / 640),
-                                  child: TextField(
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: screenWidth * (14 / 360),
-                                      color: hexToColor("#222222"),
-                                    ),
-                                    textAlign: TextAlign.center,
-                                    inputFormatters: <TextInputFormatter> [
-                                      FilteringTextInputFormatter.digitsOnly
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "기존 월세",
+                                        style: TextStyle(
+                                            fontSize: screenWidth * (12 / 360),
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xff222222)),
+                                      ),
                                     ],
-                                    keyboardType: TextInputType.number,
-                                    focusNode: _nodeText1,
+                                  )),
+                              Padding(
 
-                                    controller: monthlyrentfees,
-                                    decoration: InputDecoration(
-                                      hintText: '50',
-                                      hintStyle: TextStyle(
+                                padding: Platform.isIOS? EdgeInsets.only(bottom:4.0):EdgeInsets.only(top:0.0),
+                                child: Container(
+                                    width: screenWidth * (80 / 360),
+                                    height: screenHeight * (30 / 640),
+                                    child: TextField(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: screenWidth * (14 / 360),
-                                        color: hexToColor("#cccccc"),
+                                        color: hexToColor("#222222"),
                                       ),
-                                      border: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
+                                      textAlign: TextAlign.center,
+                                      inputFormatters: <TextInputFormatter> [
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
+                                      keyboardType: TextInputType.number,
+                                      focusNode: _nodeText1,
+
+                                      controller: monthlyrentfees,
+                                      decoration: InputDecoration(
+                                        hintText: '50',
+                                        hintStyle: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: screenWidth * (14 / 360),
+                                          color: hexToColor("#cccccc"),
+                                        ),
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                      ),
+                                    )),
+                              ),
+                              Container(
+                                height: screenHeight * (30 / 640),
+                                child: Column(
+
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      "만원",
+
+                                      style: TextStyle(
+                                          fontSize: screenWidth * (12 / 360),
+                                          fontWeight: FontWeight.bold),
                                     ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          Spacer(),
+                          Container(
+                            height: 1,
+                            color: Color(0xfff8f8f8),
+                          ),
+                          Spacer(),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: screenWidth * (12 / 360),
+                              ),
+                              Container(
+                                  width: screenWidth * (124 / 360),
+                                  height: screenHeight * (30 / 640),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "기존 보증금",
+                                        style: TextStyle(
+                                            fontSize: screenWidth * (12 / 360),
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xff222222)),
+                                      ),
+                                    ],
                                   )),
+                              Padding(
+                                padding: Platform.isIOS? EdgeInsets.only(bottom:4.0):EdgeInsets.only(top:0.0),
+                                child: Container(
+                                    width: screenWidth * (80 / 360),
+                                    height: screenHeight * (30 / 640),
+                                    child: TextField(
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: screenWidth * (14 / 360),
+                                        color: hexToColor("#222222"),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                      inputFormatters: <TextInputFormatter> [
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
+                                      keyboardType: TextInputType.number,
+                                      focusNode: _nodeText2,
+
+                                      controller: depositfees,
+                                      decoration: InputDecoration(
+                                        hintText: '500',
+                                        hintStyle: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: screenWidth * (14 / 360),
+                                          color: hexToColor("#cccccc"),
+                                        ),
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                      ),
+                                    )),
+                              ),
                               Text(
                                 "만원",
                                 style: TextStyle(
@@ -730,41 +817,51 @@ class _ReviewScreenInMap2State extends State<ReviewScreenInMap2> {
                               ),
                               Container(
                                   width: screenWidth * (124 / 360),
-                                  child: Text(
-                                    "기존 보증금",
-                                    style: TextStyle(
-                                        fontSize: screenWidth * (12 / 360),
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xff222222)),
-                                  )),
-                              Container(
-                                  width: screenWidth * (80 / 360),
                                   height: screenHeight * (30 / 640),
-                                  child: TextField(
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: screenWidth * (14 / 360),
-                                      color: hexToColor("#222222"),
-                                    ),
-                                    textAlign: TextAlign.center,
-                                    inputFormatters: <TextInputFormatter> [
-                                      FilteringTextInputFormatter.digitsOnly
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "관리비",
+                                        style: TextStyle(
+                                            fontSize: screenWidth * (12 / 360),
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xff222222)),
+                                      ),
                                     ],
-                                    keyboardType: TextInputType.number,
-                                    focusNode: _nodeText2,
-
-                                    controller: depositfees,
-                                    decoration: InputDecoration(
-                                      hintText: '500',
-                                      hintStyle: TextStyle(
+                                  )),
+                              Padding(
+                                padding: Platform.isIOS? EdgeInsets.only(bottom:4.0):EdgeInsets.only(top:0.0),
+                                child: Container(
+                                    width: screenWidth * (80 / 360),
+                                    height: screenHeight * (30 / 640),
+                                    child: TextField(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: screenWidth * (14 / 360),
-                                        color: hexToColor("#cccccc"),
+                                        color: hexToColor("#222222"),
                                       ),
-                                      border: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                    ),
-                                  )),
+                                      textAlign: TextAlign.center,
+                                      inputFormatters: <TextInputFormatter> [
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
+                                      keyboardType: TextInputType.number,
+                                      focusNode: _nodeText3,
+
+                                      controller: managementfees,
+                                      decoration: InputDecoration(
+                                        hintText: '5',
+                                        hintStyle: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: screenWidth * (14 / 360),
+                                          color: hexToColor("#cccccc"),
+                                        ),
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                      ),
+                                    )),
+                              ),
                               Text(
                                 "만원",
                                 style: TextStyle(
@@ -786,97 +883,51 @@ class _ReviewScreenInMap2State extends State<ReviewScreenInMap2> {
                               ),
                               Container(
                                   width: screenWidth * (124 / 360),
-                                  child: Text(
-                                    "관리비",
-                                    style: TextStyle(
-                                        fontSize: screenWidth * (12 / 360),
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xff222222)),
-                                  )),
-                              Container(
-                                  width: screenWidth * (80 / 360),
                                   height: screenHeight * (30 / 640),
-                                  child: TextField(
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: screenWidth * (14 / 360),
-                                      color: hexToColor("#222222"),
-                                    ),
-                                    textAlign: TextAlign.center,
-                                    inputFormatters: <TextInputFormatter> [
-                                      FilteringTextInputFormatter.digitsOnly
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "평균 공과금",
+                                        style: TextStyle(
+                                            fontSize: screenWidth * (12 / 360),
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xff222222)),
+                                      ),
                                     ],
-                                    keyboardType: TextInputType.number,
-                                    focusNode: _nodeText3,
-
-                                    controller: managementfees,
-                                    decoration: InputDecoration(
-                                      hintText: '5',
-                                      hintStyle: TextStyle(
+                                  )),
+                              Padding(
+                                padding: Platform.isIOS? EdgeInsets.only(bottom:4.0):EdgeInsets.only(top:0.0),
+                                child: Container(
+                                    width: screenWidth * (80 / 360),
+                                    height: screenHeight * (30 / 640),
+                                    child: TextField(
+                                      style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: screenWidth * (14 / 360),
-                                        color: hexToColor("#cccccc"),
+                                        color: hexToColor("#222222"),
                                       ),
-                                      border: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                    ),
-                                  )),
-                              Text(
-                                "만원",
-                                style: TextStyle(
-                                    fontSize: screenWidth * (12 / 360),
-                                    fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                          Spacer(),
-                          Container(
-                            height: 1,
-                            color: Color(0xfff8f8f8),
-                          ),
-                          Spacer(),
-                          Row(
-                            children: [
-                              SizedBox(
-                                width: screenWidth * (12 / 360),
-                              ),
-                              Container(
-                                  width: screenWidth * (124 / 360),
-                                  child: Text(
-                                    "평균 공과금",
-                                    style: TextStyle(
-                                        fontSize: screenWidth * (12 / 360),
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xff222222)),
-                                  )),
-                              Container(
-                                  width: screenWidth * (80 / 360),
-                                  height: screenHeight * (30 / 640),
-                                  child: TextField(
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: screenWidth * (14 / 360),
-                                      color: hexToColor("#222222"),
-                                    ),
-                                    textAlign: TextAlign.center,
-                                    inputFormatters: <TextInputFormatter> [
-                                      FilteringTextInputFormatter.digitsOnly
-                                    ],
-                                    keyboardType: TextInputType.number,
-                                    focusNode: _nodeText4,
+                                      textAlign: TextAlign.center,
+                                      inputFormatters: <TextInputFormatter> [
+                                        FilteringTextInputFormatter.digitsOnly
+                                      ],
+                                      keyboardType: TextInputType.number,
+                                      focusNode: _nodeText4,
 
-                                    controller: utilityfees,
-                                    decoration: InputDecoration(
-                                      hintText: '3',
-                                      hintStyle: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: screenWidth * (14 / 360),
-                                        color: hexToColor("#cccccc"),
+                                      controller: utilityfees,
+                                      decoration: InputDecoration(
+                                        hintText: '3',
+                                        hintStyle: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: screenWidth * (14 / 360),
+                                          color: hexToColor("#cccccc"),
+                                        ),
+                                        border: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
                                       ),
-                                      border: InputBorder.none,
-                                      focusedBorder: InputBorder.none,
-                                    ),
-                                  )),
+                                    )),
+                              ),
                               Text(
                                 "만원",
                                 style: TextStyle(

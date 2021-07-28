@@ -48,11 +48,13 @@ import 'package:mryr/screens/BorrowRoom/GoogleMap/SearchMapForReleaseRoom.dart';
 import 'package:mryr/screens/Review/SearchMapForReview.dart';
 import '../main.dart';
 import 'BorrowRoom/model/ModelRoomLikes.dart';
+import 'Registration/RegistrationPage.dart';
 import 'Review/ReviewScreenInMap5_phone.dart';
 import 'Review/ReviewScreenInMapDetail.dart';
 import 'Review/ReviewScreenInMapMain.dart';
 import 'Review/model/TutorialForReview.dart';
 import 'Setting/tutorial/TutorialScreenInSetting.dart';
+import 'TransferRoom/WarningBeforeTransfer.dart';
 import 'TutorialForLong.dart';
 
 class DashBoardScreen extends StatefulWidget {
@@ -148,33 +150,30 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
           content: Text("hi"),
         ));
   }
-  void AddRecent(int index) async {
 
+
+
+  void AddRecent(int index) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> subList = await getRecentList();
+    List<String> subList = await prefs.getStringList(KeyForRecent);
     if(subList == null) {
       subList = [];
       prefs.setStringList(KeyForRecent, subList);
     }
-    print("ddddddddddddddddd"+"${subList.length.toString()}"+"    ${subList}");
-
+    subList;
     if(subList.contains(index.toString())) {
       subList.remove(index.toString());
     }
+    subList;
     subList.insert(0,index.toString());
     if(subList.length == 10) {
-      subList.removeAt(0);
+      subList.removeAt(9);
     }
     prefs.setStringList(KeyForRecent, subList);
-
-    print("ddddddddddddddddd"+"${subList.length.toString()}"+"    ${subList}");
+    subList;
   }
 
-  Future<List<String>> getRecentList() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    return prefs.getStringList(KeyForRecent);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -198,6 +197,7 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
       child: MediaQuery(
         data: MediaQuery.of(context).copyWith(textScaleFactor:1.0),
         child: Scaffold(
+          backgroundColor: Colors.white,
         //  backgroundColor: Color(0xfff8f8f8),
           appBar: AppBar(
             backgroundColor: Color(0xffffffff),
@@ -258,7 +258,17 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
 
                               }
                               else if(index == 2){
-
+                                if (GlobalProfile.roomSalesInfoList.length <= 4) {
+                                  Navigator.push(
+                                      context, // 기본 파라미터, SecondRoute로 전달
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            WarningBeforeTransfer(),
+                                      ) // SecondRoute를 생성하여 적재
+                                  );
+                                } else {
+                                  CustomOKDialog(context, "방 등록은 5개까지 가능합니다", "올리셨던 방을 수정해주세요");
+                                }
                               }
                               else{}
                             },
@@ -333,7 +343,6 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(height: 15,),
                           Row(children: [
                             Container(width: screenWidth*(16/360),),
                             Text("잠깐만 살고 싶다면?",style: TextStyle(fontSize: screenWidth*(16/360),fontWeight: FontWeight.bold),),
@@ -558,6 +567,8 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
                                                         detailReviewList[i]));
                                               }
                                             }
+                                            await AddRecent(
+                                                mainShortList[index].id);
 
                                             var tmp = await ApiProvider()
                                                 .post('/RoomSalesInfo/RoomSelectWithLike',
@@ -730,9 +741,6 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
                                 )
                               ],
                             ),
-                          ),
-                          SizedBox(
-                            height:28,
                           ),
                           Row(children: [
                             Container(width: screenWidth*(16/360),),
@@ -918,6 +926,8 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
                                             }
                                             await AddRecent(
                                                 tmpRoom.id);
+
+
                                             var res = await Navigator.push(
                                                 context, // 기본 파라미터, SecondRoute로 전달
                                                 MaterialPageRoute(
@@ -1042,9 +1052,8 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
                                                       crossAxisAlignment: CrossAxisAlignment.start,
                                                       children: [
                                                         Container(height:screenWidth*(8/360)),
-                                                        Text(mainTransferList[index].monthlyRentFeesOffer <= 0 ? mainTransferList[index].depositFeesOffer.toString()+"만원 / 전세" :
-                                                        mainTransferList[index].monthlyRentFeesOffer.toString() + "만원 / 월세"
-                                                          ,style: TextStyle(fontWeight: FontWeight.bold,fontSize: screenWidth*(12/360)),),
+
+                                                        Text( mainTransferList[index].jeonse == true? mainTransferList[index].depositFeesOffer.toString()+"만원 / 전세" :  mainTransferList[index].monthlyRentFeesOffer.toString()+"만원 / 월세",style: TextStyle(fontWeight: FontWeight.bold,fontSize: screenWidth*(12/360)),),
 
                                                         Container(height:screenWidth*(2/360)),
                                                         Text((mainTransferList[index].Condition == 1 ? "신축 건물" : "구축 건물") + " / "+ (mainTransferList[index].Floor == 1 ? "반지하" : mainTransferList[index].Floor == 2 ? "1층" : "2층 이상"),
@@ -1071,9 +1080,6 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
                       ),
                     ),
 
-                    SizedBox(
-                      height: 8,
-                    ),
                     GestureDetector(
                       onTap: ()async{
                         monthlyNewFst.clear();
@@ -1101,15 +1107,14 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
                                   newRoomScreen(),
                             ) // SecondRoute를 생성하여 적재
                         );
-
+                        doubleCheck = false;
 
                       },
 
-                      child: Container(width:screenWidth,
-
+                      child:GlobalProfile.banner == null? Container(): Container(width:screenWidth,
                           child: FittedBox(
                             fit: BoxFit.fitWidth,
-                            child: getExtendedImage((GlobalProfile.banner['ImageUrl1'] as String == null ? "BasicImage" : ApiProvider().getImgUrl+ (GlobalProfile.banner['ImageUrl1'] as String)) , 0,extendedController),
+                            child: getExtendedImage(GlobalProfile.banner , 0,extendedController),
                           ),),
                     ),
                     SizedBox(
@@ -1120,7 +1125,6 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
                      color: Colors.white,
                      child: Column(children: [
 
-                       Container(height: screenHeight*(15/640),),
                        Row(children: [
                          Container(width: screenWidth*(16/360),),
                          Text("솔직한 자취방 후기",style: TextStyle(fontSize: screenWidth*(16/360),fontWeight: FontWeight.bold),),
@@ -1402,7 +1406,10 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
                                                          Container(width:screenWidth*(12/360)),
                                                          Container(
                                                              width:screenWidth*(103/360),
-                                                             child: Text(GlobalProfile.reviewForMain[index].Location,style: TextStyle(color:Color(0xff888888),fontSize: screenWidth*(10/360)),)),
+                                                             child: Text(GlobalProfile.reviewForMain[index].Location,
+                                                               maxLines: 2,
+                                                               overflow: TextOverflow.ellipsis,
+                                                               style: TextStyle(color:Color(0xff888888),fontSize: screenWidth*(10/360)),)),
                                                        ],
                                                      ),
                                                      Container(height:screenWidth*(12/360)),
@@ -1425,15 +1432,10 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
                        ),
                      ],),
                    ),
-                    SizedBox(
-                      height: 8,
-                    ),
-
                     Container(
                       color: Colors.white,
                       child: Column(children: [
 
-                        Container(height:15),
                         Row(children: [
                           Container(width: screenWidth*(16/360),),
                           Text("최근 조회한 매물",style: TextStyle(fontSize: screenWidth*(16/360),fontWeight: FontWeight.bold),),
@@ -1497,7 +1499,7 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
                                           itemCount: RecentList == null?0 : RecentList.length,
                                           itemBuilder: (BuildContext context, int index) => getRoomSalesInfoByID(int.parse(RecentList[index])) == null ? SizedBox() :Padding(
                                             padding: index == 0? EdgeInsets.only(left: 0) : EdgeInsets.only(left: 6),
-                                            child: InkWell(
+                                            child: getRoomSalesInfoByID(int.parse(RecentList[index])).ShortTerm ? InkWell(
                                               onTap: () async {
                                                 await AddRecent(index);
                                                 var t = await ApiProvider().post('/RoomSalesInfo/RoomSelectWithLike', jsonEncode(
@@ -1550,12 +1552,15 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
                                                               nbnb: tmp.ShortTerm,
                                                             )) // SecondRoute를 생성하여 적재
                                                 ).then((value) {
-                                                  if (value == null) {
-                                                    tmp
+                                                  if(null == value) {
+                                                    return;
+                                                  }
+                                                  if (value == false) {
+                                                    getRoomSalesInfoByID(int.parse(RecentList[index]))
                                                         .ChangeLikesWithValue(false);
                                                     return;
                                                   }
-                                                  tmp
+                                                  getRoomSalesInfoByID(int.parse(RecentList[index]))
                                                       .ChangeLikesWithValue(value);
                                                   setState(() {
 
@@ -1571,36 +1576,72 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
                                                 child:
                                                 Column(
                                                   children: [
-                                                    Container(
-                                                      decoration: BoxDecoration(
-                                                        color: Colors.white,
-                                                        borderRadius: new BorderRadius.only(topRight: Radius.circular(4.0),topLeft: Radius.circular(4.0)),
-                                                        boxShadow: [
-                                                          new BoxShadow(
-                                                            color: Colors.grey.withOpacity(0.5),
-                                                            spreadRadius: 0,
-                                                            blurRadius: 1,
-                                                            offset: Offset(1.5, 1.5),
+                                                    Stack(
+                                                      children: [
+                                                        Container(
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.white,
+                                                            borderRadius: new BorderRadius.only(topRight: Radius.circular(4.0),topLeft: Radius.circular(4.0)),
+                                                            boxShadow: [
+                                                              new BoxShadow(
+                                                                color: Colors.grey.withOpacity(0.5),
+                                                                spreadRadius: 0,
+                                                                blurRadius: 1,
+                                                                offset: Offset(1.5, 1.5),
+                                                              ),
+                                                            ],
                                                           ),
-                                                        ],
-                                                      ),
-                                                      width: screenWidth*(140/360),
-                                                      height: screenWidth*(88/360),
-                                                      child: (getRoomSalesInfoByID(int.parse(RecentList[index])).imageUrl1=="BasicImage"||getRoomSalesInfoByID(int.parse(RecentList[index])).imageUrl1==null)
-                                                          ?
-                                                      ClipRRect(
-                                                          borderRadius: new BorderRadius.only(topRight: Radius.circular(4.0),topLeft: Radius.circular(4.0)),
-                                                          child: Container(color:Color(0xffE7E7E7))
-                                                      )
-                                                          :
+                                                          width: screenWidth*(140/360),
+                                                          height: screenWidth*(88/360),
+                                                          child: (getRoomSalesInfoByID(int.parse(RecentList[index])).imageUrl1=="BasicImage"||getRoomSalesInfoByID(int.parse(RecentList[index])).imageUrl1==null)
+                                                              ?
+                                                          ClipRRect(
+                                                              borderRadius: new BorderRadius.only(topRight: Radius.circular(4.0),topLeft: Radius.circular(4.0)),
+                                                              child: Container(color:Color(0xffE7E7E7))
+                                                          )
+                                                              :
 
-                                                      ClipRRect(
-                                                        borderRadius: new BorderRadius.only(topRight: Radius.circular(4.0),topLeft: Radius.circular(4.0)),
-                                                        child: FittedBox(
-                                                          fit: BoxFit.cover,
-                                                          child: getExtendedImage(get_resize_image_name(getRoomSalesInfoByID(int.parse(RecentList[index])).imageUrl1,360), 0,extendedController),
+                                                          ClipRRect(
+                                                            borderRadius: new BorderRadius.only(topRight: Radius.circular(4.0),topLeft: Radius.circular(4.0)),
+                                                            child: FittedBox(
+                                                              fit: BoxFit.cover,
+                                                              child: getExtendedImage(get_resize_image_name(getRoomSalesInfoByID(int.parse(RecentList[index])).imageUrl1,360), 0,extendedController),
+                                                            ),
+                                                          ),
                                                         ),
-                                                      ),
+                                                        Positioned(
+
+                                                          top: screenWidth*(4/360),
+                                                          right:screenWidth*(4/360),
+                                                          child:    GestureDetector(
+
+                                                              onTap: () async {
+                                                                var res = await ApiProvider().post('/RoomSalesInfo/Insert/Like', jsonEncode(
+                                                                    {
+                                                                      "userID" : GlobalProfile.loggedInUser.userID,
+                                                                      "roomSaleID":  getRoomSalesInfoByID(int.parse(RecentList[index])).id,
+                                                                    }
+                                                                ));
+                                                                bool sub = ! getRoomSalesInfoByID(int.parse(RecentList[index])).Likes;
+                                                                getRoomSalesInfoByID(int.parse(RecentList[index])).ChangeLikesWithValue(sub);
+                                                                getRoomSalesInfoByID( getRoomSalesInfoByID(int.parse(RecentList[index])).id).ChangeLikesWithValue(sub);
+                                                                setState(() {
+
+                                                                });
+                                                              },//( mainTransferList[index].Likes == null || !mainTransferList[index].Likes)
+                                                              child:   getRoomSalesInfoByID(int.parse(RecentList[index])).Likes ?
+                                                              SvgPicture.asset(
+                                                                PurpleFilledHeartIcon,
+                                                                width: screenHeight * 0.0375,
+                                                                height: screenHeight * 0.0375,
+                                                                color: kPrimaryColor,
+                                                              )
+                                                                  : SvgPicture.asset(
+                                                                GreyEmptyHeartIcon,
+                                                                width: screenHeight * 0.0375,
+                                                                height: screenHeight * 0.0375,
+                                                              )),)
+                                                      ],
                                                     ),
 
                                                     Container(
@@ -1625,10 +1666,204 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
                                                             crossAxisAlignment: CrossAxisAlignment.start,
                                                             children: [
                                                               Container(height:screenWidth*(8/360)),
-                                                              Text(getRoomSalesInfoByID(int.parse(RecentList[index])).monthlyRentFeesOffer.toString()+"만원 / 일",style: TextStyle(fontWeight: FontWeight.bold,fontSize: screenWidth*(12/360)),),
+                                                              Text(getRoomSalesInfoByID(int.parse(RecentList[index])).DailyRentFeesOffer.toString()+"만원 / 일",style: TextStyle(fontWeight: FontWeight.bold,fontSize: screenWidth*(12/360)),),
 
                                                               Container(height:screenWidth*(2/360)),
                                                               Text((getRoomSalesInfoByID(int.parse(RecentList[index])).tradingState == 1 ? "구축 건물" : "신축 건물") + " / "+ (getRoomSalesInfoByID(int.parse(RecentList[index])).Floor == 1 ? "반지하" : getRoomSalesInfoByID(int.parse(RecentList[index])).Floor == 2 ? "1층" : "2층 이상"),
+                                                                style: TextStyle(color:Color(0xff888888),fontSize: screenWidth*(10/360)),),
+
+                                                            ],)
+                                                        ],
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ) :
+                                            InkWell(
+                                              onTap: () async {
+                                                if(doubleCheck  ==false) {
+                                                  doubleCheck = true;
+
+                                                  var tmp = await ApiProvider().post('/RoomSalesInfo/RoomSelectWithLike', jsonEncode(
+                                                      {
+                                                        "roomID" :  getRoomSalesInfoByID(int.parse(RecentList[index])).id,
+                                                        "userID" : GlobalProfile.loggedInUser.userID
+                                                      }
+                                                  ));
+                                                  RoomSalesInfo tmpRoom = RoomSalesInfo.fromJson(tmp);
+
+                                                  GlobalProfile.detailReviewList.clear();
+                                                  double finalLat;
+                                                  double finalLng;
+                                                  if (null ==
+                                                      tmpRoom.lng ||
+                                                      null == tmpRoom
+                                                          .lat) {
+                                                    var addresses = await Geocoder.google(
+                                                        'AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c')
+                                                        .findAddressesFromQuery(
+                                                        tmpRoom
+                                                            .location);
+                                                    var first = addresses.first;
+                                                    finalLat = first.coordinates.latitude;
+                                                    finalLng = first.coordinates.longitude;
+                                                    tmpRoom.lat = finalLat;
+                                                    tmpRoom.lng = finalLng;
+                                                  } else {
+                                                    finalLat =
+                                                        tmpRoom.lat;
+                                                    finalLng =
+                                                        tmpRoom.lng;
+                                                  }
+
+                                                  var detailReviewList = await ApiProvider()
+                                                      .post('/Review/ReviewListLngLat',
+                                                      jsonEncode({
+                                                        "longitude": finalLng,
+                                                        "latitude": finalLat,
+                                                      }));
+
+                                                  if (detailReviewList != null) {
+                                                    for (int i = 0;
+                                                    i < detailReviewList.length;
+                                                    ++i) {
+                                                      GlobalProfile.detailReviewList.add(
+                                                          DetailReview.fromJson(
+                                                              detailReviewList[i]));
+                                                    }
+                                                  }
+                                                  await AddRecent(
+                                                      tmpRoom.id);
+                                                  var res = await Navigator.push(
+                                                      context, // 기본 파라미터, SecondRoute로 전달
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              DetailedRoomInformation(
+                                                                roomSalesInfo: tmpRoom,
+                                                                nbnb: tmpRoom.ShortTerm,
+                                                              )) // SecondRoute를 생성하여 적재
+                                                  ).then((value) {
+                                                    if(null == value) {
+                                                      return;
+                                                    }
+                                                    if (value == false) {
+                                                      getRoomSalesInfoByID(int.parse(RecentList[index]))
+                                                          .ChangeLikesWithValue(false);
+                                                      return;
+                                                    }
+                                                    getRoomSalesInfoByID(int.parse(RecentList[index]))
+                                                        .ChangeLikesWithValue(value);
+                                                    setState(() {
+
+                                                    });
+                                                    return;
+                                                  });
+                                                }
+                                              },
+                                              child: Container(
+                                                width: screenWidth*(140/360),
+                                                height: screenWidth*(140/360),
+
+
+                                                child:
+                                                Column(
+                                                  children: [
+                                                    Stack(
+                                                      children: [
+                                                        Container(
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.white,
+                                                            borderRadius: new BorderRadius.only(topRight: Radius.circular(4.0),topLeft: Radius.circular(4.0)),
+                                                            boxShadow: [
+                                                              new BoxShadow(
+                                                                color: Colors.grey.withOpacity(0.5),
+                                                                spreadRadius: 0,
+                                                                blurRadius: 1,
+                                                                offset: Offset(1.5, 1.5),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          width: screenWidth*(140/360),
+                                                          height: screenWidth*(88/360),
+                                                          child: ( getRoomSalesInfoByID(int.parse(RecentList[index])).imageUrl1=="BasicImage"|| getRoomSalesInfoByID(int.parse(RecentList[index])).imageUrl1==null)
+                                                              ?
+                                                          ClipRRect(
+                                                              borderRadius: new BorderRadius.only(topRight: Radius.circular(4.0),topLeft: Radius.circular(4.0)),
+                                                              child: Container(color:Color(0xffE7E7E7))
+                                                          )
+                                                              :
+
+                                                          ClipRRect(
+                                                            borderRadius: new BorderRadius.only(topRight: Radius.circular(4.0),topLeft: Radius.circular(4.0)),
+                                                            child: FittedBox(
+                                                              fit: BoxFit.cover,
+                                                              child: getExtendedImage(get_resize_image_name( getRoomSalesInfoByID(int.parse(RecentList[index])).imageUrl1,360), 0,extendedController),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Positioned(
+
+                                                          top: screenWidth*(4/360),
+                                                          right:screenWidth*(4/360),
+                                                          child:    GestureDetector(
+
+                                                              onTap: () async {
+                                                                var res = await ApiProvider().post('/RoomSalesInfo/Insert/Like', jsonEncode(
+                                                                    {
+                                                                      "userID" : GlobalProfile.loggedInUser.userID,
+                                                                      "roomSaleID":  getRoomSalesInfoByID(int.parse(RecentList[index])).id,
+                                                                    }
+                                                                ));
+                                                                bool sub = ! getRoomSalesInfoByID(int.parse(RecentList[index])).Likes;
+                                                                getRoomSalesInfoByID(int.parse(RecentList[index])).ChangeLikesWithValue(sub);
+                                                                getRoomSalesInfoByID( getRoomSalesInfoByID(int.parse(RecentList[index])).id).ChangeLikesWithValue(sub);
+                                                                setState(() {
+
+                                                                });
+                                                              },//( mainTransferList[index].Likes == null || !mainTransferList[index].Likes)
+                                                              child:   getRoomSalesInfoByID(int.parse(RecentList[index])).Likes ?
+                                                              SvgPicture.asset(
+                                                                PurpleFilledHeartIcon,
+                                                                width: screenHeight * 0.0375,
+                                                                height: screenHeight * 0.0375,
+                                                                color: kPrimaryColor,
+                                                              )
+                                                                  : SvgPicture.asset(
+                                                                GreyEmptyHeartIcon,
+                                                                width: screenHeight * 0.0375,
+                                                                height: screenHeight * 0.0375,
+                                                              )),)
+                                                      ],
+                                                    ),
+
+                                                    Container(
+                                                      width: screenWidth*(140/360),
+                                                      height:screenWidth*(52/360),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white,
+                                                        borderRadius: new BorderRadius.only(bottomRight: Radius.circular(4.0),bottomLeft: Radius.circular(4.0)),
+                                                        boxShadow: [
+                                                          new BoxShadow(
+                                                            color: Colors.grey.withOpacity(0.5),
+                                                            spreadRadius: 0,
+                                                            blurRadius: 1,
+                                                            offset: Offset(1.5, 1.5),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      child: Row(
+                                                        children: [
+                                                          Container(width:screenWidth*(8/360)),
+                                                          Column(
+                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            children: [
+                                                              Container(height:screenWidth*(8/360)),
+
+                                                              Text(  getRoomSalesInfoByID(int.parse(RecentList[index])).jeonse == true?  getRoomSalesInfoByID(int.parse(RecentList[index])).depositFeesOffer.toString()+"만원 / 전세" :   getRoomSalesInfoByID(int.parse(RecentList[index])).monthlyRentFeesOffer.toString()+"만원 / 월세",style: TextStyle(fontWeight: FontWeight.bold,fontSize: screenWidth*(12/360)),),
+
+                                                              Container(height:screenWidth*(2/360)),
+                                                              Text(( getRoomSalesInfoByID(int.parse(RecentList[index])).Condition == 1 ? "신축 건물" : "구축 건물") + " / "+ ( getRoomSalesInfoByID(int.parse(RecentList[index])).Floor == 1 ? "반지하" :  getRoomSalesInfoByID(int.parse(RecentList[index])).Floor == 2 ? "1층" : "2층 이상"),
                                                                 style: TextStyle(color:Color(0xff888888),fontSize: screenWidth*(10/360)),),
 
                                                             ],)

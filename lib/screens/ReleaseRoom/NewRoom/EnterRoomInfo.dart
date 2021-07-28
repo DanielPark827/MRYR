@@ -313,6 +313,7 @@ class _EnterRoomInfoState extends State<EnterRoomInfo> {
                       elevation: 0,
                       padding: EdgeInsets.symmetric(horizontal: 0),
                       onPressed: (){
+                        data.transferType;
                         if(index <= data.CompleteCheck) {
                           Navigator.pushNamed(context, '${RouteList[index]}');
                         }
@@ -326,10 +327,11 @@ class _EnterRoomInfoState extends State<EnterRoomInfo> {
                             SizedBox(
                               width: screenWidth*0.03333,
                             ),
+
                             Container(
                               width: screenWidth*(150/360),
                               child: Text(
-                                '${RoomInfoList[index]}',
+                                index ==3 &&  data.transferType != 0 ? "전세금제안" : '${RoomInfoList[index]}' ,
                                 style: TextStyle(
                                     fontSize: screenWidth*0.03888,
                                     color: index <= data.CompleteCheck ? Colors.black : hexToColor('#928E8E')

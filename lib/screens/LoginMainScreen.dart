@@ -553,7 +553,9 @@ Future loginFunc(var id,var password,BuildContext context,/*SocketProvider provi
         }
       }
 
-      GlobalProfile.banner = await ApiProvider().get("/RoomSalesInfo/MonthlyNewBanner");
+      var tmp8 = await ApiProvider().get("/RoomSalesInfo/MonthlyNewBanner");
+      GlobalProfile.banner = (tmp8['ImageUrl1'] as String == ""||tmp8['ImageUrl1'] as String == null) ? "BasicImage" : ApiProvider().getImgUrl+ (tmp8['ImageUrl1'] as String);
+
       chatSum =0;
       //쪽지함 리스트
       chatInfoList.clear();
@@ -621,6 +623,19 @@ Future loginFunc(var id,var password,BuildContext context,/*SocketProvider provi
         for(int i = 0 ; i < list.length; ++i){
           RoomSalesInfo tmp = RoomSalesInfo.fromJsonLittle(list[i]);
           globalRoomSalesInfoList.add(tmp);
+        }
+      }
+
+      var ss = await ApiProvider().post('/RoomSalesInfo/Select/Like', jsonEncode(
+          {
+            "userID" : GlobalProfile.loggedInUser.userID,
+          }
+      ));
+      RoomLikesList.clear();
+      if(ss != null){
+        for(int i = 0 ; i < ss.length; ++i){
+          Map<String, dynamic> t = ss[i]["RoomSalesInfo"];
+          RoomLikesList.add(RoomSalesInfo.fromJsonLittle(t));
         }
       }
 

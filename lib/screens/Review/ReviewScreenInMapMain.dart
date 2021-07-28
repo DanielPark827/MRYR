@@ -912,6 +912,8 @@ class _ReviewScreenInMapMainState extends State<ReviewScreenInMapMain>
                                                               screenWidth * 0.3333333,
                                                           height:
                                                               screenHeight * 0.15625,
+
+                                                          decoration: BoxDecoration(        color: Color(0xffcccccc),  borderRadius: BorderRadius.circular(8),),
                                                           child: ClipRRect(
                                                               borderRadius:
                                                                   new BorderRadius
@@ -960,9 +962,7 @@ class _ReviewScreenInMapMainState extends State<ReviewScreenInMapMain>
                                                                   MainAxisAlignment
                                                                       .start,
                                                               children: [
-                                                                SizedBox(
-                                                                    height:
-                                                                        screenHeight *(4/640)),
+
                                                                 SizedBox(
                                                                   width: screenWidth *
                                                                       (185 / 360),

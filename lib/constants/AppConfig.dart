@@ -476,8 +476,7 @@ void DialogForExitRegistration(BuildContext context, double screenHeight, double
 }
 
 String get_resize_image_name( String image_url, int size) {
-  final String _baseUrl = "https://mryr-development.s3.ap-northeast-2.amazonaws.com/";
-  // final String _baseUrl = "https://mryr-production.s3.ap-northeast-2.amazonaws.com/";
+ final String _baseUrl = ApiProvider().getImgUrl;
 
   var splitUrl = image_url.split("/");
   var resized_image_url1 = splitUrl[0] + "_" + size.toString() + "/" + splitUrl[1];

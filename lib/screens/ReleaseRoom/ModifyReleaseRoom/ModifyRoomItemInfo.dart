@@ -214,14 +214,14 @@ class _ModifyRoomItemInfoState extends State<ModifyRoomItemInfo> {
                               Container(
                                 width: screenWidth*0.2111111111111111,
                                 child: Text(
-                                  '${RoomInfoList[index]}',
+                                  index ==3 &&  data.transferType != 0 ? "전세금제안" : '${RoomInfoList[index]}' ,
                                   style: TextStyle(
                                       fontSize: screenWidth*0.03888,
                                       color: Colors.black
                                   ),
                                 ),
                               ),
-                              Container(
+                              ( index == 3 && (CheckForEdit(data) == false))? Container():Container(
                                 height: screenHeight*0.0296875,
                                 width: screenWidth*0.15,
                                 decoration: BoxDecoration(
@@ -238,7 +238,7 @@ class _ModifyRoomItemInfoState extends State<ModifyRoomItemInfo> {
                                     ),
                                   ),
                                 ),
-                              ),
+                              ) ,
                               Expanded(child: SizedBox()),
                               SvgPicture.asset(
                                 GreyNextIcon,
@@ -260,156 +260,209 @@ class _ModifyRoomItemInfoState extends State<ModifyRoomItemInfo> {
         ),
         bottomNavigationBar: GestureDetector(
           onTap: () async {
-            Function cancelFunc = () {
-              Navigator.pop(context);
-            };
+            if((CheckForEdit(data) == false)){
 
-            Function okFunc = () async {
-              EasyLoading.show(status: "",maskType: EasyLoadingMaskType.black);
-
-              Dio dio = new Dio();
-              dio.options.headers = {
-                'Content-Type': 'application/json',
-                'user': 'codeforgeek',
+            }
+            else {
+              Function cancelFunc = () {
+                Navigator.pop(context);
               };
-              var addresses = await Geocoder.google('AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c').findAddressesFromQuery(data.Address.toString());
-              var first = addresses.first;
-              data;
-              Future.microtask(() async {
-                formData = new FormData.fromMap({
-                  "roomID": widget.roomSalesInfo.id,
-                  "type": data.ItemCategory,
-                  "location": data.Address.toString(),
-                  "locationdetail": data.DetailAddress.toString(),
-                  "jeonse":data.transferType==2? 1:0,
-                  "monthlyrentfees": data.ExistingMonthlyRent,
-                  "depositfees": data.ExistingDeposit,
-                  "managementfees": data.AdministrativeExpenses,
-                  "utilityfees": data.AverageUtilityBill,
-                  "square": data.AreaSize,
-                  "depositfeesoffer": data.depositCheckBox == true ? null : data
-                      .ProposedDeposit,
-                  "monthlyrentfeesoffer": data.ProposedMonthlyRent == -1 ? 0 : data.ProposedMonthlyRent,
-                  "rentstart": data.rentStart,
-                  "rentdone": data.rentDone,
+              Function okFunc = () async {
+                EasyLoading.show(
+                    status: "", maskType: EasyLoadingMaskType.black);
 
-                  "condition":data.condition,
-                  "floor":data.floor.toInt(),
-
-                  "bed": data.OptionList[0],
-                  "desk": data.OptionList[1],
-                  "chair": data.OptionList[2],
-                  "closet": data.OptionList[3],
-                  "aircon": data.OptionList[4],
-                  "induction": data.OptionList[5],
-                  "refrigerator": data.OptionList[6],
-                  "tv": data.OptionList[7],
-                  "doorlock": data.OptionList[8],
-                  "microwave": data.OptionList[9],
-                  "washingmachine": data.OptionList[10],
-                  "hallwaycctv": data.OptionList[11],
-                  "wifi": data.OptionList[12],
-                  "parking":data.OptionList[13],
-                  "information": data.ItemDescription,
-                  "openchat":"",
-                  "longitude": first.coordinates.longitude,
-                  "latitude" : first.coordinates.latitude
-
-                });
-                int len = data.ItemImgList.length;
-                int rand = new Math.Random().nextInt(100000);
-                for (int i = 0; i < len; ++i) { //파일 형식에 대한 처릴 ex) png, jpeg
-                  formData.files.add(MapEntry("img", MultipartFile.fromFileSync(
-                      data.ItemImgList[i].path,
-                      filename: GlobalProfile.loggedInUser.userID.toString()+"_$rand.jpeg")));
-                }
-                var res = await dio.post(ApiProvider().getUrl+"/RoomSalesInfo/TransferUpdate",data: formData).timeout(const Duration(seconds: 17));
-
-                data.ResetEnterRoomInfoProvider();
-                _UserProvider.ResetDummyUser();
-
-
-                mainTransferList.clear();
-                var tmp = await ApiProvider().post('/RoomSalesInfo/MainTransferWithLike', jsonEncode(
-                    {
-                      "userID" : GlobalProfile.loggedInUser.userID
-                    }
-                ));
-                if(null != tmp){
-                  for(int i = 0;i<tmp.length;i++){
-                    mainTransferList.add(RoomSalesInfo.fromJsonLittle(tmp[i]));
+                Dio dio = new Dio();
+                dio.options.headers = {
+                  'Content-Type': 'application/json',
+                  'user': 'codeforgeek',
+                };
+                var addresses = await Geocoder.google(
+                    'AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c')
+                    .findAddressesFromQuery(data.Address.toString());
+                var first = addresses.first;
+                data;
+                Future.microtask(() async {
+                  formData = new FormData.fromMap({
+                    "roomID": widget.roomSalesInfo.id,
+                    "type": data.ItemCategory,
+                    "location": data.Address.toString(),
+                    "locationdetail": data.DetailAddress.toString(),
+                    "jeonse": data.transferType == 1 ? 1 : 0,
+                    "monthlyrentfees": data.ExistingMonthlyRent,
+                    "depositfees": data.ExistingDeposit,
+                    "managementfees": data.AdministrativeExpenses,
+                    "utilityfees": data.AverageUtilityBill,
+                    "square": data.AreaSize,
+                    "depositfeesoffer": data.depositCheckBox == true
+                        ? null
+                        : data
+                        .ProposedDeposit,
+                    "monthlyrentfeesoffer": data.ProposedMonthlyRent == -1
+                        ? 0
+                        : data.ProposedMonthlyRent,
+                    "rentstart": data.rentStart,
+                    "rentdone": data.rentDone,
+                    "condition": data.condition,
+                    "floor": data.floor.toInt(),
+                    "bed": data.OptionList[0],
+                    "desk": data.OptionList[1],
+                    "chair": data.OptionList[2],
+                    "closet": data.OptionList[3],
+                    "aircon": data.OptionList[4],
+                    "induction": data.OptionList[5],
+                    "refrigerator": data.OptionList[6],
+                    "tv": data.OptionList[7],
+                    "doorlock": data.OptionList[8],
+                    "microwave": data.OptionList[9],
+                    "washingmachine": data.OptionList[10],
+                    "hallwaycctv": data.OptionList[11],
+                    "wifi": data.OptionList[12],
+                    "parking": data.OptionList[13],
+                    "information": data.ItemDescription,
+                    "openchat": "",
+                    "longitude": first.coordinates.longitude,
+                    "latitude": first.coordinates.latitude
+                  });
+                  int len = data.ItemImgList.length;
+                  int rand = new Math.Random().nextInt(100000);
+                  for (int i = 0; i < len; ++i) { //파일 형식에 대한 처릴 ex) png, jpeg
+                    formData.files.add(
+                        MapEntry("img", MultipartFile.fromFileSync(
+                            data.ItemImgList[i].path,
+                            filename: GlobalProfile.loggedInUser.userID
+                                .toString() + "_$rand.jpeg")));
                   }
-                }
-                print("mainTransferList[0].Likes.toString() : "+mainTransferList[0].Likes.toString());
+                  var res = await dio.post(
+                      ApiProvider().getUrl + "/RoomSalesInfo/TransferUpdate",
+                      data: formData).timeout(const Duration(seconds: 17));
 
-                //매물 리스트
-                var list = await ApiProvider().post('/RoomSalesInfo/TransferListWithLike', jsonEncode(
-                    {
-                      "userID" : GlobalProfile.loggedInUser.userID,
+                  data.ResetEnterRoomInfoProvider();
+                  _UserProvider.ResetDummyUser();
+
+
+                  mainTransferList.clear();
+                  var tmp = await ApiProvider().post(
+                      '/RoomSalesInfo/MainTransferWithLike', jsonEncode(
+                      {
+                        "userID": GlobalProfile.loggedInUser.userID
+                      }
+                  ));
+                  if (null != tmp) {
+                    for (int i = 0; i < tmp.length; i++) {
+                      mainTransferList.add(
+                          RoomSalesInfo.fromJsonLittle(tmp[i]));
                     }
-                ));
-
-                globalRoomSalesInfoList.clear();
-                if(list != null){
-                  for(int i = 0 ; i < list.length; ++i){
-                    RoomSalesInfo tmp = RoomSalesInfo.fromJsonLittle(list[i]);
-                    globalRoomSalesInfoList.add(tmp);
                   }
-                }
+                  print("mainTransferList[0].Likes.toString() : " +
+                      mainTransferList[0].Likes.toString());
 
-                //자기 매물 정보
-                var list5 = await ApiProvider().post('/RoomSalesInfo/myroomInfo', jsonEncode(
-                    {
-                      "userID" : GlobalProfile.loggedInUser.userID
+                  //매물 리스트
+                  var list = await ApiProvider().post(
+                      '/RoomSalesInfo/TransferListWithLike', jsonEncode(
+                      {
+                        "userID": GlobalProfile.loggedInUser.userID,
+                      }
+                  ));
+
+                  globalRoomSalesInfoList.clear();
+                  if (list != null) {
+                    for (int i = 0; i < list.length; ++i) {
+                      RoomSalesInfo tmp = RoomSalesInfo.fromJsonLittle(list[i]);
+                      globalRoomSalesInfoList.add(tmp);
                     }
-                ));
-
-                GlobalProfile.roomSalesInfoList.clear();
-                if (list5 != null && list5  != false) {
-                  for (int i = 0; i < list5.length; ++i) {
-                    GlobalProfile.roomSalesInfoList.add(RoomSalesInfo.fromJson(list5[i]));
                   }
-                }
 
-                GlobalProfile.listForMe2.clear();
-                var list3 = await ApiProvider().post('/NeedRoomSalesInfo/RecommendUserPerRoom', jsonEncode(
-                    {
-                      "roomID" : widget.roomSalesInfo.id
+
+                  nbnbRoom.clear();
+                  tmp = await ApiProvider().post('/RoomSalesInfo/ShortListWithLike', jsonEncode(
+                      {
+                        "userID" : GlobalProfile.loggedInUser.userID,
+                      }
+                  ));
+                  if(null != tmp){
+                    for(int i = 0;i<tmp.length;i++){
+                      nbnbRoom.add(RoomSalesInfo.fromJsonLittle(tmp[i]));
                     }
-                ));
-                if(list3 != null){
-                  for(int i = 0;i<list3.length;i++){
-                    GlobalProfile.listForMe2.add(NeedRoomInfo.fromJson(list3[i]));
                   }
+
+
+
+                  //메인 단기매물 리스트
+                  mainShortList.clear();
+                  tmp = await ApiProvider().post('/RoomSalesInfo/MainShortWithLike', jsonEncode(
+                      {
+                        "userID" : GlobalProfile.loggedInUser.userID,
+                      }
+                  ));
+                  if(null != tmp){
+                    for(int i = 0;i<tmp.length;i++){
+                      mainShortList.add(RoomSalesInfo.fromJsonLittle(tmp[i]));
+                    }
+                  }
+
+
+
+
+                  //자기 매물 정보
+                  var list5 = await ApiProvider().post(
+                      '/RoomSalesInfo/myroomInfo', jsonEncode(
+                      {
+                        "userID": GlobalProfile.loggedInUser.userID
+                      }
+                  ));
+
+                  GlobalProfile.roomSalesInfoList.clear();
+                  if (list5 != null && list5 != false) {
+                    for (int i = 0; i < list5.length; ++i) {
+                      GlobalProfile.roomSalesInfoList.add(
+                          RoomSalesInfo.fromJson(list5[i]));
+                    }
+                  }
+
+                  GlobalProfile.listForMe2.clear();
+                  var list3 = await ApiProvider().post(
+                      '/NeedRoomSalesInfo/RecommendUserPerRoom', jsonEncode(
+                      {
+                        "roomID": widget.roomSalesInfo.id
+                      }
+                  ));
+                  if (list3 != null) {
+                    for (int i = 0; i < list3.length; i++) {
+                      GlobalProfile.listForMe2.add(
+                          NeedRoomInfo.fromJson(list3[i]));
+                    }
+                  }
+
+                  setState(() {
+
+                  });
+
+                  EasyLoading.dismiss();
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                  Navigator.pop(context);
+                  setState(() {
+
+                  });
                 }
 
-                setState(() {
+                );
+              };
 
-                });
-
-                EasyLoading.dismiss();
-                print("mainTransferList[0].Likes.toString() : "+mainTransferList[0].Likes.toString());
-                Navigator.pop(context);
-                print("mainTransferList[0].Likes.toString() : "+mainTransferList[0].Likes.toString());
-                Navigator.pop(context);
-                print("mainTransferList[0].Likes.toString() : "+mainTransferList[0].Likes.toString());
-                Navigator.pop(context);
-                print("mainTransferList[0].Likes.toString() : "+mainTransferList[0].Likes.toString());
-                setState(() {
-
-                });
-              }
-
-              );
-            };
-
-            OKCancelDialog(context, "수정을 완료하시겠습니까?","매물의 정보가 입력된 정보로\n수정됩니다. 계속하시겠습니까?", "확인", "취소", okFunc, cancelFunc);
-          },
+              OKCancelDialog(
+                  context,
+                  "수정을 완료하시겠습니까?",
+                  "매물의 정보가 입력된 정보로\n수정됩니다. 계속하시겠습니까?",
+                  "확인",
+                  "취소",
+                  okFunc,
+                  cancelFunc);
+            }},
           child: Container(
             height: screenHeight*0.09375,
             width: screenWidth,
             decoration: BoxDecoration(
-                color: kPrimaryColor
+                color: ((CheckForEdit(data) == false))?Color(0xffcccccc):kPrimaryColor
             ),
             child: Align(
               alignment: Alignment.center,
@@ -425,5 +478,32 @@ class _ModifyRoomItemInfoState extends State<ModifyRoomItemInfo> {
           ),
         )
     );
+  }
+}
+bool CheckForEdit(EnterRoomInfoProvider data){
+  if(data.transferType == 0) {
+    if (!data.depositCheckBox &&
+        (data.ProposedDeposit == null || data.ProposedDeposit == -1)) {
+      return false;
+    }
+    else if (!data.monthlyCheckBox && (data.ProposedMonthlyRent == null ||
+        data.ProposedMonthlyRent == -1)) {
+      return false;
+    }
+    else {
+      return true;
+    }
+  }
+
+  else{
+    if(data.depositCheckBox){
+      return false;
+    }
+    else if(data.ProposedDeposit == null || data.ProposedDeposit == -1) {
+      return false;
+    }
+    else {
+      return true;
+    }
   }
 }

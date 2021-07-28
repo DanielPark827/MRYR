@@ -125,7 +125,7 @@ class _ModifyPriceState extends State<ModifyPrice> {
                       Padding(
                         padding: EdgeInsets.only(bottom: screenHeight * (2.5 / 640)),
                         child: Text(
-                          "보증금 제안",
+                          data.transferType == 0 ? "보증금 제안":"전세금 제안",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -136,7 +136,7 @@ class _ModifyPriceState extends State<ModifyPrice> {
                       SizedBox(
                         width: screenWidth * (8 / 360),
                       ),
-                      Container(
+                      data.transferType == 0 ?   Container(
                         width: screenWidth * (20 / 360),
                         child: Checkbox(
                           checkColor: Colors.white,
@@ -156,11 +156,11 @@ class _ModifyPriceState extends State<ModifyPrice> {
                             CheckForProposePrice(data);
                           },
                         ),
-                      ),
+                      ) : Container(),
                       SizedBox(
                         width: screenWidth * (4 / 360),
                       ),
-                      Padding(
+                      data.transferType == 0 ?  Padding(
                         padding: EdgeInsets.only(bottom: screenHeight * (1.5 / 640)),
                         child: Text(
                           "보증금 없음",
@@ -170,7 +170,7 @@ class _ModifyPriceState extends State<ModifyPrice> {
                                   ? kPrimaryColor
                                   : Color(0xff666666)),
                         ),
-                      )
+                      ) : Container()
                     ],
                   ),
                   SizedBox(
@@ -182,7 +182,7 @@ class _ModifyPriceState extends State<ModifyPrice> {
                         width: screenWidth * (12 / 360),
                       ),
                       Text(
-                        "원하시는 보증금을 입력해주세요",
+                        data.transferType == 0 ?  "원하시는 보증금을 입력해주세요" : "원하시는 전세금을 입력해주세요",
                         style: TextStyle(
                           color: depositCheckBox == true
                               ? Color(0xffE9E8E6)
@@ -277,7 +277,7 @@ class _ModifyPriceState extends State<ModifyPrice> {
                   SizedBox(
                     height: screenHeight * (40 / 640),
                   ),
-                  Row(
+                  data.transferType == 1 ? Container():  Row(
                     children: [
                       SizedBox(
                         width: screenWidth * (12 / 360),
@@ -333,10 +333,10 @@ class _ModifyPriceState extends State<ModifyPrice> {
                       )
                     ],
                   ),
-                  SizedBox(
+                  data.transferType == 1 ? Container(): SizedBox(
                     height: screenHeight * (8 / 640),
                   ),
-                  Row(
+                  data.transferType == 1 ? Container(): Row(
                     children: [
                       SizedBox(
                         width: screenWidth * (12 / 360),
@@ -352,10 +352,10 @@ class _ModifyPriceState extends State<ModifyPrice> {
                       ),
                     ],
                   ),
-                  SizedBox(
+                  data.transferType == 1 ? Container():  SizedBox(
                     height: screenHeight * (36 / 640),
                   ),
-                  Row(
+                  data.transferType == 1 ? Container():  Row(
                     children: [
                       Spacer(),
                       monthlyRentCheckBox == true
@@ -429,11 +429,11 @@ class _ModifyPriceState extends State<ModifyPrice> {
                       Spacer(),
                     ],
                   ),
-                  SizedBox(
+                  data.transferType == 1 ? Container(): SizedBox(
                     height: screenHeight * (4 / 640),
                   ),
-                  Divider(thickness: 1, color: hexToColor("#CCCCCC"), indent: screenWidth*0.03333, endIndent: screenWidth*0.03333,),
-                  SizedBox(height: screenHeight*0.05625,),
+                  data.transferType == 1 ? Container():  Divider(thickness: 1, color: hexToColor("#CCCCCC"), indent: screenWidth*0.03333, endIndent: screenWidth*0.03333,),
+                  data.transferType == 1 ? Container():  SizedBox(height: screenHeight*0.05625,),
                 ],
               ),
             ),
@@ -476,6 +476,30 @@ class _ModifyPriceState extends State<ModifyPrice> {
     );
   }
 
+  bool CheckForEdit(EnterRoomInfoProvider data){
+    if(data.transferType == 0) {
+      if (!data.depositCheckBox &&
+          (data.ProposedDeposit == null || data.ProposedDeposit == -1)) {
+        return false;
+      }
+      else if (!data.monthlyCheckBox && (data.ProposedMonthlyRent == null ||
+          data.ProposedMonthlyRent == -1)) {
+        return false;
+      }
+      else {
+        return true;
+      }
+    }
+    else{
+      if (!data.monthlyCheckBox && (data.ProposedMonthlyRent == null ||
+          data.ProposedMonthlyRent == -1)) {
+        return false;
+      }
+      else {
+        return true;
+      }
+    }
+  }
   void CheckForProposePrice(EnterRoomInfoProvider data) {
 
     if(!data.depositCheckBox && (data.ProposedDeposit == null || data.ProposedDeposit == -1)) {

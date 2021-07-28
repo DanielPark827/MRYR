@@ -127,26 +127,33 @@ class _ChatScreenState extends State<ChatScreen>with SingleTickerProviderStateMi
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        //backgroundColor: Colors.white,
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         body: SafeArea(
           child: RefreshIndicator(
             key: refreshKey,
             onRefresh: ()async{
 
-
               chatSum =0;
               //쪽지함 리스트
-              chatInfoList.clear();
-              var ye = await ApiProvider().post('/Note/MessageRoomListTest', jsonEncode({
+              var yes = await ApiProvider().post('/Note/Notyetview', jsonEncode({
                 "userID" : GlobalProfile.loggedInUser.userID
 
               }));
+              chatSum = yes["number"];
 
+              //쪽지함 리스트
+              chatInfoList.clear();
+              var ye = await ApiProvider().post(
+                  '/Note/MessageRoomListTest', jsonEncode({
+                "userID": GlobalProfile.loggedInUser.userID
+              }));
               var tt = ye['result'];
-              if (ye != null && ye  != false) {
-                for (int i = 0; i < ye['result'].length; ++i) {
-                  chatInfoList.add(Chat.fromJson(ye['result'][i],ye['Contents'][i]));
+              if (ye != null && ye != false) {
+                for (int i = 0; i <
+                    ye['result'].length; ++i) {
+                  chatInfoList.add(Chat.fromJson(
+                      ye['result'][i], ye['Contents'][i]));
                 }
               }
 
@@ -181,7 +188,20 @@ class _ChatScreenState extends State<ChatScreen>with SingleTickerProviderStateMi
                   color: Color(0xffeeeeee),
                   height: screenHeight *(4/640),
                 ),
-                Expanded(
+                chatInfoList.length == 0?Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                  Container(height: screenHeight*(180/640),
+                  ),
+
+                    SvgPicture.asset(
+                      'assets/images/Chat/snail.svg',
+                      width: screenWidth * (112 / 360),
+                      height: screenWidth * (110/ 640),
+                    ),
+                    Container(height: screenWidth*(20/360),),
+                    Text("온 쪽지 아직 없어요!", style: TextStyle(fontSize: screenWidth*(12/360),color: Color(0xff888888)),)
+                ],) :  Expanded(
                   child: ListView.builder(
                       controller: _scrollController,
                       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
@@ -263,10 +283,6 @@ class _ChatScreenState extends State<ChatScreen>with SingleTickerProviderStateMi
                                       }
                                     }
                                   }
-
-
-                                  chatSum -= chatInfoList[index].notYetView;
-                                  chatInfoList[index].notYetView = 0;
 
 
                                   Navigator.push(

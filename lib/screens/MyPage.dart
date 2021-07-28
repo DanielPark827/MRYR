@@ -585,7 +585,7 @@ class _MyPageState extends State<MyPage> with SingleTickerProviderStateMixin {
                                                 Function okFunc = () async{
                                                   Navigator.pop(context);
                                                 };
-                                                OKDialog(context,"중복된 아이디 입니다!","다른 아이디를 입력해주세요 :D ","확인", okFunc);
+                                                OKDialog(context,"중복된 닉네임 입니다!","다른 닉네임을 입력해주세요 :D ","확인", okFunc);
 
                                               }
                                               else{

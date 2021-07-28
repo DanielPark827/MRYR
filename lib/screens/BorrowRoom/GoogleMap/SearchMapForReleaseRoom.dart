@@ -122,10 +122,12 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
       list = await ApiProvider().get('/RoomSalesInfo/TransferMarkerList');
     }
     if(null != list) {
-      final BitmapDescriptor markerImage = (Platform.isIOS) ? await BitmapDescriptor.fromAssetImage(
+      final BitmapDescriptor markerImage = (Platform.isIOS) ?
+      await BitmapDescriptor.fromAssetImage(
           ImageConfiguration(devicePixelRatio: 50,
               size: Size(screenWidth*(20/360),screenWidth*(20/360))),
-          'assets/images/logo/test2.png') : await BitmapDescriptor.fromAssetImage(
+          'assets/images/logo/test2.png') :
+      await BitmapDescriptor.fromAssetImage(
           ImageConfiguration(devicePixelRatio: 50,
               size: Size(screenWidth*(20/360),screenWidth*(20/360))),
           'assets/images/logo/testandroid.png');
@@ -183,6 +185,12 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                   for(int i = 0; i < list.length; i++) {
                     var item = RoomSalesInfo.fromJson(list[i]);
                     selectedItemList.add(item);
+                  }
+                  print(item.lng.toString()+"@@@@@@@@@@@@@@@");
+                  print(item.lat.toString()+"@@@@@@@@@@@@@@@");
+                  for(int i = 0; i < list.length; i++) {
+                   print(list[i]);
+                   print('\n');
                   }
                   flagRoomList = !flagRoomList;
                   setState(() {
@@ -1395,8 +1403,8 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                                 children: [
                                                   Text(
 
-                                                  (isShort? selectedItemList[index].DailyRentFeesOffer.toString(): selectedItemList[index].monthlyRentFeesOffer <= 0 ? selectedItemList[index].depositFeesOffer.toString() : selectedItemList[index].monthlyRentFeesOffer.toString()) +
-                                                        (isShort? "만원 / 일" :selectedItemList[index].monthlyRentFeesOffer <= 0 ? '만원 / 전세' : '만원 / 월세'),
+                                                  (selectedItemList[index].ShortTerm? selectedItemList[index].DailyRentFeesOffer.toString(): selectedItemList[index].jeonse  ? selectedItemList[index].depositFeesOffer.toString() : selectedItemList[index].monthlyRentFeesOffer.toString()) +
+                                                        (selectedItemList[index].ShortTerm? "만원 / 일" :selectedItemList[index].jeonse? '만원 / 전세' : '만원 / 월세'),
                                                     style: TextStyle(
                                                         fontSize: screenHeight * 0.025,
                                                         fontWeight: FontWeight.bold),

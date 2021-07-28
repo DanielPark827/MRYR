@@ -793,6 +793,8 @@ class _ItemImgState extends State<ItemImg> {
         ),
         bottomNavigationBar: GestureDetector(
           onTap: ()async{
+
+
               EasyLoading.show(status: "",maskType: EasyLoadingMaskType.black);
               Dio dio = new Dio();
               dio.options.headers = {
@@ -800,8 +802,10 @@ class _ItemImgState extends State<ItemImg> {
                 'user': 'codeforgeek',
               };
 
+
               var addresses = await Geocoder.google('AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c').findAddressesFromQuery(data.Address.toString());
               var first = addresses.first;
+              data.transferType;
 
               Future.microtask(() async {
                 formData = new FormData.fromMap({
@@ -809,7 +813,8 @@ class _ItemImgState extends State<ItemImg> {
                   "type": data.ItemCategory,
                   "location": data.Address.toString(),
                   "locationdetail": data.DetailAddress.toString(),
-                  "jesonse" : data.transferType == 1 ? 0 : 1,
+                  "jeonse" : data.transferType ==0 ?false: true,
+
                   "monthlyrentfees": data.ExistingMonthlyRent,
                   "managementfees": data.AdministrativeExpenses,
                   "depositfees": data.ExistingDeposit,
@@ -846,6 +851,10 @@ class _ItemImgState extends State<ItemImg> {
                   formData.files.add(MapEntry("img", MultipartFile.fromFileSync(data.ItemImgList[i].path, filename: GlobalProfile.loggedInUser.userID.toString()+"_$rand.jpeg")));
                 }
 
+
+                data.transferType;
+                formData;
+
                 Student_formdata = new FormData.fromMap({
                   "userID": GlobalProfile.loggedInUser.userID,
                 });
@@ -855,6 +864,8 @@ class _ItemImgState extends State<ItemImg> {
                   Student_formdata.files.add(MapEntry("img", MultipartFile.fromFileSync(f.path, filename: GlobalProfile.loggedInUser.userID.toString()+"_image_$rand.jpeg")));
                   var res2 = await dio.post(ApiProvider().getUrl+"/Information/S3addProfileAuthImg",  data: Student_formdata).timeout(const Duration(seconds: 17));
                 }
+                formData;
+
 
                 var res = await dio.post(ApiProvider().getUrl+"/RoomsalesInfo/TransferInsert",  data: formData).timeout(const Duration(seconds: 17));
 
@@ -870,6 +881,8 @@ class _ItemImgState extends State<ItemImg> {
 
                 Map<String, dynamic> dummyItem = list[0];
                 ModelModifyReleaseRoom dummyRoom = ModelModifyReleaseRoom.fromJson(dummyItem);
+
+
 
                 GlobalProfile.roomSalesInfo = new RoomSalesInfo(
                   id:dummyRoom.id,

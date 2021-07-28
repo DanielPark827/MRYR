@@ -6,6 +6,7 @@ import 'package:mryr/constants/AppConfig.dart';
 import 'package:mryr/constants/GlobalAsset.dart';
 import 'package:mryr/model/NavigationNumProvider.dart';
 import 'package:mryr/network/ApiProvider.dart';
+import 'package:mryr/screens/BorrowRoom/model/ModelRoomLikes.dart';
 import 'package:mryr/screens/MoreScreen/TradingState.dart';
 import 'package:mryr/screens/MyPage.dart';
 import 'package:mryr/screens/NeedRoomProposalListScreen.dart';
@@ -272,7 +273,45 @@ class _MoreScreenState extends State<MoreScreen>with SingleTickerProviderStateMi
                             color: Color(0xffBEBEBE),
                           ),
                           InkWell(
-                            onTap: () {
+                            onTap: ()async {
+                              var list = await ApiProvider().post('/RoomSalesInfo/Select/Like', jsonEncode(
+                                  {
+                                    "userID" : GlobalProfile.loggedInUser.userID,
+                                  }
+                              ));
+
+                              if(null != list) {
+                                GlobalProfile.RoomLikesList.clear();
+                                GlobalProfile.RoomLikesIdList.clear();
+                                for (int i = 0; i < list.length; ++i) {
+                                  Map<String, dynamic> data = list[i];
+
+                                  ModelRoomLikes item = ModelRoomLikes.fromJson(data);
+                                  GlobalProfile.RoomLikesIdList.add(item.RoomSaleID);
+                                  GlobalProfile.RoomLikesList.add(item);
+                                  //await NotiDBHelper().createData(noti);
+                                }
+                                for (int i = 0; i < globalRoomSalesInfoList.length; i++) {
+                                  if (GlobalProfile.RoomLikesIdList.contains(globalRoomSalesInfoList[i].id)) {
+                                    globalRoomSalesInfoList[i].ChangeLikesWithValue(true);
+                                  }
+                                }
+
+                                print('sdfs5');
+                              }
+                              var ss = await ApiProvider().post('/RoomSalesInfo/Select/Like', jsonEncode(
+                                  {
+                                    "userID" : GlobalProfile.loggedInUser.userID,
+                                  }
+                              ));
+                              RoomLikesList.clear();
+                              if(ss != null){
+                                for(int i = 0 ; i < ss.length; ++i){
+                                  Map<String, dynamic> t = ss[i]["RoomSalesInfo"];
+                                  RoomLikesList.add(RoomSalesInfo.fromJsonLittle(t));
+                                }
+                              }
+
                               Navigator.push(
                                   context, // 기본 파라미터, SecondRoute로 전달
                                   MaterialPageRoute(

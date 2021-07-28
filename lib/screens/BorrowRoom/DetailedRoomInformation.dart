@@ -771,8 +771,9 @@ class _DetailedRoomInformationState extends State<DetailedRoomInformation> with 
                 SizedBox(height: screenHeight*0.03125,),
                 Text(
                   widget.nbnb ==true? widget.roomSalesInfo.DailyRentFeesOffer.toString() + '만원 / 일' :
-                  widget.roomSalesInfo.monthlyRentFeesOffer <= 0 ? widget.roomSalesInfo.depositFeesOffer.toString() + '만원 / 전세' :
-                  widget.roomSalesInfo.monthlyRentFeesOffer.toString() + '만원 / 월세',
+
+                  widget.roomSalesInfo.jeonse == true?    widget.roomSalesInfo.depositFeesOffer.toString()+"만원 / 전세" :   widget.roomSalesInfo.monthlyRentFeesOffer.toString()+"만원 / 월세",
+
                   style: TextStyle(
                     fontSize:screenWidth*( 20/360),
                     fontWeight: FontWeight.bold,
@@ -1437,7 +1438,7 @@ class _DetailedRoomInformationState extends State<DetailedRoomInformation> with 
                     backgroundColor: Colors.white,
                     children: <Widget>[
                       Divider(height: 3,color: OptionDivideLineColor,),
-                      Container(
+                      widget.roomSalesInfo.jeonse == true?Container(): Container(
                         height: screenHeight*0.05,
                         width: screenWidth,
                         child: Padding(
@@ -1461,7 +1462,7 @@ class _DetailedRoomInformationState extends State<DetailedRoomInformation> with 
                           ),
                         ),
                       ),
-                      Divider(height: 3,color: OptionDivideLineColor,),
+                      widget.roomSalesInfo.jeonse == true?Container(): Divider(height: 3,color: OptionDivideLineColor,),
                       Container(
                         height: screenHeight*0.05,
                         width: screenWidth,
@@ -1471,7 +1472,8 @@ class _DetailedRoomInformationState extends State<DetailedRoomInformation> with 
                             children: [
                               SizedBox(
                                 width: screenWidth*0.24444,
-                                child: Text('기존 보증금',
+                                child: Text(
+                                  widget.roomSalesInfo.jeonse == false?"기존 보증금": '기존 전세',
                                   style: TextStyle(
                                     color: hexToColor("#888888"),
                                     fontSize: screenWidth*OptionFontSize,
@@ -1530,7 +1532,7 @@ class _DetailedRoomInformationState extends State<DetailedRoomInformation> with 
                     backgroundColor: Colors.white,
                     children: <Widget>[
                       Divider(height: 3,color: OptionDivideLineColor,),
-                      Container(
+                      widget.roomSalesInfo.jeonse == false?  Container(
                         height: screenHeight*0.05,
                         width: screenWidth,
                         child: Padding(
@@ -1553,8 +1555,8 @@ class _DetailedRoomInformationState extends State<DetailedRoomInformation> with 
                             ],
                           ),
                         ),
-                      ),
-                      Divider(height: 3,color: OptionDivideLineColor,),
+                      ):Container(),
+                      widget.roomSalesInfo.jeonse == false? Divider(height: 3,color: OptionDivideLineColor,) : Container(),
                       Container(
                         height: screenHeight*0.05,
                         width: screenWidth,
@@ -1564,7 +1566,7 @@ class _DetailedRoomInformationState extends State<DetailedRoomInformation> with 
                             children: [
                               SizedBox(
                                 width: screenWidth*0.24444,
-                                child: Text('보증금',
+                                child: Text(  widget.roomSalesInfo.jeonse == false?'보증금' : "전세",
                                   style: TextStyle(
                                     color: hexToColor("#888888"),
                                     fontSize: screenWidth * OptionFontSize,
@@ -2009,10 +2011,12 @@ class _DetailedRoomInformationState extends State<DetailedRoomInformation> with 
                               onMapCreated: (GoogleMapController controller) async {
                                 _controller.complete(controller);
                                 //(Platform.isIOS)
-                                markerIcon = (Platform.isIOS) ? await BitmapDescriptor.fromAssetImage(
+                                markerIcon = (Platform.isIOS) ?
+                                await BitmapDescriptor.fromAssetImage(
                                     ImageConfiguration(devicePixelRatio: 50,
                                         size: Size(screenWidth*(20/360),screenWidth*(20/360))),
-                                    'assets/images/logo/currentMarker.png') : await BitmapDescriptor.fromAssetImage(
+                                    'assets/images/logo/currentMarker.png') :
+                                await BitmapDescriptor.fromAssetImage(
                                     ImageConfiguration(devicePixelRatio: 50,
                                         size: Size(screenWidth*(20/360),screenWidth*(20/360))),
                                     'assets/images/logo/AndcurrentMarker.png');

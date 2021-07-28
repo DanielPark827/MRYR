@@ -36,20 +36,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.6.5"
-  assets_audio_player:
-    dependency: "direct main"
-    description:
-      name: assets_audio_player
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.15"
-  assets_audio_player_web:
-    dependency: transitive
-    description:
-      name: assets_audio_player_web
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.0.15"
   async:
     dependency: "direct main"
     description:
@@ -372,6 +358,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.9"
+  flutter_ringtone_player:
+    dependency: "direct main"
+    description:
+      name: flutter_ringtone_player
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0"
   flutter_spinkit:
     dependency: "direct main"
     description:

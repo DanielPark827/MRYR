@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -143,6 +145,47 @@ class _PutItemInfoState extends State<PutItemInfo> {
                       Spacer(),
                       InkWell(
                         onTap: () {
+                          data.changeTransferType(0);
+                          CheckForPutItemInfo(data);
+
+
+                        },
+                        child: Container(
+                          width: screenWidth * (164 / 360),
+                          height: screenHeight * (48 / 640),
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 1,
+                                blurRadius: 2,
+                                offset: Offset(1, 1), // changes position of shadow
+                              ),
+                            ],
+                            border: Border.all(
+                              color: data.transferType == 0? kPrimaryColor : Colors.white,
+                              width: 2.0,
+                            ),
+                            borderRadius: BorderRadius.all(Radius.circular(
+                                5.0) //                 <--- border radius here
+                            ),
+                            color: Color(0xffffffff),
+                          ),
+                          child: Center(
+                            child: Text(
+                              "월세",
+                              style: TextStyle(
+                                  fontSize: screenHeight * (12 / 640),
+                                  color: data.transferType == 0
+                                      ? kPrimaryColor
+                                      : Color(0xff222222)),
+                            ),
+                          ),
+                        ),
+                      ),
+                      widthPadding(screenWidth,8),
+                      InkWell(
+                        onTap: () {
                           data.changeTransferType(1);
                           CheckForPutItemInfo(data);
                         },
@@ -151,6 +194,7 @@ class _PutItemInfoState extends State<PutItemInfo> {
                           height: screenHeight * (48 / 640),
                           decoration: BoxDecoration(
                             boxShadow: [
+
                               BoxShadow(
                                 color: Colors.grey.withOpacity(0.5),
                                 spreadRadius: 1,
@@ -169,48 +213,10 @@ class _PutItemInfoState extends State<PutItemInfo> {
                           ),
                           child: Center(
                             child: Text(
-                              "월세",
-                              style: TextStyle(
-                                  fontSize: screenHeight * (12 / 640),
-                                  color: data.transferType == 1
-                                      ? kPrimaryColor
-                                      : Color(0xff222222)),
-                            ),
-                          ),
-                        ),
-                      ),
-                      widthPadding(screenWidth,8),
-                      InkWell(
-                        onTap: () {
-                          data.changeTransferType(2);
-                        },
-                        child: Container(
-                          width: screenWidth * (164 / 360),
-                          height: screenHeight * (48 / 640),
-                          decoration: BoxDecoration(
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.5),
-                                spreadRadius: 1,
-                                blurRadius: 2,
-                                offset: Offset(1, 1), // changes position of shadow
-                              ),
-                            ],
-                            border: Border.all(
-                              color: data.transferType == 2? kPrimaryColor : Colors.white,
-                              width: 2.0,
-                            ),
-                            borderRadius: BorderRadius.all(Radius.circular(
-                                5.0) //                 <--- border radius here
-                            ),
-                            color: Color(0xffffffff),
-                          ),
-                          child: Center(
-                            child: Text(
                               "전세",
                               style: TextStyle(
                                   fontSize: screenHeight * (12 / 640),
-                                  color: data.transferType == 2
+                                  color: data.transferType == 1
                                       ? kPrimaryColor
                                       : Color(0xff222222)),
                             ),
@@ -243,30 +249,35 @@ class _PutItemInfoState extends State<PutItemInfo> {
                     ),
                   ),
                   SizedBox(height: screenHeight*0.05625,),
-                  Container(
-                    height: 1,
-                    color: Color(0xfff8f8f8),
-                  ),
+
                   Container(
                     height: screenHeight * (230 / 640),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Spacer(),
+                        Container(
+                          height: 1,
+                          color: Color(0xfff8f8f8),
+                        ),
+                       Spacer(),
+                        data.transferType == 0?
                         Row(
                           children: [
                             SizedBox(
                               width: screenWidth * (12 / 360),
                             ),
-                            Container(
-                                width: screenWidth * (124 / 360),
-                                child: Text(
-                                  "기존 월세",
-                                  style: TextStyle(
-                                      fontSize: screenWidth * (16 / 360),
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xff222222)),
-                                )),
+                            Padding(
+                              padding: Platform.isIOS? EdgeInsets.only(bottom:4.0):EdgeInsets.only(top:0.0),
+                              child: Container(
+                                  width: screenWidth * (124 / 360),
+                                  child: Text(
+                                    "기존 월세",
+                                    style: TextStyle(
+                                        fontSize: screenWidth * (16 / 360),
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xff222222)),
+                                  )),
+                            ),
                             Container(
                                 width: screenWidth * (80 / 360),
                                 child: TextField(
@@ -309,13 +320,13 @@ class _PutItemInfoState extends State<PutItemInfo> {
                                   fontWeight: FontWeight.bold),
                             ),
                           ],
-                        ),
-                        Spacer(),
-                        Container(
+                        ) : Container(),
+                        data.transferType == 0? Spacer() : Container(),
+                        data.transferType == 0? Spacer() :Container(),
+                        data.transferType == 0?  Container(
                           height: 1,
                           color: Color(0xfff8f8f8),
-                        ),
-                        Spacer(),
+                        ):Container(),
                         Row(
                           children: [
                             SizedBox(
@@ -324,47 +335,50 @@ class _PutItemInfoState extends State<PutItemInfo> {
                             Container(
                                 width: screenWidth * (124 / 360),
                                 child: Text(
-                                  "기존 보증금",
+                                  data.transferType == 0? "기존 보증금": "기존 전세",
                                   style: TextStyle(
                                       fontSize: screenWidth * (16 / 360),
                                       fontWeight: FontWeight.bold,
                                       color: Color(0xff222222)),
                                 )),
-                            Container(
-                                width: screenWidth * (80 / 360),
-                                child: TextField(
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: screenWidth * (14 / 360),
-                                    color: hexToColor("#222222"),
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  inputFormatters: <TextInputFormatter> [
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                  keyboardType: TextInputType.number,
-                                  focusNode: _nodeText2,
-                                  controller: originalDeposit,
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.symmetric(vertical: 5),
-                                    hintText: '200',
-                                    hintStyle: TextStyle(
+                            Padding(
+                              padding: Platform.isIOS? EdgeInsets.only(bottom:4.0):EdgeInsets.only(top:0.0),
+                              child: Container(
+                                  width: screenWidth * (80 / 360),
+                                  child: TextField(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: screenWidth * (16 / 360),
-                                      color: hexToColor("#cccccc"),
+                                      fontSize: screenWidth * (14 / 360),
+                                      color: hexToColor("#222222"),
                                     ),
-                                    border: InputBorder.none,
-                                    focusedBorder: InputBorder.none,
-                                  ),
-                                  onChanged: (text){
-                                    if(text == "") {
-                                      data.ChangeExistingDeposit(-1);
-                                    } else {
-                                      data.ChangeExistingDeposit(int.parse(text));
-                                    }
-                                    CheckForPutItemInfo(data);
-                                  },
-                                )),
+                                    textAlign: TextAlign.center,
+                                    inputFormatters: <TextInputFormatter> [
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    keyboardType: TextInputType.number,
+                                    focusNode: _nodeText2,
+                                    controller: originalDeposit,
+                                    decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.symmetric(vertical: 5),
+                                      hintText: '200',
+                                      hintStyle: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: screenWidth * (16 / 360),
+                                        color: hexToColor("#cccccc"),
+                                      ),
+                                      border: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                    ),
+                                    onChanged: (text){
+                                      if(text == "") {
+                                        data.ChangeExistingDeposit(-1);
+                                      } else {
+                                        data.ChangeExistingDeposit(int.parse(text));
+                                      }
+                                      CheckForPutItemInfo(data);
+                                    },
+                                  )),
+                            ),
                             Text(
                               "만원",
                               style: TextStyle(
@@ -393,41 +407,44 @@ class _PutItemInfoState extends State<PutItemInfo> {
                                       fontWeight: FontWeight.bold,
                                       color: Color(0xff222222)),
                                 )),
-                            Container(
-                                width: screenWidth * (80 / 360),
-                                child: TextField(
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: screenWidth * (14 / 360),
-                                    color: hexToColor("#222222"),
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  inputFormatters: <TextInputFormatter> [
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                  keyboardType: TextInputType.number,
-                                  focusNode: _nodeText3,
-                                  controller: maintenanceCost,
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.symmetric(vertical: 5),
-                                    hintText: '5',
-                                    hintStyle: TextStyle(
+                            Padding(
+                              padding: Platform.isIOS? EdgeInsets.only(bottom:4.0):EdgeInsets.only(top:0.0),
+                              child: Container(
+                                  width: screenWidth * (80 / 360),
+                                  child: TextField(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: screenWidth * (16 / 360),
-                                      color: hexToColor("#cccccc"),
+                                      fontSize: screenWidth * (14 / 360),
+                                      color: hexToColor("#222222"),
                                     ),
-                                    border: InputBorder.none,
-                                    focusedBorder: InputBorder.none,
-                                  ),
-                                  onChanged: (text){
-                                    if(text == "") {
-                                      data.ChangeAdministrativeExpenses(-1);
-                                    } else {
-                                      data.ChangeAdministrativeExpenses(int.parse(text));
-                                    }
-                                    CheckForPutItemInfo(data);
-                                  },
-                                )),
+                                    textAlign: TextAlign.center,
+                                    inputFormatters: <TextInputFormatter> [
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    keyboardType: TextInputType.number,
+                                    focusNode: _nodeText3,
+                                    controller: maintenanceCost,
+                                    decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.symmetric(vertical: 5),
+                                      hintText: '5',
+                                      hintStyle: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: screenWidth * (16 / 360),
+                                        color: hexToColor("#cccccc"),
+                                      ),
+                                      border: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                    ),
+                                    onChanged: (text){
+                                      if(text == "") {
+                                        data.ChangeAdministrativeExpenses(-1);
+                                      } else {
+                                        data.ChangeAdministrativeExpenses(int.parse(text));
+                                      }
+                                      CheckForPutItemInfo(data);
+                                    },
+                                  )),
+                            ),
                             Text(
                               "만원",
                               style: TextStyle(
@@ -456,41 +473,44 @@ class _PutItemInfoState extends State<PutItemInfo> {
                                       fontWeight: FontWeight.bold,
                                       color: Color(0xff222222)),
                                 )),
-                            Container(
-                                width: screenWidth * (80 / 360),
-                                child: TextField(
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: screenWidth * (14 / 360),
-                                    color: hexToColor("#222222"),
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  inputFormatters: <TextInputFormatter> [
-                                    FilteringTextInputFormatter.digitsOnly
-                                  ],
-                                  keyboardType: TextInputType.number,
-                                  focusNode: _nodeText4,
-                                  controller: averageUtilityCharge,
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.symmetric(vertical: 5),
-                                    hintText: '4',
-                                    hintStyle: TextStyle(
+                            Padding(
+                              padding: Platform.isIOS? EdgeInsets.only(bottom:4.0):EdgeInsets.only(top:0.0),
+                              child: Container(
+                                  width: screenWidth * (80 / 360),
+                                  child: TextField(
+                                    style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: screenWidth * (16 / 360),
-                                      color: hexToColor("#cccccc"),
+                                      fontSize: screenWidth * (14 / 360),
+                                      color: hexToColor("#222222"),
                                     ),
-                                    border: InputBorder.none,
-                                    focusedBorder: InputBorder.none,
-                                  ),
-                                  onChanged: (text){
-                                    if(text == "") {
-                                      data.ChangeAverageUtilityBill(-1);
-                                    } else {
-                                      data.ChangeAverageUtilityBill(int.parse(text));
-                                    }
-                                    CheckForPutItemInfo(data);
-                                  },
-                                )),
+                                    textAlign: TextAlign.center,
+                                    inputFormatters: <TextInputFormatter> [
+                                      FilteringTextInputFormatter.digitsOnly
+                                    ],
+                                    keyboardType: TextInputType.number,
+                                    focusNode: _nodeText4,
+                                    controller: averageUtilityCharge,
+                                    decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.symmetric(vertical: 5),
+                                      hintText: '4',
+                                      hintStyle: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: screenWidth * (16 / 360),
+                                        color: hexToColor("#cccccc"),
+                                      ),
+                                      border: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                    ),
+                                    onChanged: (text){
+                                      if(text == "") {
+                                        data.ChangeAverageUtilityBill(-1);
+                                      } else {
+                                        data.ChangeAverageUtilityBill(int.parse(text));
+                                      }
+                                      CheckForPutItemInfo(data);
+                                    },
+                                  )),
+                            ),
                             Text(
                               "만원",
                               style: TextStyle(
@@ -498,6 +518,11 @@ class _PutItemInfoState extends State<PutItemInfo> {
                                   fontWeight: FontWeight.bold),
                             ),
                           ],
+                        ),
+                        Spacer(),
+                        Container(
+                          height: 1,
+                          color: Color(0xfff8f8f8),
                         ),
                         Spacer(),
                         Row(
@@ -547,6 +572,9 @@ class _PutItemInfoState extends State<PutItemInfo> {
                                       data.ChangeAreaSize(int.parse(text));
                                     }
                                     CheckForPutItemInfo(data);
+                                    setState(() {
+
+                                    });
                                   },
                                 )),
                             Text(
@@ -557,6 +585,49 @@ class _PutItemInfoState extends State<PutItemInfo> {
                             ),
                           ],
                         ),
+                        Spacer(),
+                        Container(
+                          height: 1,
+                          color: Color(0xfff8f8f8),
+                        ),
+                        data.transferType == 1? Spacer():Container(),
+                        data.transferType == 1?Row(
+                          children: [
+                            Padding(
+                              padding: Platform.isIOS? EdgeInsets.only(bottom:4.0):EdgeInsets.only(top:0.0),
+                              child: Container(
+                                  width: screenWidth * (80 / 360),
+                                  child: TextField(
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: screenWidth * (14 / 360),
+                                      color: Colors.transparent,
+                                    ),
+                                    textAlign: TextAlign.center,
+
+                                    decoration: InputDecoration(
+                                      contentPadding: EdgeInsets.symmetric(vertical: 5),
+                                      hintText: '200',
+                                      hintStyle: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: screenWidth * (16 / 360),
+                                        color: Colors.transparent,
+                                      ),
+                                      border: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                    ),
+                                    onChanged: (text){
+
+                                    },
+                                  )),
+                            ),
+                          ],
+                        ) :Container(),
+                        data.transferType == 1? Spacer():Container(),
+                        data.transferType == 1?Container(
+                          height: 1,
+                          color: Color(0xfff8f8f8),
+                        ):Container(),
                       ],
                     ),
                   ),
@@ -604,11 +675,29 @@ class _PutItemInfoState extends State<PutItemInfo> {
   }
 
   void CheckForPutItemInfo(EnterRoomInfoProvider data) {
-    if(data.ExistingMonthlyRent != null && data.ExistingDeposit != null && data.AdministrativeExpenses != null && data.AverageUtilityBill != null&& data.AreaSize != null &&
-        data.ExistingMonthlyRent != -1 && data.ExistingDeposit != -1 && data.AdministrativeExpenses != -1 && data.AverageUtilityBill != -1&& data.AreaSize != -1 && data.transferType != 0) {
-      data.ChangeCheckComplete(true);
-    } else {
-      data.ChangeCheckComplete(false);
+    if(data.transferType == 0) {
+      if (data.ExistingMonthlyRent != null && data.ExistingDeposit != null &&
+          data.AdministrativeExpenses != null &&
+          data.AverageUtilityBill != null && data.AreaSize != null &&
+          data.ExistingMonthlyRent != -1 && data.ExistingDeposit != -1 &&
+          data.AdministrativeExpenses != -1 && data.AverageUtilityBill != -1 &&
+          data.AreaSize != -1 ) {
+        data.ChangeCheckComplete(true);
+      } else {
+        data.ChangeCheckComplete(false);
+      }
+    }
+    else{
+      if (data.ExistingDeposit != null &&
+          data.AdministrativeExpenses != null &&
+          data.AverageUtilityBill != null && data.AreaSize != null &&
+          data.ExistingMonthlyRent != -1 && data.ExistingDeposit != -1 &&
+          data.AdministrativeExpenses != -1 && data.AverageUtilityBill != -1 &&
+          data.AreaSize != -1 ) {
+        data.ChangeCheckComplete(true);
+      } else {
+        data.ChangeCheckComplete(false);
+      }
     }
   }
 }

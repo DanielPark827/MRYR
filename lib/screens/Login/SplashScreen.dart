@@ -191,7 +191,8 @@ class _SplashScreenState extends State<SplashScreen> {
                   }
                 }
 
-                GlobalProfile.banner = await ApiProvider().get("/RoomSalesInfo/MonthlyNewBanner");
+                var tmp8 = await ApiProvider().get("/RoomSalesInfo/MonthlyNewBanner");
+                GlobalProfile.banner = (tmp8['ImageUrl1'] as String == ""||tmp8['ImageUrl1'] as String == null) ? "BasicImage" : ApiProvider().getImgUrl+ (tmp8['ImageUrl1'] as String);
                 chatSum =0;
                 //쪽지함 리스트
                 chatInfoList.clear();
@@ -262,6 +263,20 @@ class _SplashScreenState extends State<SplashScreen> {
                   }
                 }
 
+                var ss = await ApiProvider().post('/RoomSalesInfo/Select/Like', jsonEncode(
+                    {
+                      "userID" : GlobalProfile.loggedInUser.userID,
+                    }
+                ));
+                RoomLikesList.clear();
+                if(ss != null){
+                  for(int i = 0 ; i < ss.length; ++i){
+                    Map<String, dynamic> t = ss[i]["RoomSalesInfo"];
+                    RoomLikesList.add(RoomSalesInfo.fromJsonLittle(t));
+                  }
+                }
+
+
                 //내방니방직영
                 nbnbRoom.clear();
                 var tmp = await ApiProvider().post('/RoomSalesInfo/ShortListWithLike', jsonEncode(
@@ -274,18 +289,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     nbnbRoom.add(RoomSalesInfo.fromJsonLittle(tmp[i]));
                   }
                 }
-                // for(int i = 0;i<nbnbRoom.length;i++){
-                //   if (null == nbnbRoom[i].lng ||
-                //       null == nbnbRoom[i].lat) {
-                //     var addresses = await Geocoder.google('AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c').findAddressesFromQuery(nbnbRoom[i].location);
-                //     var first = addresses.first;
-                //
-                //     nbnbRoom[i].lng =
-                //         first.coordinates.latitude;
-                //     nbnbRoom[i].lat =
-                //         first.coordinates.longitude;
-                //   }
-                // }
+
 
 
                 //메인 단기매물 리스트
@@ -314,6 +318,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     mainTransferList.add(RoomSalesInfo.fromJsonLittle(tmp[i]));
                   }
                 }
+
 
                 //메인 리뷰 리스트
                 GlobalProfile.reviewForMain.clear();

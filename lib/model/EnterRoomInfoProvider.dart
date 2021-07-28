@@ -12,7 +12,7 @@ import 'package:image/image.dart' as Img;
 class EnterRoomInfoProvider with ChangeNotifier {
   int curStep = 0;
 
-  int transferType = 0; //1 : 월세, 2 : 전세
+  int transferType = 0; //0: 월세, 1 : 전세
   int CompleteCheck = 0;
   int ItemCategory = null;
 
@@ -42,7 +42,7 @@ class EnterRoomInfoProvider with ChangeNotifier {
   bool jeonse = false;
 
 
-  List<bool> OptionList = [false,false,false,false,false,false,false,false,false,false,false,false,false,false];
+  List<bool> OptionList = [false,false,false,false,false,false,false,false,false,false,false,false,false,false,false];
   List<File> ItemImgList= [];
 
   List<bool> FlagEnterRoomInfo = [false,false,false,false,false,false,false,false,false,false];
@@ -77,7 +77,7 @@ class EnterRoomInfoProvider with ChangeNotifier {
     rentStart = data.termOfLeaseMin;
     rentDone = data.termOfLeaseMax;
 
-    transferType = data.jeonse ? 2 : 1;
+    transferType = data.jeonse ? 1 : 0;
 
     if(data.imageUrl1 != null) {
       var response = await get(get_resize_image_name(data.imageUrl1,360));
@@ -214,7 +214,7 @@ class EnterRoomInfoProvider with ChangeNotifier {
 
     CheckCompleteFlag = false;
 
-     OptionList = [false,false,false,false,false,false,false,false,false,false,false,false,false];
+     OptionList = [false,false,false,false,false,false,false,false,false,false,false,false,false,false,false];
      ItemImgList= [];
      // openchat = null;
 

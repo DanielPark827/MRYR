@@ -14,6 +14,7 @@ import 'package:mryr/widget/NotificationScreen/NotiDatabase.dart';
 
 const int NOTI_EVENT_REQUIRE_ROOM = 1;
 const int NOTI_EVENT_FIND_ROOM = 2;
+const int NOTI_EVENT_MESSAGE_SEND = 3;
 
 class NotificationModel {
   int id;
@@ -130,6 +131,9 @@ int GetType(String typeStr) {
       break;
     case "FIND_ROOM":
       type = NOTI_EVENT_FIND_ROOM;
+      break;
+    case "MESSAGE_SEND":
+      type = NOTI_EVENT_MESSAGE_SEND;
       break;
   }
   return type;

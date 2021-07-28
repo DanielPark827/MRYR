@@ -171,6 +171,8 @@ class RoomSalesInfo with ChangeNotifier {
 
   List<RoomSalesLikes> isLikes;
 
+  RoomSalesInfo Likeditem;
+
 
   bool Likes = false;
 
@@ -196,7 +198,7 @@ class RoomSalesInfo with ChangeNotifier {
     this.doorLock, this.tv,this.microwave, this.washingMachine, this.hallwayCCTV, this.wifi,
     this.information,this.imageUrl1,this.imageUrl2,this.imageUrl3,this.imageUrl4,this.imageUrl5,this.tradingState,
     this.createdAt,this.updatedAt,this.chatRoomUserList, this.openchat,this.lng,this.lat,this.DailyRentFeesOffer,this.Floor,this.ShortTerm,this.WeeklyRentFeesOffer,this.jeonse,this.isLikes
-    ,this.Likes,this.parking,this.Condition
+    ,this.Likes,this.parking,this.Condition,this.Likeditem
   });
 
   factory RoomSalesInfo.fromJson(Map<String, dynamic> json) {
@@ -269,8 +271,11 @@ class RoomSalesInfo with ChangeNotifier {
       Condition: json["Condition"] as int,
       Floor: json["Floor"] as int,
       updatedAt:  replaceLocalDate(json["updatedAt"] as String),//
+      ShortTerm: json["ShortTerm"] as bool,
       isLikes: json['RoomSalesLikes'] == null ? null : (json['RoomSalesLikes'] as List).map((e) => RoomSalesLikes.fromJson(e)).toList(),
       Likes: json['RoomSalesLikes'] == null ? null : (json['RoomSalesLikes'] as List).map((e) => RoomSalesLikes.fromJson(e)).toList().length == 0 ? false : true,
+
+      Likeditem: (json["RoomSalesInfo"] as RoomSalesInfo),
     );
   }
   factory RoomSalesInfo.fromJsonRefreshLikse(Map<String, dynamic> json) {

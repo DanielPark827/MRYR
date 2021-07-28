@@ -118,9 +118,9 @@ class _newRoomScreenState extends State<newRoomScreen> with SingleTickerProvider
 
             child: FittedBox(
               fit: BoxFit.fitWidth,
-              child: getExtendedImage((GlobalProfile.banner['ImageUrl1'] as String == null ? "BasicImage" : ApiProvider().getImgUrl+ (GlobalProfile.banner['ImageUrl1'] as String)) , 0,extendedController),
+              child: getExtendedImage(GlobalProfile.banner , 0,extendedController),
             ),),
-          Container(
+          (monthlyNewFst.length == 0||monthlyNewFst == null)? Container() : Container(
             color: Colors.white,
             child: Column(children: [
 
@@ -145,9 +145,10 @@ class _newRoomScreenState extends State<newRoomScreen> with SingleTickerProvider
                         doubleCheck = true;
 
                         RoomSalesInfo tttt;
-                        for (int i = 0; i < nbnbRoom.length; i++) {
-                          if (nbnbRoom[i].id == monthlyNewFst[0].id) {
-                            tttt = nbnbRoom[i];
+                        int index;
+                        for (index= 0; index < nbnbRoom.length; index++) {
+                          if (nbnbRoom[index].id == monthlyNewFst[0].id) {
+                            tttt = nbnbRoom[index];
                           }
                         }
                         if (tttt != null) {
@@ -217,16 +218,59 @@ class _newRoomScreenState extends State<newRoomScreen> with SingleTickerProvider
                             }
                           }
 
+
+
+
+                          var tmp = await ApiProvider()
+                              .post('/RoomSalesInfo/RoomSelectWithLike',
+                              jsonEncode({
+                                "roomID": tttt.id,
+                                "userID": GlobalProfile.loggedInUser.userID,
+                              }));
+
+                          RoomSalesInfo tmpRoom = RoomSalesInfo.fromJson(tmp);
+
+                          if (null ==
+                              tmpRoom.lng ||
+                              null == tmpRoom
+                                  .lat) {
+                            var addresses = await Geocoder.google(
+                                'AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c')
+                                .findAddressesFromQuery(
+                                tmpRoom
+                                    .location);
+                            var first = addresses.first;
+                            tmpRoom.lat = first.coordinates.latitude;
+                            tmpRoom.lng = first.coordinates.longitude;
+                          }
+
+
                           var res = await Navigator.push(
                               context,
                               // 기본 파라미터, SecondRoute로 전달
                               MaterialPageRoute(
                                   builder: (context) =>
                                       DetailedRoomInformation(
-                                        roomSalesInfo: tttt,
-                                        nbnb: true,
+                                        roomSalesInfo:tmpRoom,
+                                        nbnb:true,
                                       )) // SecondRoute를 생성하여 적재
-                          );
+                          ).then((value) {
+                            if(null == value) {
+                              return;
+                            }
+                            if (value == false) {
+                              nbnbRoom[index]
+                                  .ChangeLikesWithValue(false);
+                              return;
+                            }
+                            nbnbRoom[index]
+                                .ChangeLikesWithValue(value);
+                            setState(() {
+
+                            });
+                            return;
+                          });;;
+                          doubleCheck = false;
                           extendedController.reset();
                           setState(() {
 
@@ -234,10 +278,12 @@ class _newRoomScreenState extends State<newRoomScreen> with SingleTickerProvider
                         }
                       }
                     },
-                    child: Text("더보기 >",style: TextStyle(fontSize: screenWidth*(12/360),color:Color(0xff7CC1CF)),)),
 
+                    child: Text("더보기 >",
+                      style: TextStyle(fontSize: screenWidth*(12/360),color:Color(0xff7CC1CF)),)),
 
               ],),
+
               SizedBox(
                 height: screenHeight * (12/ 640),
               ),
@@ -314,7 +360,7 @@ class _newRoomScreenState extends State<newRoomScreen> with SingleTickerProvider
 
             height: screenHeight * (8 / 640),
           ),
-          Container(
+          (monthlyNewScd.length == 0||monthlyNewScd == null)? Container() : Container(
             color: Colors.white,
             child: Column(children: [
 
@@ -339,9 +385,11 @@ class _newRoomScreenState extends State<newRoomScreen> with SingleTickerProvider
                           doubleCheck = true;
 
                           RoomSalesInfo tttt;
-                          for (int i = 0; i < nbnbRoom.length; i++) {
-                            if (nbnbRoom[i].id == monthlyNewScd[0].id) {
-                              tttt = nbnbRoom[i];
+                          monthlyNewScd[0];
+                          int index;
+                          for (index = 0; index < nbnbRoom.length; index++) {
+                            if (nbnbRoom[index].id == monthlyNewScd[0].id) {
+                              tttt = nbnbRoom[index];
                             }
                           }
                           if (tttt != null) {
@@ -411,19 +459,62 @@ class _newRoomScreenState extends State<newRoomScreen> with SingleTickerProvider
                               }
                             }
 
+
+
+                            var tmp = await ApiProvider()
+                                .post('/RoomSalesInfo/RoomSelectWithLike',
+                                jsonEncode({
+                                  "roomID": tttt.id,
+                                  "userID": GlobalProfile.loggedInUser.userID,
+                                }));
+
+                            RoomSalesInfo tmpRoom = RoomSalesInfo.fromJson(tmp);
+
+                            if (null ==
+                                tmpRoom.lng ||
+                                null == tmpRoom
+                                    .lat) {
+                              var addresses = await Geocoder.google(
+                                  'AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c')
+                                  .findAddressesFromQuery(
+                                  tmpRoom
+                                      .location);
+                              var first = addresses.first;
+                              tmpRoom.lat = first.coordinates.latitude;
+                              tmpRoom.lng = first.coordinates.longitude;
+                            }
+
+
+
+
                             var res = await Navigator.push(
                                 context,
                                 // 기본 파라미터, SecondRoute로 전달
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         DetailedRoomInformation(
-                                          roomSalesInfo: tttt,
-                                          nbnb: true,
+                                          roomSalesInfo: tmpRoom,
+                                          nbnb:true,
                                         )) // SecondRoute를 생성하여 적재
-                            );
+                            ).then((value) {
+                              if(null == value) {
+                                return;
+                              }
+                              if (value == false) {
+                                nbnbRoom[index]
+                                    .ChangeLikesWithValue(false);
+                                return;
+                              }
+                              nbnbRoom[index]
+                                  .ChangeLikesWithValue(value);
+                              setState(() {
+
+                              });
+                              return;
+                            });;;
                             extendedController.reset();
                             setState(() {
-
+                              doubleCheck = false;
                             });
                           }
                         }
@@ -512,7 +603,7 @@ class _newRoomScreenState extends State<newRoomScreen> with SingleTickerProvider
 
             height: screenHeight * (8 / 640),
           ),
-          Container(
+          (monthlyNewTrd.length == 0||monthlyNewTrd == null)? Container() :Container(
             color: Colors.white,
             child: Column(children: [
 
@@ -537,9 +628,10 @@ class _newRoomScreenState extends State<newRoomScreen> with SingleTickerProvider
                           doubleCheck = true;
 
                           RoomSalesInfo tttt;
-                          for (int i = 0; i < nbnbRoom.length; i++) {
-                            if (nbnbRoom[i].id == monthlyNewTrd[0].id) {
-                              tttt = nbnbRoom[i];
+                          int index;
+                          for (index = 0; index < nbnbRoom.length; index++) {
+                            if (nbnbRoom[index].id == monthlyNewTrd[0].id) {
+                              tttt = nbnbRoom[index];
                             }
                           }
                           if (tttt != null) {
@@ -609,17 +701,58 @@ class _newRoomScreenState extends State<newRoomScreen> with SingleTickerProvider
                               }
                             }
 
+
+                            var tmp = await ApiProvider()
+                                .post('/RoomSalesInfo/RoomSelectWithLike',
+                                jsonEncode({
+                                  "roomID": tttt.id,
+                                  "userID": GlobalProfile.loggedInUser.userID,
+                                }));
+
+                            RoomSalesInfo tmpRoom = RoomSalesInfo.fromJson(tmp);
+
+                            if (null ==
+                                tmpRoom.lng ||
+                                null == tmpRoom
+                                    .lat) {
+                              var addresses = await Geocoder.google(
+                                  'AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c')
+                                  .findAddressesFromQuery(
+                                  tmpRoom
+                                      .location);
+                              var first = addresses.first;
+                              tmpRoom.lat = first.coordinates.latitude;
+                              tmpRoom.lng = first.coordinates.longitude;
+                            }
+
+
                             var res = await Navigator.push(
                                 context,
                                 // 기본 파라미터, SecondRoute로 전달
                                 MaterialPageRoute(
                                     builder: (context) =>
                                         DetailedRoomInformation(
-                                          roomSalesInfo: tttt,
-                                          nbnb: true,
+                                          roomSalesInfo:tmpRoom,
+                                          nbnb:true,
                                         )) // SecondRoute를 생성하여 적재
-                            );
+                            ).then((value) {
+                              if(null == value) {
+                                return;
+                              }
+                              if (value == false) {
+                                nbnbRoom[index]
+                                    .ChangeLikesWithValue(false);
+                                return;
+                              }
+                              nbnbRoom[index]
+                                  .ChangeLikesWithValue(value);
+                              setState(() {
+
+                              });
+                              return;
+                            });;;
                             extendedController.reset();
+                            doubleCheck = false;
                             setState(() {
 
                             });

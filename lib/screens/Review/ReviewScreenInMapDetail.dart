@@ -382,11 +382,11 @@ class _ReviewScreenInMapMainDetailState
                       ),
                     ),
                   ),
-                  Container(
+                  reviewLen == 0? Container(): Container(
                       width: screenWidth,
                       height: screenHeight * (8 / 640),
                       color: Color(0xffeeeeee)),
-                  Container(
+                  reviewLen == 0? Container(): Container(
                     width: screenWidth,
                     height: screenHeight * (111 / 640),
                     child: Row(
@@ -598,7 +598,7 @@ class _ReviewScreenInMapMainDetailState
                                                 width: screenWidth * (4 / 360),
                                               ),
                                               Container(
-                                                width:screenWidth*(120/360),
+
                                                 child: Column(
                                                   crossAxisAlignment:
                                                   CrossAxisAlignment.start,

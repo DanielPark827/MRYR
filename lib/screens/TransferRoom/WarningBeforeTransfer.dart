@@ -6,10 +6,12 @@ import 'package:mryr/main.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mryr/constants/AppConfig.dart';
+import 'package:mryr/model/EnterRoomInfoProvider.dart';
 import 'package:mryr/widget/MainReleaseRoomScreen/StringForMainReleaseRoomScreen.dart';
 import 'package:mryr/screens/ReleaseRoom/NewRoom/EnterRoomInfo.dart';
 import 'package:mryr/screens/MoreScreen/AskScreen.dart';
 import 'package:mryr/constants/GlobalAsset.dart';
+import 'package:provider/provider.dart';
 
 
 
@@ -93,6 +95,7 @@ class _WarningBeforeTransferState extends State<WarningBeforeTransfer> {
 
   @override
   Widget build(BuildContext context) {
+    EnterRoomInfoProvider data = Provider.of<EnterRoomInfoProvider>(context);
     var screenWidth = MediaQuery.of(context).size.width;
     var screenHeight = MediaQuery.of(context).size.height;
 
@@ -206,6 +209,8 @@ class _WarningBeforeTransferState extends State<WarningBeforeTransfer> {
               alignment: Alignment.topCenter,
               child: InkWell(
                 onTap: (){
+                  data.changeTransferType(0);
+                  data.curStep = 0;
                   Navigator.push(
                       context, // 기본 파라미터, SecondRoute로 전달
                       MaterialPageRoute(

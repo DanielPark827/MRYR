@@ -233,7 +233,14 @@ class _ChatDetailScreenState extends State<ChatDetailScreen>with SingleTickerPro
                                     "messageID": eachChatList[0].id
                                     //chatInfoList[index].receiverID,
                                   }));
-                                  chatSum = 0;
+                                  chatSum =0;
+                                  //쪽지함 리스트
+                                  var yes = await ApiProvider().post('/Note/Notyetview', jsonEncode({
+                                    "userID" : GlobalProfile.loggedInUser.userID
+
+                                  }));
+                                  chatSum = yes["number"];
+
                                   //쪽지함 리스트
                                   chatInfoList.clear();
                                   var ye = await ApiProvider().post(
@@ -320,6 +327,8 @@ class _ChatDetailScreenState extends State<ChatDetailScreen>with SingleTickerPro
                         var first = addresses.first;
                         finalLat = first.coordinates.latitude;
                         finalLng = first.coordinates.longitude;
+                        chatRoomDetail.lat = finalLat;
+                        chatRoomDetail.lng = finalLng;
                       } else {
                         finalLat = chatRoomDetail.lat;
                         finalLng = chatRoomDetail.lng;

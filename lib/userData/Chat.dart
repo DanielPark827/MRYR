@@ -40,7 +40,6 @@ class Chat {
         ? "BasicImage"s
         : ApiProvider().getImgUrl + json["ImgUrl"];*/
 
-    chatSum += json["NotYetView"] as int;
     return Chat(
       roomID: json["RoomID"] as int,
       senderID: json["SenderID"] as int,
