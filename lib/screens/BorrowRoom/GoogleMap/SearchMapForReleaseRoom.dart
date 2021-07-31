@@ -70,9 +70,63 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
   final Color _clusterColor = kPrimaryColor;
   final Color _clusterTextColor = Colors.white;
 
-  double extractNum(double v) {
-    return v / 10000;
+  String extractNum_Transfer(double v) {
+    int target = v.toInt();
+    if(target < 100000000)
+      {
+        if(target <= 5000000) {
+          return (target / 10000).toInt().toString();
+        }
+        else {
+          int roundTarget = ((target / 10000).toInt()) % 500;
+          int returnTarget;
+          if(roundTarget < 500) {
+            returnTarget = (target / 10000).toInt()- roundTarget;
+          }
+          else {
+            returnTarget = (target / 10000).toInt() - roundTarget + 500;
+          }
+          return returnTarget.toInt().toString();
+        }
+      }
+    else {
+      int million = target ~/ 100000000;
+      int redundancy = (target % (million * 100000000)) ~/ 10000;
+
+      int roundTarget = redundancy % 500;
+      int returnTarget;
+
+      if(roundTarget < 500) {
+        returnTarget = redundancy- roundTarget;
+      }
+      else {
+        returnTarget = redundancy - roundTarget + 500;
+      }
+
+      return million.toInt().toString() + "억"+ returnTarget.toInt().toString();
+    }
   }
+
+  String extractNum_Short(double v) {
+    int target = v.toInt();
+    if(target <= 50000) {
+      return (target / 10000).toInt().toString();
+    }
+    else {
+      int roundTarget = target % 50000;
+      int returnTarget;
+
+      if(roundTarget < 50000){
+        returnTarget = target - roundTarget;
+      }
+      else {
+        returnTarget = target - roundTarget + 50000;
+      }
+
+      return (returnTarget/10000).toInt().toString();
+    }
+  }
+
 
   void AddRecent(int index) async {
 
@@ -917,6 +971,11 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                               flagRoomList = false;
                               resetTransferAll();
                               List<MapMarker> markers = [];
+
+                              //양도로 전환시 기본으로 월세가 켜져있게
+                              tListContractType[0].flag = true;
+                              tListContractType[0].selected = true;
+
                               var list = await ApiProvider().get('/RoomSalesInfo/TransferMarkerList');
                               if(null != list) {
                                 final BitmapDescriptor markerImage = (Platform.isIOS) ? await BitmapDescriptor.fromAssetImage(
@@ -1692,9 +1751,9 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                   onChanged: (_range) {
                                     setState(() {
                                       if(_range.end.toInt() == 310000) {
-                                        sInfinity = extractNum(_range.start).toInt().toString() + "만원-무제한";
+                                        sInfinity = extractNum_Transfer(_range.start) + "만원-무제한";
                                       } else {
-                                        sInfinity = extractNum(_range.start).toInt().toString() + "만원-" + extractNum(_range.end).toInt().toString() + "만원";
+                                        sInfinity = extractNum_Transfer(_range.start) + "만원-" + extractNum_Transfer(_range.end) + "만원";
                                       }
 
                                       sPriceValues = _range;
@@ -2198,9 +2257,9 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                   onChanged: (_range) {
                                     setState(() {
                                       if(_range.end.toInt() == 10100000) {
-                                        tDepositInfinity = extractNum(_range.start).toInt().toString() + "만원-무제한";
+                                        tDepositInfinity = extractNum_Transfer(_range.start) + "만원-무제한";
                                       } else {
-                                        tDepositInfinity = extractNum(_range.start).toInt().toString() + "만원-" + extractNum(_range.end).toInt().toString() + "만원";
+                                        tDepositInfinity = extractNum_Transfer(_range.start) + "만원-" + extractNum_Transfer(_range.end) + "만원";
                                       }
 
                                       tDepositValues = _range;
@@ -2291,9 +2350,9 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                   onChanged: (_range) {
                                     setState(() {
                                       if(_range.end.toInt() == 1010000) {
-                                        tMonthlyInfinity = extractNum(_range.start).toInt().toString() + "만원-무제한";
+                                        tMonthlyInfinity = extractNum_Transfer(_range.start) + "만원-무제한";
                                       } else {
-                                        tMonthlyInfinity = extractNum(_range.start).toInt().toString() + "만원-" + extractNum(_range.end).toInt().toString() + "만원";
+                                        tMonthlyInfinity = extractNum_Transfer(_range.start) + "만원-" + extractNum_Transfer(_range.end) + "만원";
                                       }
 
                                       tMonthlyFeeValues = _range;
@@ -2601,7 +2660,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
               sFilterList[1].title = "가격";
               sFilterList[1].selected = false;
             }else {
-              sFilterList[1].title = "일 / " +  extractNum(sPriceLowRange).toInt().toString()+"만원-"+extractNum(sPriceHighRange).toInt().toString()+"만원";
+              sFilterList[1].title = "일 / " +  extractNum_Transfer(sPriceLowRange)+"만원-"+extractNum_Transfer(sPriceHighRange)+"만원";
               sFilterList[1].selected = true;
               sFilterList[1].flag = true;
               sCloseFilter();
@@ -2820,8 +2879,8 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                 tFilterList[1].selected = false;
                 contractType="";
               } else {
-                tFilterList[1].title = contractType + " / " + "보 " + extractNum(tDepositLowRange).toInt().toString()+"-"+extractNum(tDepositHighRange).toInt().toString()+"만원,월 "+
-                    extractNum(tMonthlyFeeLowRange).toInt().toString()+"-"+extractNum(tMonthlyFeeHighRange).toInt().toString()+"만원";
+                tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer(tDepositLowRange)+"-"+extractNum_Transfer(tDepositHighRange)+"만원,월 "+
+                    extractNum_Transfer(tMonthlyFeeLowRange)+"-"+extractNum_Transfer(tMonthlyFeeHighRange)+"만원";
                 tFilterList[1].selected = true;
                 tFilterList[1].flag = true;
               }
@@ -2834,16 +2893,16 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
               flagContractType = 1;
               contractType = "월세";
 
-              tFilterList[1].title = contractType + " / " + "보 " + extractNum(tDepositLowRange).toInt().toString()+"-"+extractNum(tDepositHighRange).toInt().toString()+"만원,월 "+
-                  extractNum(tMonthlyFeeLowRange).toInt().toString()+"-"+extractNum(tMonthlyFeeHighRange).toInt().toString()+"만원";
+              tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer(tDepositLowRange)+"-"+extractNum_Transfer(tDepositHighRange)+"만원,월 "+
+                  extractNum_Transfer(tMonthlyFeeLowRange)+"-"+extractNum_Transfer(tMonthlyFeeHighRange)+"만원";
               tFilterList[1].selected = true;
               tFilterList[1].flag = true;
             } else {
               flagContractType = 2;
               contractType = "전세";
 
-              tFilterList[1].title = contractType + " / " + "보 " + extractNum(tDepositLowRange).toInt().toString()+"-"+extractNum(tDepositHighRange).toInt().toString()+"만원,월 "+
-                  extractNum(tMonthlyFeeLowRange).toInt().toString()+"-"+extractNum(tMonthlyFeeHighRange).toInt().toString()+"만원";
+              tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer(tDepositLowRange)+"-"+extractNum_Transfer(tDepositHighRange)+"만원,월 "+
+                  extractNum_Transfer(tMonthlyFeeLowRange)+"-"+extractNum_Transfer(tMonthlyFeeHighRange)+"만원";
               tFilterList[1].selected = true;
               tFilterList[1].flag = true;
             }
@@ -3419,16 +3478,15 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                   divisions: 51,
                   inactiveColor: Color(0xffcccccc),
                   activeColor: kPrimaryColor,
-                  labels: RangeLabels(sPriceLowRange.floor().toString(),
-                      sPriceHighRange.floor().toString()),
+                  labels: null,
                   values: sPriceValues,
                   //RangeValues(_lowValue,_highValue),
                   onChanged: (_range) {
                     setState(() {
                       if(_range.end.toInt() == 510000) {
-                        sInfinity = extractNum(_range.start).toInt().toString() + "만원-무제한";
+                        sInfinity = extractNum_Short(_range.start) + "만원-무제한";
                       } else {
-                        sInfinity = extractNum(_range.start).toInt().toString() + "만원-" + extractNum(_range.end).toInt().toString() + "만원";
+                        sInfinity = extractNum_Short(_range.start) + "만원-" + extractNum_Short(_range.end) + "만원";
                       }
 
                       sPriceValues = _range;
@@ -3486,12 +3544,12 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                   onTap: () async {
 
 
-                    if((sPriceLowRange == 0 && sPriceHighRange == 310000)) {
+                    if((sPriceLowRange == 0 && sPriceHighRange == 510000)) {
                       sFilterList[1].flag = false;
                       sFilterList[1].title = "가격";
                       sFilterList[1].selected = false;
                     }else {
-                      sFilterList[1].title = "일 / " +  extractNum(sPriceLowRange).toInt().toString()+"만원-"+extractNum(sPriceHighRange).toInt().toString()+"만원";
+                      sFilterList[1].title = "일 / " +  extractNum_Short(sPriceLowRange)+"만원-"+extractNum_Short(sPriceHighRange)+"만원";
                       sFilterList[1].selected = true;
                       sCloseFilter();
                     }
@@ -4658,19 +4716,18 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                 child: RangeSlider(
                   min: 0,
                   max: 301000000,
-                  divisions: 101,
+                  divisions: 301,
                   inactiveColor: Color(0xffcccccc),
                   activeColor: kPrimaryColor,
-                  labels: RangeLabels(tDepositLowRange.floor().toString(),
-                      tDepositHighRange.floor().toString()),
+                  labels: null,
                   values: tDepositValues,
                   //RangeValues(_lowValue,_highValue),
                   onChanged: (_range) {
                     setState(() {
                       if(_range.end.toInt() == 301000000) {
-                        tDepositInfinity = extractNum(_range.start).toInt().toString() + "만원-무제한";
+                        tDepositInfinity = extractNum_Transfer(_range.start) + "만원-무제한";
                       } else {
-                        tDepositInfinity = extractNum(_range.start).toInt().toString() + "만원-" + extractNum(_range.end).toInt().toString() + "만원";
+                        tDepositInfinity = extractNum_Transfer(_range.start) + "만원-" + extractNum_Transfer(_range.end) + "만원";
                       }
 
                       tDepositValues = _range;
@@ -4756,16 +4813,15 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                       divisions: 101,
                       inactiveColor: Color(0xffcccccc),
                       activeColor: kPrimaryColor,
-                      labels: RangeLabels(tMonthlyFeeLowRange.floor().toString(),
-                          tMonthlyFeeHighRange.floor().toString()),
+                      labels: null,
                       values: tMonthlyFeeValues,
                       //RangeValues(_lowValue,_highValue),
                       onChanged: (_range) {
                         setState(() {
                           if(_range.end.toInt() == 5010000) {
-                            tMonthlyInfinity = extractNum(_range.start).toInt().toString() + "만원-무제한";
+                            tMonthlyInfinity = extractNum_Transfer(_range.start) + "만원-무제한";
                           } else {
-                            tMonthlyInfinity = extractNum(_range.start).toInt().toString() + "만원-" + extractNum(_range.end).toInt().toString() + "만원";
+                            tMonthlyInfinity = extractNum_Transfer(_range.start) + "만원-" + extractNum_Transfer(_range.end) + "만원";
                           }
 
                           tMonthlyFeeValues = _range;
@@ -4828,15 +4884,16 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                   onTap: () async {
                     String contractType;
 
-                    if(!tListContractType[0].selected && !tListContractType[1].selected) {
+                    if(tListContractType[0].selected && !tListContractType[1].selected) {
                       if(tDepositLowRange == 0 && tDepositHighRange == 301000000 && tMonthlyFeeLowRange == 0 && tMonthlyFeeHighRange == 5010000) {
                         tFilterList[1].flag = false;
                         tFilterList[1].title = "가격";
                         tFilterList[1].selected = false;
                         contractType="";
                       } else {
-                        tFilterList[1].title = contractType + " / " + "보 " + extractNum(tDepositLowRange).toInt().toString()+"-"+extractNum(tDepositHighRange).toInt().toString()+"만원,월 "+
-                            extractNum(tMonthlyFeeLowRange).toInt().toString()+"-"+extractNum(tMonthlyFeeHighRange).toInt().toString()+"만원";
+                        contractType = "월세";
+                        tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer(tDepositLowRange)+"-"+extractNum_Transfer(tDepositHighRange)+"만원,월 "+
+                            extractNum_Transfer(tMonthlyFeeLowRange)+"-"+extractNum_Transfer(tMonthlyFeeHighRange)+"만원";
                         tFilterList[1].selected = true;
                         tFilterList[1].flag = true;
                       }
@@ -4845,22 +4902,20 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                         Navigator.pop(context);
 
                       };
-                    } else if(tListContractType[0].selected && !tListContractType[1].selected) {
-                      flagContractType = 1;
-                      contractType = "월세";
-
-                      tFilterList[1].title = contractType + " / " + "보 " + extractNum(tDepositLowRange).toInt().toString()+"-"+extractNum(tDepositHighRange).toInt().toString()+"만원,월 "+
-                          extractNum(tMonthlyFeeLowRange).toInt().toString()+"-"+extractNum(tMonthlyFeeHighRange).toInt().toString()+"만원";
-                      tFilterList[1].selected = true;
-                      tFilterList[1].flag = true;
                     } else {
                       flagContractType = 2;
-                      contractType = "전세";
+                      if(tDepositLowRange == 0 && tDepositHighRange == 301000000) {
+                        tFilterList[1].flag = false;
+                        tFilterList[1].title = "가격";
+                        tFilterList[1].selected = false;
+                        contractType="";
+                      }
+                      else {contractType = "전세";
 
-                      tFilterList[1].title = contractType + " / " + "보 " + extractNum(tDepositLowRange).toInt().toString()+"-"+extractNum(tDepositHighRange).toInt().toString()+"만원,월 "+
-                          extractNum(tMonthlyFeeLowRange).toInt().toString()+"-"+extractNum(tMonthlyFeeHighRange).toInt().toString()+"만원";
+                      tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer(tDepositLowRange)+"-"+extractNum_Transfer(tDepositHighRange)+"만원";
                       tFilterList[1].selected = true;
                       tFilterList[1].flag = true;
+                      }
                    }
 
                     int subFlag2 = -1;

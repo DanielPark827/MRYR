@@ -33,6 +33,7 @@ import 'MyRecentRoom.dart';
 import 'Notice.dart';
 import 'model/NoticeModel.dart';
 import 'package:mryr/screens/MoreScreen/MyRoomLikes.dart';
+import 'package:mryr/screens/Payment/Payment.dart';
 
 class MoreScreen extends StatefulWidget {
   @override
@@ -451,6 +452,22 @@ class _MoreScreenState extends State<MoreScreen>with SingleTickerProviderStateMi
                   Row(children: [
                     SizedBox(width: screenWidth*(24/360),),
                     Text("설정",style: TextStyle(fontSize: screenWidth*(12/360),color: Color(0xff222222)),),
+                  ],),),
+                ),
+                Container(height: 1,width: screenWidth,color: Color(0xfff8f8f8),),
+                GestureDetector(
+                  onTap: (){
+                    Navigator.push(
+                        context, // 기본 파라미터, SecondRoute로 전달
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                Payment()) // SecondRoute를 생성하여 적재
+                    );
+                  },
+                  child: Container(width: screenWidth,height: screenWidth*(40/360),color: Colors.white, child:
+                  Row(children: [
+                    SizedBox(width: screenWidth*(24/360),),
+                    Text("결제 테스트",style: TextStyle(fontSize: screenWidth*(12/360),color: Color(0xff222222)),),
                   ],),),
                 ),
                 Container(height: 1,width: screenWidth,color: Color(0xfff8f8f8),),
