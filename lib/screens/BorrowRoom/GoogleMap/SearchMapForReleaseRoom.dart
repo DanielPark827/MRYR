@@ -39,6 +39,7 @@ import 'package:mryr/widget/Dialog/OKDialog.dart';
 import 'package:mryr/screens/BorrowRoom/model/FilterPacket.dart';
 import 'package:mryr/userData/Review.dart';
 import 'package:mryr/screens/BorrowRoom/DetailedRoomInformation.dart';
+import 'package:mryr/constants/constFilter.dart';
 
 class SearchMapForBorrowRoom extends StatefulWidget {
 
@@ -69,64 +70,6 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
 
   final Color _clusterColor = kPrimaryColor;
   final Color _clusterTextColor = Colors.white;
-
-  String extractNum_Transfer(double v) {
-    int target = v.toInt();
-    if(target < 100000000)
-      {
-        if(target <= 5000000) {
-          return (target / 10000).toInt().toString();
-        }
-        else {
-          int roundTarget = ((target / 10000).toInt()) % 500;
-          int returnTarget;
-          if(roundTarget < 500) {
-            returnTarget = (target / 10000).toInt()- roundTarget;
-          }
-          else {
-            returnTarget = (target / 10000).toInt() - roundTarget + 500;
-          }
-          return returnTarget.toInt().toString();
-        }
-      }
-    else {
-      int million = target ~/ 100000000;
-      int redundancy = (target % (million * 100000000)) ~/ 10000;
-
-      int roundTarget = redundancy % 500;
-      int returnTarget;
-
-      if(roundTarget < 500) {
-        returnTarget = redundancy- roundTarget;
-      }
-      else {
-        returnTarget = redundancy - roundTarget + 500;
-      }
-
-      return million.toInt().toString() + "억"+ returnTarget.toInt().toString();
-    }
-  }
-
-  String extractNum_Short(double v) {
-    int target = v.toInt();
-    if(target <= 50000) {
-      return (target / 10000).toInt().toString();
-    }
-    else {
-      int roundTarget = target % 50000;
-      int returnTarget;
-
-      if(roundTarget < 50000){
-        returnTarget = target - roundTarget;
-      }
-      else {
-        returnTarget = target - roundTarget + 50000;
-      }
-
-      return (returnTarget/10000).toInt().toString();
-    }
-  }
-
 
   void AddRecent(int index) async {
 
@@ -209,48 +152,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
               position: LatLng(finalLat, finalLng),
               icon: markerImage,
               onMarkerTap: () async {
-                if(flagRoomList){
-                  flagRoomList = !flagRoomList;
-                  setState(() {
-
-                  });
-                } else {
-                  var list;
-                  if(isShort){
-                    list = await ApiProvider().post('/RoomSalesInfo/SelectShortMarkerWithLike', jsonEncode(
-                        {
-                          "userID": GlobalProfile.loggedInUser
-                              .userID,
-                          "longitude" : item.lng,
-                          "latitude" : item.lat,
-                        }
-                    ));
-                  }else {
-                    list = await ApiProvider().post('/RoomSalesInfo/SelectTransferMarkerWithLike', jsonEncode(
-                        {
-                          "userID": GlobalProfile.loggedInUser
-                              .userID,
-                          "longitude" : item.lng,
-                          "latitude" : item.lat,
-                        }
-                    ));
-                  }
-                  selectedItemList.clear();
-                  for(int i = 0; i < list.length; i++) {
-                    var item = RoomSalesInfo.fromJson(list[i]);
-                    selectedItemList.add(item);
-                  }
-                  print(item.lng.toString()+"@@@@@@@@@@@@@@@");
-                  print(item.lat.toString()+"@@@@@@@@@@@@@@@");
-                  for(int i = 0; i < list.length; i++) {
-                   print(list[i]);
-                   print('\n');
-                  }
-                  flagRoomList = !flagRoomList;
-                  setState(() {
-
-                  });
-                }
+                await Initialize_MarkerTap(item);
               }
             ),
           );
@@ -266,6 +168,51 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
 
     await _updateMarkers();
     EasyLoading.dismiss();
+  }
+
+  Future Initialize_MarkerTap(gCoordinate item) async {
+    if(flagRoomList){
+      flagRoomList = !flagRoomList;
+      setState(() {
+
+      });
+    } else {
+      var list;
+      if(isShort){
+        list = await ApiProvider().post('/RoomSalesInfo/SelectShortMarkerWithLike', jsonEncode(
+            {
+              "userID": GlobalProfile.loggedInUser
+                  .userID,
+              "longitude" : item.lng,
+              "latitude" : item.lat,
+            }
+        ));
+      }else {
+        list = await ApiProvider().post('/RoomSalesInfo/SelectTransferMarkerWithLike', jsonEncode(
+            {
+              "userID": GlobalProfile.loggedInUser
+                  .userID,
+              "longitude" : item.lng,
+              "latitude" : item.lat,
+            }
+        ));
+      }
+      selectedItemList.clear();
+      for(int i = 0; i < list.length; i++) {
+        var item = RoomSalesInfo.fromJson(list[i]);
+        selectedItemList.add(item);
+      }
+      print(item.lng.toString()+"@@@@@@@@@@@@@@@");
+      print(item.lat.toString()+"@@@@@@@@@@@@@@@");
+      for(int i = 0; i < list.length; i++) {
+       print(list[i]);
+       print('\n');
+      }
+      flagRoomList = !flagRoomList;
+      setState(() {
+
+      });
+    }
   }
 
   Future<void> _updateMarkers([double updatedZoom]) async {
@@ -352,9 +299,9 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
   var sSubList = [];
 
   //가격
-  double sPriceLowRange = 0;
-  double sPriceHighRange = 510000;
-  RangeValues sPriceValues = RangeValues(0, 510000);
+  double sPriceLowRange = S_PRICE_LOW_RANGE;
+  double sPriceHighRange = S_PRICE_HIGH_RANGE;
+  RangeValues sPriceValues = RangeValues(S_PRICE_LOW_RANGE, S_PRICE_HIGH_RANGE);
   String sInfinity = "무제한";
 
   //임대 기간
@@ -377,14 +324,14 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
   int tCurContractType = -1;
   int flagContractType = null;
 
-  double tDepositLowRange = 0;
-  double tDepositHighRange = 301000000;
-  RangeValues tDepositValues = RangeValues(0, 301000000);
+  double tDepositLowRange = T_DEPOSIT_LOW_RANGE;
+  double tDepositHighRange = T_DEPOSIT_HIGH_RANGE;
+  RangeValues tDepositValues = RangeValues(T_DEPOSIT_LOW_RANGE, T_DEPOSIT_HIGH_RANGE);
   String tDepositInfinity = "무제한";
 
-  double tMonthlyFeeLowRange = 0;
-  double tMonthlyFeeHighRange = 5010000;
-  RangeValues tMonthlyFeeValues = RangeValues(0, 5010000);
+  double tMonthlyFeeLowRange = T_MONTHLY_LOW_RANGE;
+  double tMonthlyFeeHighRange = T_MONTHLY_HIGH_RANGE;
+  RangeValues tMonthlyFeeValues = RangeValues(T_MONTHLY_LOW_RANGE, T_MONTHLY_HIGH_RANGE);
   String tMonthlyInfinity = "무제한";
 
   //임대 기간
@@ -2704,13 +2651,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
 
 
 
-            bool subFlag = true;
-            for(int i = 0; i <sListOption.length; i++) {
-              if(sListOption[i].selected) {
-                subFlag = false;
-                break;
-              }
-            }
+            bool subFlag = Check_S_optionFlag();
             sFilterList[2].selected;
             var list = await ApiProvider().post("/RoomSalesInfo/ListShortFilter", jsonEncode(
                 {
@@ -2917,47 +2858,17 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
               tFilterList[2].selected = false;
               tCloseFilter();
             }else {
-              tFilterList[2].title = tFilterRentStart + "-" + tFilterRentDone;
-              tFilterList[2].selected = true;
+              Process_T_Period();
               tFilterList[2].flag = true;
             }
 
-            tFilterList[3].title = "";
-            for(int i =0; i < tListOption.length; i++){
-              if(tListOption[i].flag) {
-                tFilterList[3].title += tListOption[i].title + "/";
-              }
-            }
-            String s = tFilterList[3].title;
-            int l = tFilterList[3].title.length;
-
-            if(l==0) {//아무것도 선택 안한 경우
-              tFilterList[3].flag = false;
-              tFilterList[3].title = "추가 옵션";
-              tFilterList[3].selected = false;
-            }else {
-              tFilterList[3].selected = true;
-              tFilterList[3].title = s.substring(0,l-1);
-              sCloseFilter();
-            }
+            Process_T_Option();
 
 
 
-            int subFlag2 = -1;
-            for(int i = 0; i < tListContractType.length; i++) {
-              if(tListContractType[i].flag){
-                subFlag2 = i+1;
-                break;
-              }
-            }
+            int subFlag2 = Check_T_jeonseFlag();
 
-            bool subFlag = true;
-            for(int i = 0; i <tListOption.length; i++) {
-              if(tListOption[i].selected) {
-                subFlag = false;
-                break;
-              }
-            }
+            bool subFlag = Check_T_optionFlag();
 
             var list = await ApiProvider().post("/RoomSalesInfo/MarkerTransferFilter", jsonEncode(
                 {
@@ -3243,51 +3154,12 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                             .black);
 
 
-                    sSubList.clear();
-                    for(int i = 1; i <= sListRoomType.length; i++) {
-                      if(sListRoomType[i-1].selected) {
-                        sSubList.add(i.toString());
-                      }
-                    }
-                    if(sSubList.length == 0) {//아무것도 선택 안한 경우
-                     sFilterList[0].flag = false;
-                     sFilterList[0].title = "방 종류";
-                     sFilterList[0].selected = false;
-                    }else {
-                      sFilterList[0].title = "";
-                      for(int i =0; i < sListRoomType.length; i++){
-                        if(sListRoomType[i].flag) {
-                          sFilterList[0].title += sListRoomType[i].title + "/";
-                        }
-                      }
-                      String s = sFilterList[0].title;
-                      int l = sFilterList[0].title.length;
-                      sFilterList[0].title = s.substring(0,l-1);
+                    Process_S_Type();
 
-                      sFilterList[0].selected = true;
-                      sCloseFilter();
-                    }
+                    bool optionFlag = Check_S_optionFlag();
 
-                    bool subFlag = true;
-                    for(int i = 0; i <sListOption.length; i++) {
-                      if(sListOption[i].selected) {
-                        subFlag = false;
-                        break;
-                      }
-                    }
                     sFilterList[2].selected;
-                    var list = await ApiProvider().post("/RoomSalesInfo/MarkerShortFilter", jsonEncode(
-                        {
-                          "types" : sSubList.length == 0 ? null : sSubList,
-                          "feemin" : sPriceLowRange,
-                          "feemax" : sPriceHighRange == 510000 ? 9999999999 : sPriceHighRange,
-                          "periodmin" : sFilterList[2].selected == false ? "1900.01.01" : sFilterRentStart,
-                          "periodmax" : sFilterList[2].selected == false ? "2900.12.31" : sFilterRentDone,
-                          "parking" : subFlag ? null : sListOption[0].selected ? 1 : 0,
-                          "cctv" : subFlag ? null :  sListOption[1].selected ? 1 : 0,
-                          "wifi" : subFlag ? null :  sListOption[2].selected ? 1 : 0,
-                        }
-                    ));
+                    var list = await Return_ShortMarker_Filter(optionFlag);
 
                     if (list != false) {
                       List<MapMarker> markers = [];
@@ -3324,38 +3196,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                 position: LatLng(finalLat, finalLng),
                                 icon: markerImage,
                                   onMarkerTap: () async {
-                                    if(flagRoomList){
-                                      flagRoomList = !flagRoomList;
-                                      setState(() {
-
-                                      });
-                                    } else {
-                                      var list;
-                                      if(isShort){
-                                        list = await ApiProvider().post('/RoomSalesInfo/SelectShortMarker', jsonEncode(
-                                            {
-                                              "longitude" : item.lng,
-                                              "latitude" : item.lat,
-                                            }
-                                        ));
-                                      }else {
-                                        list = await ApiProvider().post('/RoomSalesInfo/SelectTransferMarker', jsonEncode(
-                                            {
-                                              "longitude" : item.lng,
-                                              "latitude" : item.lat,
-                                            }
-                                        ));
-                                      }
-                                      selectedItemList.clear();
-                                      for(int i = 0; i < list.length; i++) {
-                                        var item = RoomSalesInfo.fromJson(list[i]);
-                                        selectedItemList.add(item);
-                                      }
-                                      flagRoomList = !flagRoomList;
-                                      setState(() {
-
-                                      });
-                                    }
+                                    Initialize_MarkerTap(item);
                                   }
                               ),
                             );
@@ -3473,9 +3314,9 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                   thumbColor: Colors.white,
                 ),
                 child: RangeSlider(
-                  min: 0,
-                  max: 510000,
-                  divisions: 51,
+                  min: S_PRICE_LOW_RANGE,
+                  max: S_PRICE_HIGH_RANGE,
+                  divisions: S_PRICE_DIVISION,
                   inactiveColor: Color(0xffcccccc),
                   activeColor: kPrimaryColor,
                   labels: null,
@@ -3483,15 +3324,15 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                   //RangeValues(_lowValue,_highValue),
                   onChanged: (_range) {
                     setState(() {
-                      if(_range.end.toInt() == 510000) {
-                        sInfinity = extractNum_Short(_range.start) + "만원-무제한";
+                      if(_range.end.toInt() == S_PRICE_HIGH_RANGE) {
+                        sInfinity = extractNum_Short_String(_range.start) + "만원-무제한";
                       } else {
-                        sInfinity = extractNum_Short(_range.start) + "만원-" + extractNum_Short(_range.end) + "만원";
+                        sInfinity = extractNum_Short_String(_range.start) + "만원-" + extractNum_Short_String(_range.end) + "만원";
                       }
 
                       sPriceValues = _range;
-                      sPriceLowRange = _range.start;
-                      sPriceHighRange = _range.end;
+                      sPriceLowRange = extractNum_Short_Int(_range.start).toDouble();
+                      sPriceHighRange = extractNum_Short_Int(_range.end).toDouble();
 
                     });
                   },
@@ -3544,37 +3385,12 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                   onTap: () async {
 
 
-                    if((sPriceLowRange == 0 && sPriceHighRange == 510000)) {
-                      sFilterList[1].flag = false;
-                      sFilterList[1].title = "가격";
-                      sFilterList[1].selected = false;
-                    }else {
-                      sFilterList[1].title = "일 / " +  extractNum_Short(sPriceLowRange)+"만원-"+extractNum_Short(sPriceHighRange)+"만원";
-                      sFilterList[1].selected = true;
-                      sCloseFilter();
-                    }
+                    Process_S_Price();
 
 
 
-                    bool subFlag = true;
-                    for(int i = 0; i <sListOption.length; i++) {
-                      if(sListOption[i].selected) {
-                        subFlag = false;
-                        break;
-                      }
-                    }
-                    var list = await ApiProvider().post("/RoomSalesInfo/MarkerShortFilter", jsonEncode(
-                        {
-                          "types" : sSubList.length == 0 ? null : sSubList,
-                          "feemin" : sPriceLowRange,
-                          "feemax" : sPriceHighRange == 510000 ? 9999999999 : sPriceHighRange,
-                          "periodmin" : sFilterList[2].selected == false ? "1900.01.01" : sFilterRentStart,
-                          "periodmax" : sFilterList[2].selected == false ? "2900.12.31" : sFilterRentDone,
-                          "parking" : subFlag ? null : sListOption[0].selected ? 1 : 0,
-                          "cctv" : subFlag ? null :  sListOption[1].selected ? 1 : 0,
-                          "wifi" : subFlag ? null :  sListOption[2].selected ? 1 : 0,
-                        }
-                    ));
+                    bool subFlag = Check_S_optionFlag();
+                    var list = await Return_ShortMarker_Filter(subFlag);
 
                     if (list != false) {
                       List<MapMarker> markers = [];
@@ -3611,38 +3427,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                 position: LatLng(finalLat, finalLng),
                                 icon: markerImage,
                                   onMarkerTap: () async {
-                                    if(flagRoomList){
-                                      flagRoomList = !flagRoomList;
-                                      setState(() {
-
-                                      });
-                                    } else {
-                                      var list;
-                                      if(isShort){
-                                        list = await ApiProvider().post('/RoomSalesInfo/SelectShortMarker', jsonEncode(
-                                            {
-                                              "longitude" : item.lng,
-                                              "latitude" : item.lat,
-                                            }
-                                        ));
-                                      }else {
-                                        list = await ApiProvider().post('/RoomSalesInfo/SelectTransferMarker', jsonEncode(
-                                            {
-                                              "longitude" : item.lng,
-                                              "latitude" : item.lat,
-                                            }
-                                        ));
-                                      }
-                                      selectedItemList.clear();
-                                      for(int i = 0; i < list.length; i++) {
-                                        var item = RoomSalesInfo.fromJson(list[i]);
-                                        selectedItemList.add(item);
-                                      }
-                                      flagRoomList = !flagRoomList;
-                                      setState(() {
-
-                                      });
-                                    }
+                                    Initialize_MarkerTap(item);
                                   }
                               ),
                             );
@@ -3840,39 +3625,12 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                 child: InkWell(
                   onTap: () async {
                     if(sFilterRentStart == "" || sFilterRentDone ==""){
-                      Function okFunc = () async{
-                        Navigator.pop(context);
-
-                      };
-                      sFilterList[2].flag = false;
-                      sFilterList[2].title = "임대 기간";
-                      sFilterList[2].selected = false;
-                      sCloseFilter();
-                      OKDialog(context, "임대 기간을 입력해주세요!", "입주나 퇴실 기간을 선택해주세요", "확인",okFunc);
+                      Process_S_Period_Null();
                     }else {
-                      sFilterList[sCurFilter].title = sFilterRentStart + "-"+sFilterRentDone;
-                      sFilterList[2].selected = true;
+                      Process_S_Period();
 
-                      bool subFlag = true;
-                      for(int i = 0; i <sListOption.length; i++) {
-                        if(sListOption[i].selected) {
-                          subFlag = false;
-                          break;
-                        }
-                      }
-                      sFilterList[2].selected;
-                      var list = await ApiProvider().post("/RoomSalesInfo/MarkerShortFilter", jsonEncode(
-                          {
-                            "types" : sSubList.length == 0 ? null : sSubList,
-                            "feemin" : sPriceLowRange,
-                            "feemax" : sPriceHighRange == 510000 ? 9999999999 : sPriceHighRange,
-                            "periodmin" : sFilterList[2].selected == false ? "1900.01.01" : sFilterRentStart,
-                            "periodmax" : sFilterList[2].selected == false ? "2900.12.31" : sFilterRentDone,
-                            "parking" : subFlag ? null : sListOption[0].selected ? 1 : 0,
-                            "cctv" : subFlag ? null :  sListOption[1].selected ? 1 : 0,
-                            "wifi" : subFlag ? null :  sListOption[2].selected ? 1 : 0,
-                          }
-                      ));
+                      bool subFlag = Check_S_optionFlag();
+                      var list = await Return_ShortMarker_Filter(subFlag);
 
                       if (list != false) {
                         List<MapMarker> markers = [];
@@ -3909,38 +3667,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                   position: LatLng(finalLat, finalLng),
                                   icon: markerImage,
                                     onMarkerTap: () async {
-                                      if(flagRoomList){
-                                        flagRoomList = !flagRoomList;
-                                        setState(() {
-
-                                        });
-                                      } else {
-                                        var list;
-                                        if(isShort){
-                                          list = await ApiProvider().post('/RoomSalesInfo/SelectShortMarker', jsonEncode(
-                                              {
-                                                "longitude" : item.lng,
-                                                "latitude" : item.lat,
-                                              }
-                                          ));
-                                        }else {
-                                          list = await ApiProvider().post('/RoomSalesInfo/SelectTransferMarker', jsonEncode(
-                                              {
-                                                "longitude" : item.lng,
-                                                "latitude" : item.lat,
-                                              }
-                                          ));
-                                        }
-                                        selectedItemList.clear();
-                                        for(int i = 0; i < list.length; i++) {
-                                          var item = RoomSalesInfo.fromJson(list[i]);
-                                          selectedItemList.add(item);
-                                        }
-                                        flagRoomList = !flagRoomList;
-                                        setState(() {
-
-                                        });
-                                      }
+                                      Initialize_MarkerTap(item);
                                     }
                                 ),
                               );
@@ -4077,45 +3804,10 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
               Expanded(
                 child: InkWell(
                   onTap: () async {
-                    sFilterList[3].title = "";
-                    for(int i =0; i < sListOption.length; i++){
-                      if(sListOption[i].flag) {
-                        sFilterList[3].title += sListOption[i].title + "/";
-                      }
-                    }
-                    String s = sFilterList[3].title;
-                    int l = sFilterList[3].title.length;
+                    Process_S_Option();
 
-                    if(l == 0) {//아무것도 선택 안한 경우
-                      sFilterList[3].flag = false;
-                      sFilterList[3].title = "추가 옵션";
-                      sFilterList[3].selected = false;
-                    }else {
-                      sFilterList[3].title = s.substring(0,l-1);
-                      sFilterList[3].selected = true;
-                    }
-                    sCloseFilter();
-
-                    bool subFlag = true;
-                    for(int i = 0; i <sListOption.length; i++) {
-                      if(sListOption[i].selected) {
-                        subFlag = false;
-                        break;
-                      }
-                    }
-                    sFilterList[2].selected;
-                    var list = await ApiProvider().post("/RoomSalesInfo/MarkerShortFilter", jsonEncode(
-                        {
-                          "types" : sSubList.length == 0 ? null : sSubList,
-                          "feemin" : sPriceLowRange,
-                          "feemax" : sPriceHighRange == 510000 ? 9999999999 : sPriceHighRange,
-                          "periodmin" : sFilterList[2].selected == false ? "1900.01.01" : sFilterRentStart,
-                          "periodmax" : sFilterList[2].selected == false ? "2900.12.31" : sFilterRentDone,
-                          "parking" : subFlag ? null : sListOption[0].selected ? 1 : 0,
-                          "cctv" : subFlag ? null :  sListOption[1].selected ? 1 : 0,
-                          "wifi" : subFlag ? null :  sListOption[2].selected ? 1 : 0,
-                        }
-                    ));
+                    bool subFlag = Check_S_optionFlag();
+                    var list = await Return_ShortMarker_Filter(subFlag);
 
                     if (list != false) {
                       List<MapMarker> markers = [];
@@ -4152,38 +3844,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                     position: LatLng(finalLat, finalLng),
                     icon: markerImage,
                         onMarkerTap: () async {
-                          if(flagRoomList){
-                            flagRoomList = !flagRoomList;
-                            setState(() {
-
-                            });
-                          } else {
-                            var list;
-                            if(isShort){
-                              list = await ApiProvider().post('/RoomSalesInfo/SelectShortMarker', jsonEncode(
-                                  {
-                                    "longitude" : item.lng,
-                                    "latitude" : item.lat,
-                                  }
-                              ));
-                            }else {
-                              list = await ApiProvider().post('/RoomSalesInfo/SelectTransferMarker', jsonEncode(
-                                  {
-                                    "longitude" : item.lng,
-                                    "latitude" : item.lat,
-                                  }
-                              ));
-                            }
-                            selectedItemList.clear();
-                            for(int i = 0; i < list.length; i++) {
-                              var item = RoomSalesInfo.fromJson(list[i]);
-                              selectedItemList.add(item);
-                            }
-                            flagRoomList = !flagRoomList;
-                            setState(() {
-
-                            });
-                          }
+                          Initialize_MarkerTap(item);
                         }
                     ),
                     );
@@ -4234,6 +3895,110 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
         ],
       ),
     ) : Container();
+  }
+
+  Future Return_ShortMarker_Filter(bool optionFlag) async {
+    var list = await ApiProvider().post("/RoomSalesInfo/MarkerShortFilter", jsonEncode(
+        {
+          "types" : sSubList.length == 0 ? null : sSubList,
+          "feemin" : sPriceLowRange,
+          "feemax" : sPriceHighRange == S_PRICE_HIGH_RANGE ? IF_S_PRICE_HIGH_DEFAULT : sPriceHighRange,
+          "periodmin" : sFilterList[2].selected == false ? IF_S_PERIOD_MIN_DEFAULT : sFilterRentStart,
+          "periodmax" : sFilterList[2].selected == false ? IF_S_PERIOD_HIGH_DEFAULT : sFilterRentDone,
+          "parking" : optionFlag ? null : sListOption[0].selected ? 1 : 0,
+          "cctv" : optionFlag ? null :  sListOption[1].selected ? 1 : 0,
+          "wifi" : optionFlag ? null :  sListOption[2].selected ? 1 : 0,
+        }
+    ));
+    return list;
+  }
+
+  void Process_S_Option() {
+    sFilterList[3].title = "";
+    for(int i =0; i < sListOption.length; i++){
+      if(sListOption[i].flag) {
+        sFilterList[3].title += sListOption[i].title + "/";
+      }
+    }
+    String s = sFilterList[3].title;
+    int l = sFilterList[3].title.length;
+
+    if(l == 0) {//아무것도 선택 안한 경우
+      sFilterList[3].flag = false;
+      sFilterList[3].title = "추가 옵션";
+      sFilterList[3].selected = false;
+    }else {
+      sFilterList[3].title = s.substring(0,l-1);
+      sFilterList[3].selected = true;
+    }
+    sCloseFilter();
+  }
+
+  void Process_S_Period() {
+    sFilterList[sCurFilter].title = sFilterRentStart + "-"+sFilterRentDone;
+    sFilterList[2].selected = true;
+  }
+
+  void Process_S_Period_Null() {
+    Function okFunc = () async{
+      Navigator.pop(context);
+
+    };
+    sFilterList[2].flag = false;
+    sFilterList[2].title = "임대 기간";
+    sFilterList[2].selected = false;
+    sCloseFilter();
+    OKDialog(context, "임대 기간을 입력해주세요!", "입주나 퇴실 기간을 선택해주세요", "확인",okFunc);
+  }
+
+  void Process_S_Price() {
+    if((sPriceLowRange == 0 && sPriceHighRange == 510000)) {
+      sFilterList[1].flag = false;
+      sFilterList[1].title = "가격";
+      sFilterList[1].selected = false;
+    }else {
+      sFilterList[1].title = "일 / " +  extractNum_Short_String(sPriceLowRange)+"만원-"+extractNum_Short_String(sPriceHighRange)+"만원";
+      sFilterList[1].selected = true;
+      sCloseFilter();
+    }
+  }
+
+  void Process_S_Type() {
+    sSubList.clear();
+    for(int i = 1; i <= sListRoomType.length; i++) {
+      if(sListRoomType[i-1].selected) {
+        sSubList.add(i.toString());
+      }
+    }
+    if(sSubList.length == 0) {//아무것도 선택 안한 경우
+     sFilterList[0].flag = false;
+     sFilterList[0].title = "방 종류";
+     sFilterList[0].selected = false;
+    }else {
+      sFilterList[0].title = "";
+      for(int i =0; i < sListRoomType.length; i++){
+        if(sListRoomType[i].flag) {
+          sFilterList[0].title += sListRoomType[i].title + "/";
+        }
+      }
+      String s = sFilterList[0].title;
+      int l = sFilterList[0].title.length;
+      sFilterList[0].title = s.substring(0,l-1);
+
+      sFilterList[0].selected = true;
+      sCloseFilter();
+    }
+  }
+
+  bool Check_S_optionFlag() {
+    bool subFlag = true;
+    for(int i = 0; i <sListOption.length; i++) {
+      if(sListOption[i].selected) {
+        subFlag = false;
+        break;
+      }
+    }
+    return subFlag;
   }
   void resetTransferAll() {
     resetTransferType();
@@ -4426,62 +4191,13 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
               Expanded(
                 child: InkWell(
                   onTap: () async {
-                    tSubList.clear();
-                    for(int i = 1; i <= tListRoomType.length; i++) {
-                      if(tListRoomType[i-1].selected) {
-                        tSubList.add(i.toString());
-                      }
-                    }
-                    if(tSubList.length == 0) {//아무것도 선택 안한 경우
-                      tFilterList[0].flag = false;
-                      tFilterList[0].title = "방 종류";
-                      tFilterList[0].selected = false;
-                    }else {
-                      tFilterList[0].title = "";
-                      for(int i =0; i < tListRoomType.length; i++){
-                        if(tListRoomType[i].flag) {
-                          tFilterList[0].title += tListRoomType[i].title + "/";
-                        }
-                      }
-                      String s = tFilterList[0].title;
-                      int l = tFilterList[0].title.length;
-                      tFilterList[0].title = s.substring(0,l-1);
+                    Process_T_Type();
 
-                      tFilterList[0].selected = true;
-                      tCloseFilter();
-                    }
+                    int subFlag2 = Check_T_jeonseFlag();
 
-                    int subFlag2 = -1;
-                    for(int i = 0; i < tListContractType.length; i++) {
-                      if(tListContractType[i].flag){
-                        subFlag2 = i+1;
-                        break;
-                      }
-                    }
+                    bool subFlag = Check_T_optionFlag();
 
-                    bool subFlag = true;
-                    for(int i = 0; i <tListOption.length; i++) {
-                      if(tListOption[i].selected) {
-                        subFlag = false;
-                        break;
-                      }
-                    }
-
-                    var list = await ApiProvider().post("/RoomSalesInfo/MarkerTransferFilter", jsonEncode(
-                        {
-                          "types" : tSubList.length == 0 ? null : tSubList,
-                          "jeonse": subFlag2 == -1 ? null : subFlag2,
-                          "depositmin" : tDepositLowRange,
-                          "depositmax" : tDepositHighRange == 10100000 ? 9999999999 : tDepositHighRange,
-                          "monthlyfeemin" : tMonthlyFeeLowRange,
-                          "monthlyfeemax" : tMonthlyFeeHighRange == 1010000 ? 9999999999 : tDepositHighRange,
-                          "periodmin" : tFilterList[2].selected == false ? "1900.01.01" : tFilterRentStart,
-                          "periodmax" : tFilterList[2].selected == false ? "2900.12.31" : tFilterRentDone,
-                          "parking" : subFlag ? null : tListOption[0].selected ? 1 : 0,
-                          "cctv" : subFlag ? null :  tListOption[1].selected ? 1 : 0,
-                          "wifi" : subFlag ? null :  tListOption[2].selected ? 1 : 0,
-                        }
-                    ));
+                    var list = await Return_TransferMarker_Filter(subFlag2, subFlag);
 
                     if (list != false) {
                       List<MapMarker> markers = [];
@@ -4518,38 +4234,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                   position: LatLng(finalLat, finalLng),
                                   icon: markerImage,
                                   onMarkerTap: () async {
-                                    if(flagRoomList){
-                                      flagRoomList = !flagRoomList;
-                                      setState(() {
-
-                                      });
-                                    } else {
-                                      var list;
-                                      if(isShort){
-                                        list = await ApiProvider().post('/RoomSalesInfo/SelectShortMarker', jsonEncode(
-                                            {
-                                              "longitude" : item.lng,
-                                              "latitude" : item.lat,
-                                            }
-                                        ));
-                                      }else {
-                                        list = await ApiProvider().post('/RoomSalesInfo/SelectTransferMarker', jsonEncode(
-                                            {
-                                              "longitude" : item.lng,
-                                              "latitude" : item.lat,
-                                            }
-                                        ));
-                                      }
-                                      selectedItemList.clear();
-                                      for(int i = 0; i < list.length; i++) {
-                                        var item = RoomSalesInfo.fromJson(list[i]);
-                                        selectedItemList.add(item);
-                                      }
-                                      flagRoomList = !flagRoomList;
-                                      setState(() {
-
-                                      });
-                                    }
+                                    await Initialize_MarkerTap(item);
                                   }
                               ),
                             );
@@ -4714,9 +4399,9 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                   thumbColor: Colors.white,
                 ),
                 child: RangeSlider(
-                  min: 0,
-                  max: 301000000,
-                  divisions: 301,
+                  min: T_DEPOSIT_LOW_RANGE,
+                  max: T_DEPOSIT_HIGH_RANGE,
+                  divisions: T_DEPOSIT_DIVISION,
                   inactiveColor: Color(0xffcccccc),
                   activeColor: kPrimaryColor,
                   labels: null,
@@ -4724,7 +4409,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                   //RangeValues(_lowValue,_highValue),
                   onChanged: (_range) {
                     setState(() {
-                      if(_range.end.toInt() == 301000000) {
+                      if(_range.end.toInt() == T_DEPOSIT_HIGH_RANGE) {
                         tDepositInfinity = extractNum_Transfer(_range.start) + "만원-무제한";
                       } else {
                         tDepositInfinity = extractNum_Transfer(_range.start) + "만원-" + extractNum_Transfer(_range.end) + "만원";
@@ -4808,9 +4493,9 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                       thumbColor: Colors.white,
                     ),
                     child: RangeSlider(
-                      min: 0,
-                      max: 5010000,
-                      divisions: 101,
+                      min: T_MONTHLY_LOW_RANGE,
+                      max: T_MONTHLY_HIGH_RANGE,
+                      divisions: T_MONTHLY_DIVISION,
                       inactiveColor: Color(0xffcccccc),
                       activeColor: kPrimaryColor,
                       labels: null,
@@ -4818,7 +4503,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                       //RangeValues(_lowValue,_highValue),
                       onChanged: (_range) {
                         setState(() {
-                          if(_range.end.toInt() == 5010000) {
+                          if(_range.end.toInt() == T_MONTHLY_HIGH_RANGE) {
                             tMonthlyInfinity = extractNum_Transfer(_range.start) + "만원-무제한";
                           } else {
                             tMonthlyInfinity = extractNum_Transfer(_range.start) + "만원-" + extractNum_Transfer(_range.end) + "만원";
@@ -4882,73 +4567,13 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
               Expanded(
                 child: InkWell(
                   onTap: () async {
-                    String contractType;
+                    Process_T_Price();
 
-                    if(tListContractType[0].selected && !tListContractType[1].selected) {
-                      if(tDepositLowRange == 0 && tDepositHighRange == 301000000 && tMonthlyFeeLowRange == 0 && tMonthlyFeeHighRange == 5010000) {
-                        tFilterList[1].flag = false;
-                        tFilterList[1].title = "가격";
-                        tFilterList[1].selected = false;
-                        contractType="";
-                      } else {
-                        contractType = "월세";
-                        tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer(tDepositLowRange)+"-"+extractNum_Transfer(tDepositHighRange)+"만원,월 "+
-                            extractNum_Transfer(tMonthlyFeeLowRange)+"-"+extractNum_Transfer(tMonthlyFeeHighRange)+"만원";
-                        tFilterList[1].selected = true;
-                        tFilterList[1].flag = true;
-                      }
+                    int subFlag2 = Check_T_jeonseFlag();
 
-                      Function okFunc = () async{
-                        Navigator.pop(context);
+                    bool subFlag = Check_T_optionFlag();
 
-                      };
-                    } else {
-                      flagContractType = 2;
-                      if(tDepositLowRange == 0 && tDepositHighRange == 301000000) {
-                        tFilterList[1].flag = false;
-                        tFilterList[1].title = "가격";
-                        tFilterList[1].selected = false;
-                        contractType="";
-                      }
-                      else {contractType = "전세";
-
-                      tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer(tDepositLowRange)+"-"+extractNum_Transfer(tDepositHighRange)+"만원";
-                      tFilterList[1].selected = true;
-                      tFilterList[1].flag = true;
-                      }
-                   }
-
-                    int subFlag2 = -1;
-                    for(int i = 0; i < tListContractType.length; i++) {
-                      if(tListContractType[i].flag){
-                        subFlag2 = i+1;
-                        break;
-                      }
-                    }
-
-                    bool subFlag = true;
-                    for(int i = 0; i <tListOption.length; i++) {
-                      if(tListOption[i].selected) {
-                        subFlag = false;
-                        break;
-                      }
-                    }
-
-                    var list = await ApiProvider().post("/RoomSalesInfo/MarkerTransferFilter", jsonEncode(
-                        {
-                          "types" : tSubList.length == 0 ? null : tSubList,
-                          "jeonse": subFlag2 == -1 ? null : subFlag2,
-                          "depositmin" : tDepositLowRange,
-                          "depositmax" : tDepositHighRange == 301000000 ? 9999999999 : tDepositHighRange,
-                          "monthlyfeemin" : tMonthlyFeeLowRange,
-                          "monthlyfeemax" : tMonthlyFeeHighRange == 5010000 ? 9999999999 : tDepositHighRange,
-                          "periodmin" : tFilterList[2].selected == false ? "1900.01.01" : tFilterRentStart,
-                          "periodmax" : tFilterList[2].selected == false ? "2900.12.31" : tFilterRentDone,
-                          "parking" : subFlag ? null : tListOption[0].selected ? 1 : 0,
-                          "cctv" : subFlag ? null :  tListOption[1].selected ? 1 : 0,
-                          "wifi" : subFlag ? null :  tListOption[2].selected ? 1 : 0,
-                        }
-                    ));
+                    var list = await Return_TransferMarker_Filter(subFlag2, subFlag);
 
                     if (list != false) {
                       List<MapMarker> markers = [];
@@ -4985,38 +4610,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                   position: LatLng(finalLat, finalLng),
                                   icon: markerImage,
                                   onMarkerTap: () async {
-                                    if(flagRoomList){
-                                      flagRoomList = !flagRoomList;
-                                      setState(() {
-
-                                      });
-                                    } else {
-                                      var list;
-                                      if(isShort){
-                                        list = await ApiProvider().post('/RoomSalesInfo/SelectShortMarker', jsonEncode(
-                                            {
-                                              "longitude" : item.lng,
-                                              "latitude" : item.lat,
-                                            }
-                                        ));
-                                      }else {
-                                        list = await ApiProvider().post('/RoomSalesInfo/SelectTransferMarker', jsonEncode(
-                                            {
-                                              "longitude" : item.lng,
-                                              "latitude" : item.lat,
-                                            }
-                                        ));
-                                      }
-                                      selectedItemList.clear();
-                                      for(int i = 0; i < list.length; i++) {
-                                        var item = RoomSalesInfo.fromJson(list[i]);
-                                        selectedItemList.add(item);
-                                      }
-                                      flagRoomList = !flagRoomList;
-                                      setState(() {
-
-                                      });
-                                    }
+                                    Initialize_MarkerTap(item);
                                   }
                               ),
                             );
@@ -5213,50 +4807,15 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                 child: InkWell(
                   onTap: () async {
                     if(tFilterRentStart == "" || tFilterRentDone ==""){
-                      Function okFunc = () async{
-                        Navigator.pop(context);
-
-                      };
-                      tFilterList[2].flag = false;
-                      tFilterList[2].title = "임대 기간";
-                      tFilterList[2].selected = false;
-                      tCloseFilter();
-                      OKDialog(context, "임대 기간을 입력해주세요!", "입주나 퇴실 기간을 선택해주세요", "확인",okFunc);
+                      Process_T_Period_Null();
                     }else {
-                      tFilterList[2].title = tFilterRentStart + "-"+tFilterRentDone;
-                      tFilterList[2].selected = true;
+                      Process_T_Period();
 
-                      int subFlag2 = -1;
-                      for(int i = 0; i < tListContractType.length; i++) {
-                        if(tListContractType[i].flag){
-                          subFlag2 = i+1;
-                          break;
-                        }
-                      }
+                      int subFlag2 = Check_T_jeonseFlag();
 
-                      bool subFlag = true;
-                      for(int i = 0; i <tListOption.length; i++) {
-                        if(tListOption[i].selected) {
-                          subFlag = false;
-                          break;
-                        }
-                      }
+                      bool subFlag = Check_T_optionFlag();
 
-                      var list = await ApiProvider().post("/RoomSalesInfo/MarkerTransferFilter", jsonEncode(
-                          {
-                            "types" : tSubList.length == 0 ? null : tSubList,
-                            "jeonse": subFlag2 == -1 ? null : subFlag2,
-                            "depositmin" : tDepositLowRange,
-                            "depositmax" : tDepositHighRange == 301000000 ? 9999999999 : tDepositHighRange,
-                            "monthlyfeemin" : tMonthlyFeeLowRange,
-                            "monthlyfeemax" : tMonthlyFeeHighRange == 5010000 ? 9999999999 : tDepositHighRange,
-                            "periodmin" : tFilterList[2].selected == false ? "1900.01.01" : tFilterRentStart,
-                            "periodmax" : tFilterList[2].selected == false ? "2900.12.31" : tFilterRentDone,
-                            "parking" : subFlag ? null : tListOption[0].selected ? 1 : 0,
-                            "cctv" : subFlag ? null :  tListOption[1].selected ? 1 : 0,
-                            "wifi" : subFlag ? null :  tListOption[2].selected ? 1 : 0,
-                          }
-                      ));
+                      var list = await Return_TransferMarker_Filter(subFlag2, subFlag);
 
                       if (list != false) {
                         List<MapMarker> markers = [];
@@ -5293,38 +4852,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                     position: LatLng(finalLat, finalLng),
                                     icon: markerImage,
                                     onMarkerTap: () async {
-                                      if(flagRoomList){
-                                        flagRoomList = !flagRoomList;
-                                        setState(() {
-
-                                        });
-                                      } else {
-                                        var list;
-                                        if(isShort){
-                                          list = await ApiProvider().post('/RoomSalesInfo/SelectShortMarker', jsonEncode(
-                                              {
-                                                "longitude" : item.lng,
-                                                "latitude" : item.lat,
-                                              }
-                                          ));
-                                        }else {
-                                          list = await ApiProvider().post('/RoomSalesInfo/SelectTransferMarker', jsonEncode(
-                                              {
-                                                "longitude" : item.lng,
-                                                "latitude" : item.lat,
-                                              }
-                                          ));
-                                        }
-                                        selectedItemList.clear();
-                                        for(int i = 0; i < list.length; i++) {
-                                          var item = RoomSalesInfo.fromJson(list[i]);
-                                          selectedItemList.add(item);
-                                        }
-                                        flagRoomList = !flagRoomList;
-                                        setState(() {
-
-                                        });
-                                      }
+                                      Initialize_MarkerTap(item);
                                     }
                                 ),
                               );
@@ -5462,56 +4990,13 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
               Expanded(
                 child: InkWell(
                   onTap: () async {
-                    tFilterList[3].title = "";
-                    for(int i =0; i < tListOption.length; i++){
-                      if(tListOption[i].flag) {
-                        tFilterList[3].title += tListOption[i].title + "/";
-                      }
-                    }
-                    String s = tFilterList[3].title;
-                    int l = tFilterList[3].title.length;
+                    Process_T_Option();
 
-                    if(l==0) {//아무것도 선택 안한 경우
-                      tFilterList[3].flag = false;
-                      tFilterList[3].title = "추가 옵션";
-                      tFilterList[3].selected = false;
-                    }else {
-                      tFilterList[3].selected = true;
-                      tFilterList[3].title = s.substring(0,l-1);
-                      sCloseFilter();
-                    }
+                    int subFlag2 = Check_T_jeonseFlag();
 
-                    int subFlag2 = -1;
-                    for(int i = 0; i < tListContractType.length; i++) {
-                      if(tListContractType[i].flag){
-                        subFlag2 = i+1;
-                        break;
-                      }
-                    }
+                    bool subFlag = Check_T_optionFlag();
 
-                    bool subFlag = true;
-                    for(int i = 0; i <tListOption.length; i++) {
-                      if(tListOption[i].selected) {
-                        subFlag = false;
-                        break;
-                      }
-                    }
-
-                    var list = await ApiProvider().post("/RoomSalesInfo/MarkerTransferFilter", jsonEncode(
-                        {
-                          "types" : tSubList.length == 0 ? null : tSubList,
-                          "jeonse": subFlag2 == -1 ? null : subFlag2,
-                          "depositmin" : tDepositLowRange,
-                          "depositmax" : tDepositHighRange == 10100000 ? 9999999999 : tDepositHighRange,
-                          "monthlyfeemin" : tMonthlyFeeLowRange,
-                          "monthlyfeemax" : tMonthlyFeeHighRange == 1010000 ? 9999999999 : tDepositHighRange,
-                          "periodmin" : tFilterList[2].selected == false ? "1900.01.01" : tFilterRentStart,
-                          "periodmax" : tFilterList[2].selected == false ? "2900.12.31" : tFilterRentDone,
-                          "parking" : subFlag ? null : tListOption[0].selected ? 1 : 0,
-                          "cctv" : subFlag ? null :  tListOption[1].selected ? 1 : 0,
-                          "wifi" : subFlag ? null :  tListOption[2].selected ? 1 : 0,
-                        }
-                    ));
+                    var list = await Return_TransferMarker_Filter(subFlag2, subFlag);
 
                     if (list != false) {
                       List<MapMarker> markers = [];
@@ -5548,38 +5033,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                   position: LatLng(finalLat, finalLng),
                                   icon: markerImage,
                                   onMarkerTap: () async {
-                                    if(flagRoomList){
-                                      flagRoomList = !flagRoomList;
-                                      setState(() {
-
-                                      });
-                                    } else {
-                                      var list;
-                                      if(isShort){
-                                        list = await ApiProvider().post('/RoomSalesInfo/SelectShortMarker', jsonEncode(
-                                            {
-                                              "longitude" : item.lng,
-                                              "latitude" : item.lat,
-                                            }
-                                        ));
-                                      }else {
-                                        list = await ApiProvider().post('/RoomSalesInfo/SelectTransferMarker', jsonEncode(
-                                            {
-                                              "longitude" : item.lng,
-                                              "latitude" : item.lat,
-                                            }
-                                        ));
-                                      }
-                                      selectedItemList.clear();
-                                      for(int i = 0; i < list.length; i++) {
-                                        var item = RoomSalesInfo.fromJson(list[i]);
-                                        selectedItemList.add(item);
-                                      }
-                                      flagRoomList = !flagRoomList;
-                                      setState(() {
-
-                                      });
-                                    }
+                                    await Initialize_MarkerTap(item);
                                   }
                               ),
                             );
@@ -5630,6 +5084,150 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
         ],
       ),
     ) : Container();
+  }
+
+  Future Return_TransferMarker_Filter(int subFlag2, bool subFlag) async {
+    var list = await ApiProvider().post("/RoomSalesInfo/MarkerTransferFilter", jsonEncode(
+        {
+          "types" : tSubList.length == 0 ? null : tSubList,
+          "jeonse": subFlag2 == -1 ? null : subFlag2,
+          "depositmin" : tDepositLowRange,
+          "depositmax" : tDepositHighRange == T_DEPOSIT_HIGH_RANGE ? IF_T_DEPOSIT_HIGH_DEFAULT : tDepositHighRange,
+          "monthlyfeemin" : tMonthlyFeeLowRange,
+          "monthlyfeemax" : tMonthlyFeeHighRange == T_MONTHLY_HIGH_RANGE ? IF_T_MONTHLY_HIGH_DEFAULT : tDepositHighRange,
+          "periodmin" : tFilterList[2].selected == false ? IF_T_PERIOD_MIN_DEFAULT : tFilterRentStart,
+          "periodmax" : tFilterList[2].selected == false ? IF_T_PERIOD_HIGH_DEFAULT : tFilterRentDone,
+          "parking" : subFlag ? null : tListOption[0].selected ? 1 : 0,
+          "cctv" : subFlag ? null :  tListOption[1].selected ? 1 : 0,
+          "wifi" : subFlag ? null :  tListOption[2].selected ? 1 : 0,
+        }
+    ));
+    return list;
+  }
+
+  void Process_T_Option() {
+    tFilterList[3].title = "";
+    for(int i =0; i < tListOption.length; i++){
+      if(tListOption[i].flag) {
+        tFilterList[3].title += tListOption[i].title + "/";
+      }
+    }
+    String s = tFilterList[3].title;
+    int l = tFilterList[3].title.length;
+
+    if(l==0) {//아무것도 선택 안한 경우
+      tFilterList[3].flag = false;
+      tFilterList[3].title = "추가 옵션";
+      tFilterList[3].selected = false;
+    }else {
+      tFilterList[3].selected = true;
+      tFilterList[3].title = s.substring(0,l-1);
+      sCloseFilter();
+    }
+  }
+
+  void Process_T_Period() {
+    tFilterList[2].title = tFilterRentStart + "-"+tFilterRentDone;
+    tFilterList[2].selected = true;
+  }
+
+  void Process_T_Period_Null() {
+    Function okFunc = () async{
+      Navigator.pop(context);
+
+    };
+    tFilterList[2].flag = false;
+    tFilterList[2].title = "임대 기간";
+    tFilterList[2].selected = false;
+    tCloseFilter();
+    OKDialog(context, "임대 기간을 입력해주세요!", "입주나 퇴실 기간을 선택해주세요", "확인",okFunc);
+  }
+
+  void Process_T_Price() {
+    String contractType;
+
+    if(tListContractType[0].selected && !tListContractType[1].selected) {
+      if(tDepositLowRange == 0 && tDepositHighRange == 301000000 && tMonthlyFeeLowRange == 0 && tMonthlyFeeHighRange == 5010000) {
+        tFilterList[1].flag = false;
+        tFilterList[1].title = "가격";
+        tFilterList[1].selected = false;
+        contractType="";
+      } else {
+        contractType = "월세";
+        tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer(tDepositLowRange)+"-"+extractNum_Transfer(tDepositHighRange)+"만원,월 "+
+            extractNum_Transfer(tMonthlyFeeLowRange)+"-"+extractNum_Transfer(tMonthlyFeeHighRange)+"만원";
+        tFilterList[1].selected = true;
+        tFilterList[1].flag = true;
+      }
+
+      Function okFunc = () async{
+        Navigator.pop(context);
+
+      };
+    } else {
+      flagContractType = 2;
+      if(tDepositLowRange == 0 && tDepositHighRange == 301000000) {
+        tFilterList[1].flag = false;
+        tFilterList[1].title = "가격";
+        tFilterList[1].selected = false;
+        contractType="";
+      }
+      else {contractType = "전세";
+
+      tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer(tDepositLowRange)+"-"+extractNum_Transfer(tDepositHighRange)+"만원";
+      tFilterList[1].selected = true;
+      tFilterList[1].flag = true;
+      }
+                       }
+  }
+
+  void Process_T_Type() {
+    tSubList.clear();
+    for(int i = 1; i <= tListRoomType.length; i++) {
+      if(tListRoomType[i-1].selected) {
+        tSubList.add(i.toString());
+      }
+    }
+    if(tSubList.length == 0) {//아무것도 선택 안한 경우
+      tFilterList[0].flag = false;
+      tFilterList[0].title = "방 종류";
+      tFilterList[0].selected = false;
+    }else {
+      tFilterList[0].title = "";
+      for(int i =0; i < tListRoomType.length; i++){
+        if(tListRoomType[i].flag) {
+          tFilterList[0].title += tListRoomType[i].title + "/";
+        }
+      }
+      String s = tFilterList[0].title;
+      int l = tFilterList[0].title.length;
+      tFilterList[0].title = s.substring(0,l-1);
+
+      tFilterList[0].selected = true;
+      tCloseFilter();
+    }
+  }
+
+  int Check_T_jeonseFlag() {
+    int subFlag2 = -1;
+    for(int i = 0; i < tListContractType.length; i++) {
+      if(tListContractType[i].flag){
+        subFlag2 = i+1;
+        break;
+      }
+    }
+    return subFlag2;
+  }
+
+  bool Check_T_optionFlag() {
+    bool subFlag = true;
+    for(int i = 0; i <tListOption.length; i++) {
+      if(tListOption[i].selected) {
+        subFlag = false;
+        break;
+      }
+    }
+    return subFlag;
   }
 
   InkWell sFilterCancelWidget(double screenHeight, double screenWidth) {

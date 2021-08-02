@@ -356,307 +356,7 @@ class _MyRoomLikesState extends State<MyRoomLikes> with SingleTickerProviderStat
                         scrollDirection: Axis.vertical,
                         itemCount: RecentListIndex ,
                         itemBuilder: (BuildContext context, int index) => getRoomSalesInfoByID(int.parse(RecentList[index])) == null ? SizedBox() :
-                        getRoomSalesInfoByID(int.parse(RecentList[index])).ShortTerm ? GestureDetector(
-                          onTap: () async {
-                            if(doubleCheck  ==false) {
-                              doubleCheck = true;
-
-                              var t = await ApiProvider()
-                                  .post('/RoomSalesInfo/RoomSelectWithLike',
-                                  jsonEncode({
-                                    "roomID": getRoomSalesInfoByID(int.parse(RecentList[index])).id,
-                                    "userID": GlobalProfile.loggedInUser.userID,
-                                  }));
-
-                              RoomSalesInfo tmpRoom = RoomSalesInfo.fromJson(t);
-
-                              GlobalProfile.detailReviewList.clear();
-                              double finalLat;
-                              double finalLng;
-                              if (null ==
-                                  tmpRoom.lng ||
-                                  null == tmpRoom
-                                      .lat) {
-                                var addresses = await Geocoder.google(
-                                    'AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c')
-                                    .findAddressesFromQuery(
-                                    tmpRoom
-                                        .location);
-                                var first = addresses.first;
-                                tmpRoom
-                                    .lat = first.coordinates.latitude;
-                                tmpRoom
-                                    .lng = first.coordinates.longitude;
-                              }
-                              else{
-                                finalLng = tmpRoom.lng;
-                                finalLat = tmpRoom.lat;
-                              }
-                              var detailReviewList = await ApiProvider()
-                                  .post('/Review/ReviewListLngLat',
-                                  jsonEncode({
-                                    "longitude": finalLng,
-                                    "latitude": finalLat,
-                                  }));
-
-                              if (detailReviewList != null) {
-                                for (int i = 0;
-                                i < detailReviewList.length;
-                                ++i) {
-                                  GlobalProfile.detailReviewList.add(
-                                      DetailReview.fromJson(
-                                          detailReviewList[i]));
-                                }
-                              }
-                              await AddRecent(
-                                  tmpRoom.id);
-                              var res = await Navigator.push(
-                                  context, // 기본 파라미터, SecondRoute로 전달
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          DetailedRoomInformation(
-                                            roomSalesInfo: tmpRoom,
-                                            nbnb:tmpRoom.ShortTerm,
-                                          )) // SecondRoute를 생성하여 적재
-                              ).then((value) {
-                                if (value == false) {
-                                  getRoomSalesInfoByID(int.parse(RecentList[index]))
-                                      .ChangeLikesWithValue(false);
-                                  return;
-                                }
-                                getRoomSalesInfoByID(int.parse(RecentList[index]))
-                                    .ChangeLikesWithValue(value);
-                                setState(() {
-
-                                });
-                                return;
-                              });
-                            }
-
-                          },
-                          child: Container(
-                            width: screenWidth,
-                            height: screenHeight * (110/620),
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                left: screenWidth * 0.033333,
-                                //  right: screenWidth * 0.033333,
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      SizedBox(height: screenHeight * 0.00875),
-                                      Container(
-                                        width: screenWidth * 0.3333333,
-                                        height: screenWidth * (100/360),
-                                        child: ClipRRect(
-                                            borderRadius: new BorderRadius.circular(4.0),
-                                            child:      getRoomSalesInfoByID(int.parse(RecentList[index])).imageUrl1=="BasicImage"
-                                                ?
-                                            FittedBox(
-                                              fit: BoxFit.cover,
-                                              child: SvgPicture.asset(
-                                                mryrInReviewScreen,
-
-                                              ),
-                                            )
-                                                :  Stack(
-                                              children: [
-                                                FittedBox(
-                                                  fit: BoxFit.cover,
-                                                  child:    getExtendedImage(get_resize_image_name(getRoomSalesInfoByID(int.parse(RecentList[index])).imageUrl1,360), 0,extendedController),
-                                                ),
-                                                Center(
-                                                  child: SvgPicture.asset(
-                                                      RoomWaterMark,
-                                                      width: screenWidth*(56/360),
-                                                      height:screenHeight*(16/640)
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    width: screenWidth * 0.033333,
-                                  ),
-                                  Stack(
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Column(
-                                                mainAxisAlignment: MainAxisAlignment.start,
-                                                children: [
-                                                  SizedBox(height: screenHeight * 0.01875),
-                                                  SizedBox(
-                                                    width: screenWidth*(185/360),
-                                                    child: Row(
-                                                      children: [
-                                                        Wrap(
-                                                          alignment: WrapAlignment.center,
-                                                          spacing: screenWidth * 0.011111,
-                                                          children: [
-                                                            Container(
-                                                              height: screenHeight * 0.028125,
-                                                              child: Padding(
-                                                                padding: EdgeInsets.fromLTRB(
-                                                                    screenWidth * 0.022222,
-                                                                    screenHeight * 0.000225,
-                                                                    screenWidth * 0.022222,
-                                                                    screenHeight * 0.000225),
-                                                                child: Align(
-                                                                  alignment: Alignment.center,
-                                                                  child: Text(
-                                                                    getRoomSalesInfoByID(int.parse(RecentList[index])).Condition == 1 ? "신축 건물" : "구축 건물",
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                        screenWidth*TagFontSize,
-                                                                        color: kPrimaryColor,
-                                                                        fontWeight: FontWeight.bold
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              decoration: BoxDecoration(
-                                                                borderRadius:
-                                                                new BorderRadius.circular(4.0),
-                                                                color: hexToColor("#E5E5E5"),
-                                                              ),
-                                                            ),
-                                                            Container(
-                                                              height: screenHeight * 0.028125,
-                                                              child: Padding(
-                                                                padding: EdgeInsets.fromLTRB(
-                                                                    screenWidth * 0.022222,
-                                                                    screenHeight * 0.000225,
-                                                                    screenWidth * 0.022222,
-                                                                    0),
-                                                                child: Align(
-                                                                  alignment: Alignment.center,
-                                                                  child: Text(
-                                                                    getRoomSalesInfoByID(int.parse(RecentList[index])).Floor == 1 ? "반지하" : getRoomSalesInfoByID(int.parse(RecentList[index])).Floor == 2 ? "1층" : "2층 이상",
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                        screenWidth*TagFontSize,
-                                                                        color: kPrimaryColor,
-                                                                        fontWeight: FontWeight.bold
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                              decoration: BoxDecoration(
-                                                                borderRadius:
-                                                                new BorderRadius.circular(4.0),
-                                                                color: hexToColor("#E5E5E5"),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(
-                                            height: screenHeight * 0.00625,
-                                          ),
-
-                                          Text(
-                                            getRoomSalesInfoByID(int.parse(RecentList[index])).jeonse == true?    getRoomSalesInfoByID(int.parse(RecentList[index])).depositFeesOffer.toString()+"만원 / 전세" :      getRoomSalesInfoByID(int.parse(RecentList[index])).monthlyRentFeesOffer.toString()+"만원 / 월세",
-
-                                            style: TextStyle(
-                                                fontSize: screenHeight * 0.025,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          SizedBox(
-                                            height: screenHeight * 0.00625,
-                                          ),
-                                          Text(
-                                              getRoomSalesInfoByID(int.parse(RecentList[index])).termOfLeaseMin.toString() + " ~ "+getRoomSalesInfoByID(int.parse(RecentList[index])).termOfLeaseMax.toString(),
-                                              style:TextStyle(
-                                                fontSize: screenWidth*(12/360),
-                                                color:hexToColor("#44444444"),
-                                              )
-                                          ),
-                                          Container(
-                                            width:screenWidth*(205/360),
-                                            child: Row(
-                                              crossAxisAlignment: CrossAxisAlignment.end,
-                                              children: [
-                                                Container(
-                                                  width: screenWidth*0.45,
-                                                  height: screenHeight*(36/640),
-                                                  child: Text(
-                                                    getRoomSalesInfoByID(int.parse(RecentList[index])).information==null?"":getRoomSalesInfoByID(int.parse(RecentList[index])).information,
-                                                    maxLines: 2,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                        color: hexToColor("#888888")),
-                                                  ),
-                                                ),
-                                                Text(timeCheck( getRoomSalesInfoByID(int.parse(RecentList[index])).updatedAt.toString()),style: TextStyle(fontSize: screenWidth*(10/360),color: Color(0xff888888)),),
-
-                                              ],
-                                            ),
-                                          ),
-
-
-
-                                        ],
-                                      ),
-                                      Positioned(
-                                        top: screenWidth*(8/360),
-                                        right:screenWidth*(4/360),
-                                        child: GestureDetector(
-
-                                            onTap: () async {
-                                              var res = await ApiProvider().post('/RoomSalesInfo/Insert/Like', jsonEncode(
-                                                  {
-                                                    "userID" : GlobalProfile.loggedInUser.userID,
-                                                    "roomSaleID": getRoomSalesInfoByID(int.parse(RecentList[index])).id,
-                                                  }
-                                              ));
-                                              bool sub = !getRoomSalesInfoByID(int.parse(RecentList[index])).Likes;
-                                              getRoomSalesInfoByID(int.parse(RecentList[index])).ChangeLikesWithValue(sub);
-                                              getRoomSalesInfoByIDFromMainTransfer(getRoomSalesInfoByID(int.parse(RecentList[index])).id).ChangeLikesWithValue(sub);
-                                              setState(() {
-
-                                              });
-                                            },
-                                            child:  ( getRoomSalesInfoByID(int.parse(RecentList[index])).Likes == null || !getRoomSalesInfoByID(int.parse(RecentList[index])).Likes) ?
-                                            SvgPicture.asset(
-                                              GreyEmptyHeartIcon,
-
-                                              width: screenHeight * 0.0375,
-                                              height: screenHeight * 0.0375,
-                                              color: Color(0xffEEEEEE),
-                                            )
-                                                : SvgPicture.asset(
-                                              PurpleFilledHeartIcon,
-                                              width: screenHeight * 0.0375,
-                                              height: screenHeight * 0.0375,
-                                              color: kPrimaryColor,
-                                            )),
-                                      )
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ) : GestureDetector(
+                        getRoomSalesInfoByID(int.parse(RecentList[index])).ShortTerm ?  GestureDetector(
                           onTap: () async {
 
                             if(doubleCheck == false) {
@@ -827,7 +527,7 @@ class _MyRoomLikesState extends State<MyRoomLikes> with SingleTickerProviderStat
                                       height: screenWidth * (100/360),
                                       child: ClipRRect(
                                           borderRadius: new BorderRadius.circular(4.0),
-                                          child:     (nbnbRoom[index].imageUrl1=="BasicImage" ||getRoomSalesInfoByID(int.parse(RecentList[index])).imageUrl1 == null)
+                                          child:     (getRoomSalesInfoByID(int.parse(RecentList[index])).imageUrl1=="BasicImage" ||getRoomSalesInfoByID(int.parse(RecentList[index])).imageUrl1 == null)
                                               ?
                                           FittedBox(
                                             fit: BoxFit.cover,
@@ -840,7 +540,7 @@ class _MyRoomLikesState extends State<MyRoomLikes> with SingleTickerProviderStat
                                             children: [
                                               FittedBox(
                                                 fit: BoxFit.cover,
-                                                child:    getExtendedImage(get_resize_image_name(nbnbRoom[index].imageUrl1,360), 0,extendedController),
+                                                child:    getExtendedImage(get_resize_image_name(getRoomSalesInfoByID(int.parse(RecentList[index])).imageUrl1,360), 0,extendedController),
                                               ),
                                               Center(
                                                 child: SvgPicture.asset(
@@ -958,7 +658,7 @@ class _MyRoomLikesState extends State<MyRoomLikes> with SingleTickerProviderStat
                                             ),
 
                                             Text(
-                                              ' ( '+nbnbRoom[index].WeeklyRentFeesOffer.toString() +
+                                              ' ( '+getRoomSalesInfoByID(int.parse(RecentList[index])).WeeklyRentFeesOffer.toString() +
                                                   '만원 / 주 )',
                                               style: TextStyle(
                                                   fontSize: screenWidth * (12/360),
@@ -979,13 +679,14 @@ class _MyRoomLikesState extends State<MyRoomLikes> with SingleTickerProviderStat
                                                 width: screenWidth*0.45,
                                                 height: screenHeight*(36/640),
                                                 child: Text(
-                                                 getRoomSalesInfoByID(int.parse(RecentList[index])).information==null?"":nbnbRoom[index].information,
+                                                 getRoomSalesInfoByID(int.parse(RecentList[index])).information==null?"":getRoomSalesInfoByID(int.parse(RecentList[index])).information,
                                                   maxLines: 2,
                                                   overflow: TextOverflow.ellipsis,
                                                   style: TextStyle(
                                                       color: hexToColor("#888888")),
                                                 ),
                                               ),
+                                              Expanded(child: SizedBox()),
                                               Text(timeCheck(getRoomSalesInfoByID(int.parse(RecentList[index])).updatedAt.toString()),style: TextStyle(fontSize: screenWidth*(10/360),color: Color(0xff888888)),),
 
                                             ],
@@ -1006,15 +707,15 @@ class _MyRoomLikesState extends State<MyRoomLikes> with SingleTickerProviderStat
                                                   "roomSaleID":getRoomSalesInfoByID(int.parse(RecentList[index])).id,
                                                 }
                                             ));
-                                            bool sub = !nbnbRoom[index].Likes;
+                                            bool sub = !getRoomSalesInfoByID(int.parse(RecentList[index])).Likes;
                                            getRoomSalesInfoByID(int.parse(RecentList[index])).ChangeLikesWithValue(sub);
-                                            getRoomSalesInfoByIDFromMainTransfer(nbnbRoom[index].id).ChangeLikesWithValue(sub);
+                                            getRoomSalesInfoByIDFromMainTransfer(getRoomSalesInfoByID(int.parse(RecentList[index])).id).ChangeLikesWithValue(sub);
                                             setState(() {
 
                                             });
 
                                           },
-                                          child:  (getRoomSalesInfoByID(int.parse(RecentList[index])).Likes == null || !nbnbRoom[index].Likes) ?
+                                          child:  (getRoomSalesInfoByID(int.parse(RecentList[index])).Likes == null || !getRoomSalesInfoByID(int.parse(RecentList[index])).Likes) ?
                                           SvgPicture.asset(
                                             GreyEmptyHeartIcon,
 
@@ -1034,6 +735,308 @@ class _MyRoomLikesState extends State<MyRoomLikes> with SingleTickerProviderStat
                               ],
                             ),
 
+                          ),
+                        ) : GestureDetector(
+                          onTap: () async {
+                            if(doubleCheck  ==false) {
+                              doubleCheck = true;
+
+                              var t = await ApiProvider()
+                                  .post('/RoomSalesInfo/RoomSelectWithLike',
+                                  jsonEncode({
+                                    "roomID": getRoomSalesInfoByID(int.parse(RecentList[index])).id,
+                                    "userID": GlobalProfile.loggedInUser.userID,
+                                  }));
+
+                              RoomSalesInfo tmpRoom = RoomSalesInfo.fromJson(t);
+
+                              GlobalProfile.detailReviewList.clear();
+                              double finalLat;
+                              double finalLng;
+                              if (null ==
+                                  tmpRoom.lng ||
+                                  null == tmpRoom
+                                      .lat) {
+                                var addresses = await Geocoder.google(
+                                    'AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c')
+                                    .findAddressesFromQuery(
+                                    tmpRoom
+                                        .location);
+                                var first = addresses.first;
+                                tmpRoom
+                                    .lat = first.coordinates.latitude;
+                                tmpRoom
+                                    .lng = first.coordinates.longitude;
+                              }
+                              else{
+                                finalLng = tmpRoom.lng;
+                                finalLat = tmpRoom.lat;
+                              }
+                              var detailReviewList = await ApiProvider()
+                                  .post('/Review/ReviewListLngLat',
+                                  jsonEncode({
+                                    "longitude": finalLng,
+                                    "latitude": finalLat,
+                                  }));
+
+                              if (detailReviewList != null) {
+                                for (int i = 0;
+                                i < detailReviewList.length;
+                                ++i) {
+                                  GlobalProfile.detailReviewList.add(
+                                      DetailReview.fromJson(
+                                          detailReviewList[i]));
+                                }
+                              }
+                              await AddRecent(
+                                  tmpRoom.id);
+                              var res = await Navigator.push(
+                                  context, // 기본 파라미터, SecondRoute로 전달
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          DetailedRoomInformation(
+                                            roomSalesInfo: tmpRoom,
+                                            nbnb:tmpRoom.ShortTerm,
+                                          )) // SecondRoute를 생성하여 적재
+                              ).then((value) {
+                                if (value == false) {
+                                  getRoomSalesInfoByID(int.parse(RecentList[index]))
+                                      .ChangeLikesWithValue(false);
+                                  return;
+                                }
+                                getRoomSalesInfoByID(int.parse(RecentList[index]))
+                                    .ChangeLikesWithValue(value);
+                                setState(() {
+
+                                });
+                                return;
+                              });
+                            }
+
+                          },
+                          child: Container(
+                            width: screenWidth,
+                            height: screenHeight * (110/620),
+                            color: Colors.white,
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                left: screenWidth * 0.033333,
+                                //  right: screenWidth * 0.033333,
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      SizedBox(height: screenHeight * 0.00875),
+                                      Container(
+                                        width: screenWidth * 0.3333333,
+                                        height: screenWidth * (100/360),
+                                        child: ClipRRect(
+                                            borderRadius: new BorderRadius.circular(4.0),
+                                            child:      getRoomSalesInfoByID(int.parse(RecentList[index])).imageUrl1=="BasicImage"
+                                                ?
+                                            FittedBox(
+                                              fit: BoxFit.cover,
+                                              child: SvgPicture.asset(
+                                                mryrInReviewScreen,
+
+                                              ),
+                                            )
+                                                :  Stack(
+                                              children: [
+                                                FittedBox(
+                                                  fit: BoxFit.cover,
+                                                  child:    getExtendedImage(get_resize_image_name(getRoomSalesInfoByID(int.parse(RecentList[index])).imageUrl1,360), 0,extendedController),
+                                                ),
+                                                Center(
+                                                  child: SvgPicture.asset(
+                                                      RoomWaterMark,
+                                                      width: screenWidth*(56/360),
+                                                      height:screenHeight*(16/640)
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    width: screenWidth * 0.033333,
+                                  ),
+                                  Stack(
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Column(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [
+                                                  SizedBox(height: screenHeight * 0.01875),
+                                                  SizedBox(
+                                                    width: screenWidth*(185/360),
+                                                    child: Row(
+                                                      children: [
+                                                        Wrap(
+                                                          alignment: WrapAlignment.center,
+                                                          spacing: screenWidth * 0.011111,
+                                                          children: [
+                                                            Container(
+                                                              height: screenHeight * 0.028125,
+                                                              child: Padding(
+                                                                padding: EdgeInsets.fromLTRB(
+                                                                    screenWidth * 0.022222,
+                                                                    screenHeight * 0.000225,
+                                                                    screenWidth * 0.022222,
+                                                                    screenHeight * 0.000225),
+                                                                child: Align(
+                                                                  alignment: Alignment.center,
+                                                                  child: Text(
+                                                                    getRoomSalesInfoByID(int.parse(RecentList[index])).Condition == 1 ? "신축 건물" : "구축 건물",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                        screenWidth*TagFontSize,
+                                                                        color: kPrimaryColor,
+                                                                        fontWeight: FontWeight.bold
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              decoration: BoxDecoration(
+                                                                borderRadius:
+                                                                new BorderRadius.circular(4.0),
+                                                                color: hexToColor("#E5E5E5"),
+                                                              ),
+                                                            ),
+                                                            Container(
+                                                              height: screenHeight * 0.028125,
+                                                              child: Padding(
+                                                                padding: EdgeInsets.fromLTRB(
+                                                                    screenWidth * 0.022222,
+                                                                    screenHeight * 0.000225,
+                                                                    screenWidth * 0.022222,
+                                                                    0),
+                                                                child: Align(
+                                                                  alignment: Alignment.center,
+                                                                  child: Text(
+                                                                    getRoomSalesInfoByID(int.parse(RecentList[index])).Floor == 1 ? "반지하" : getRoomSalesInfoByID(int.parse(RecentList[index])).Floor == 2 ? "1층" : "2층 이상",
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                        screenWidth*TagFontSize,
+                                                                        color: kPrimaryColor,
+                                                                        fontWeight: FontWeight.bold
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              decoration: BoxDecoration(
+                                                                borderRadius:
+                                                                new BorderRadius.circular(4.0),
+                                                                color: hexToColor("#E5E5E5"),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(
+                                            height: screenHeight * 0.00625,
+                                          ),
+
+                                          Text(
+                                            getRoomSalesInfoByID(int.parse(RecentList[index])).jeonse == true?    getRoomSalesInfoByID(int.parse(RecentList[index])).depositFeesOffer.toString()+"만원 / 전세" :      getRoomSalesInfoByID(int.parse(RecentList[index])).monthlyRentFeesOffer.toString()+"만원 / 월세",
+
+                                            style: TextStyle(
+                                                fontSize: screenHeight * 0.025,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          SizedBox(
+                                            height: screenHeight * 0.00625,
+                                          ),
+                                          Text(
+                                              getRoomSalesInfoByID(int.parse(RecentList[index])).termOfLeaseMin.toString() + " ~ "+getRoomSalesInfoByID(int.parse(RecentList[index])).termOfLeaseMax.toString(),
+                                              style:TextStyle(
+                                                fontSize: screenWidth*(12/360),
+                                                color:hexToColor("#44444444"),
+                                              )
+                                          ),
+                                          Container(
+                                            width:screenWidth*(205/360),
+                                            child: Row(
+                                              crossAxisAlignment: CrossAxisAlignment.end,
+                                              children: [
+                                                Container(
+                                                  width: screenWidth*0.45,
+                                                  height: screenHeight*(36/640),
+                                                  child: Text(
+                                                    getRoomSalesInfoByID(int.parse(RecentList[index])).information==null?"":getRoomSalesInfoByID(int.parse(RecentList[index])).information,
+                                                    maxLines: 2,
+                                                    overflow: TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                        color: hexToColor("#888888")),
+                                                  ),
+                                                ),
+                                                Expanded(child: SizedBox()),
+                                                Text(timeCheck( getRoomSalesInfoByID(int.parse(RecentList[index])).updatedAt.toString()),style: TextStyle(fontSize: screenWidth*(10/360),color: Color(0xff888888)),),
+
+                                              ],
+                                            ),
+                                          ),
+
+
+
+                                        ],
+                                      ),
+                                      Positioned(
+                                        top: screenWidth*(8/360),
+                                        right:screenWidth*(4/360),
+                                        child: GestureDetector(
+
+                                            onTap: () async {
+                                              var res = await ApiProvider().post('/RoomSalesInfo/Insert/Like', jsonEncode(
+                                                  {
+                                                    "userID" : GlobalProfile.loggedInUser.userID,
+                                                    "roomSaleID": getRoomSalesInfoByID(int.parse(RecentList[index])).id,
+                                                  }
+                                              ));
+                                              bool sub = !getRoomSalesInfoByID(int.parse(RecentList[index])).Likes;
+                                              getRoomSalesInfoByID(int.parse(RecentList[index])).ChangeLikesWithValue(sub);
+                                              getRoomSalesInfoByIDFromMainTransfer(getRoomSalesInfoByID(int.parse(RecentList[index])).id).ChangeLikesWithValue(sub);
+                                              setState(() {
+
+                                              });
+                                            },
+                                            child:  ( getRoomSalesInfoByID(int.parse(RecentList[index])).Likes == null || !getRoomSalesInfoByID(int.parse(RecentList[index])).Likes) ?
+                                            SvgPicture.asset(
+                                              GreyEmptyHeartIcon,
+
+                                              width: screenHeight * 0.0375,
+                                              height: screenHeight * 0.0375,
+                                              color: Color(0xffEEEEEE),
+                                            )
+                                                : SvgPicture.asset(
+                                              PurpleFilledHeartIcon,
+                                              width: screenHeight * 0.0375,
+                                              height: screenHeight * 0.0375,
+                                              color: kPrimaryColor,
+                                            )),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -1409,7 +1412,7 @@ class _MyRoomLikesState extends State<MyRoomLikes> with SingleTickerProviderStat
                                     RoomLikesList[index].ChangeLikesWithValue(sub);
                                     getRoomSalesInfoByIDFromMainTransfer(RoomLikesList[index].id).ChangeLikesWithValue(sub);
                                     setState(() {
-
+                                      RoomLikesList[index].Likes = sub;
                                     });
 
                                   },
@@ -1526,7 +1529,7 @@ class _MyRoomLikesState extends State<MyRoomLikes> with SingleTickerProviderStat
                           Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              SizedBox(height: screenHeight * 0.01875),
+                              SizedBox(height: screenHeight * 0.00875),
                               Container(
                                 width: screenWidth * 0.3333333,
                                 height: screenWidth * (100/360),

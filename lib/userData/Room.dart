@@ -278,12 +278,6 @@ class RoomSalesInfo with ChangeNotifier {
       Likeditem: (json["RoomSalesInfo"] as RoomSalesInfo),
     );
   }
-  factory RoomSalesInfo.fromJsonRefreshLikse(Map<String, dynamic> json) {
-    return RoomSalesInfo(
-      isLikes: json['RoomSalesLikes'] == null ? null : (json['RoomSalesLikes'] as List).map((e) => RoomSalesLikes.fromJson(e)).toList(),
-      Likes: json['RoomSalesLikes'] == null ? null : (json['RoomSalesLikes'] as List).map((e) => RoomSalesLikes.fromJson(e)).toList().length == 0 ? false : true,
-    );
-  }
 }
 
 List<RoomSalesInfo> globalRoomSalesInfoList = new List<RoomSalesInfo>();

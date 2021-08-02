@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mryr/constants/AppConfig.dart';
@@ -275,31 +275,8 @@ class _MoreScreenState extends State<MoreScreen>with SingleTickerProviderStateMi
                           ),
                           InkWell(
                             onTap: ()async {
-                              var list = await ApiProvider().post('/RoomSalesInfo/Select/Like', jsonEncode(
-                                  {
-                                    "userID" : GlobalProfile.loggedInUser.userID,
-                                  }
-                              ));
+                              EasyLoading.show(status: "",maskType: EasyLoadingMaskType.black);
 
-                              if(null != list) {
-                                GlobalProfile.RoomLikesList.clear();
-                                GlobalProfile.RoomLikesIdList.clear();
-                                for (int i = 0; i < list.length; ++i) {
-                                  Map<String, dynamic> data = list[i];
-
-                                  ModelRoomLikes item = ModelRoomLikes.fromJson(data);
-                                  GlobalProfile.RoomLikesIdList.add(item.RoomSaleID);
-                                  GlobalProfile.RoomLikesList.add(item);
-                                  //await NotiDBHelper().createData(noti);
-                                }
-                                for (int i = 0; i < globalRoomSalesInfoList.length; i++) {
-                                  if (GlobalProfile.RoomLikesIdList.contains(globalRoomSalesInfoList[i].id)) {
-                                    globalRoomSalesInfoList[i].ChangeLikesWithValue(true);
-                                  }
-                                }
-
-                                print('sdfs5');
-                              }
                               var ss = await ApiProvider().post('/RoomSalesInfo/Select/Like', jsonEncode(
                                   {
                                     "userID" : GlobalProfile.loggedInUser.userID,
@@ -309,10 +286,12 @@ class _MoreScreenState extends State<MoreScreen>with SingleTickerProviderStateMi
                               if(ss != null){
                                 for(int i = 0 ; i < ss.length; ++i){
                                   Map<String, dynamic> t = ss[i]["RoomSalesInfo"];
-                                  RoomLikesList.add(RoomSalesInfo.fromJsonLittle(t));
+                                  RoomSalesInfo sub = RoomSalesInfo.fromJsonLittle(t);
+                                  sub.Likes=true;
+                                  RoomLikesList.add(sub);
                                 }
                               }
-
+                              EasyLoading.dismiss();
                               Navigator.push(
                                   context, // 기본 파라미터, SecondRoute로 전달
                                   MaterialPageRoute(
@@ -454,22 +433,22 @@ class _MoreScreenState extends State<MoreScreen>with SingleTickerProviderStateMi
                     Text("설정",style: TextStyle(fontSize: screenWidth*(12/360),color: Color(0xff222222)),),
                   ],),),
                 ),
-                Container(height: 1,width: screenWidth,color: Color(0xfff8f8f8),),
-                GestureDetector(
-                  onTap: (){
-                    Navigator.push(
-                        context, // 기본 파라미터, SecondRoute로 전달
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                Payment()) // SecondRoute를 생성하여 적재
-                    );
-                  },
-                  child: Container(width: screenWidth,height: screenWidth*(40/360),color: Colors.white, child:
-                  Row(children: [
-                    SizedBox(width: screenWidth*(24/360),),
-                    Text("결제 테스트",style: TextStyle(fontSize: screenWidth*(12/360),color: Color(0xff222222)),),
-                  ],),),
-                ),
+                // Container(height: 1,width: screenWidth,color: Color(0xfff8f8f8),),
+                // GestureDetector(
+                //   onTap: (){
+                //     Navigator.push(
+                //         context, // 기본 파라미터, SecondRoute로 전달
+                //         MaterialPageRoute(
+                //             builder: (context) =>
+                //                 Payment()) // SecondRoute를 생성하여 적재
+                //     );
+                //   },
+                //   child: Container(width: screenWidth,height: screenWidth*(40/360),color: Colors.white, child:
+                //   Row(children: [
+                //     SizedBox(width: screenWidth*(24/360),),
+                //     Text("결제 테스트",style: TextStyle(fontSize: screenWidth*(12/360),color: Color(0xff222222)),),
+                //   ],),),
+                // ),
                 Container(height: 1,width: screenWidth,color: Color(0xfff8f8f8),),
                 adminCheck == true? GestureDetector(
                   onTap: ()async{

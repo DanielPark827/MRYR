@@ -133,14 +133,14 @@ class _SplashScreenState extends State<SplashScreen> {
                       "apple": pw,
                     }));
               }
-//            if(id != null && pw != null) {
-//              result = await ApiProvider().post('/User/Login', jsonEncode(
-//                  {
-//                    "id": id,
-//                    "password": pw,
-//                  }
-//              ));
-//            }
+
+              // //서비스 점검 시 다이얼로그
+              // Timer(Duration(seconds: 5), () {
+              //   Function okFunc = () async{
+              //     exit(0);
+              //   };
+              //   OKDialog(context, "긴급 서비스 점검중입니다!", "점검시간 : \n점검시간 이후 정상적으로 이용하실 수 있습니다. 감사합니다!", "확인",okFunc);
+              // });
 
               if (false != result && null != result) {
                 if(result['res'] == 1){
