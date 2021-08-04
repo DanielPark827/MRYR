@@ -12,6 +12,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:mryr/model/NavigationNumProvider.dart';
 import 'package:mryr/network/ApiProvider.dart';
+import 'package:mryr/userData/AppCheck.dart';
 import 'package:mryr/userData/GlobalProfile.dart';
 import 'package:mryr/widget/MoreScreen/StringForMoreScreen.dart';
 import 'package:mryr/utils/ExtendedImage.dart';
@@ -1054,16 +1055,27 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                     children: [
                       GestureDetector(
                         onTap: () async {
-                          if (GlobalProfile.roomSalesInfoList.length <= 4) {
-                            Navigator.push(
-                                context, // 기본 파라미터, SecondRoute로 전달
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      WarningBeforeTransfer(),
-                                ) // SecondRoute를 생성하여 적재
-                            );
-                          } else {
-                            CustomOKDialog(context, "방 등록은 5개까지 가능합니다", "올리셨던 방을 수정해주세요");
+                          var t = await ApiProvider().get('/Manage/roomdialog');
+                          AppCheck appCheck = AppCheck.fromJson(t[0]);
+                          if(appCheck.Switch == 0){
+                            if (GlobalProfile.roomSalesInfoList.length <= 4) {
+                              Navigator.push(
+                                  context, // 기본 파라미터, SecondRoute로 전달
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        WarningBeforeTransfer(),
+                                  ) // SecondRoute를 생성하여 적재
+                              );
+                            } else {
+                              CustomOKDialog(context, "방 등록은 5개까지 가능합니다",
+                                  "올리셨던 방을 수정해주세요");
+                            }
+                          }
+                          else {
+                            Function okFunc = () async{
+                              Navigator.pop(context);
+                            };
+                            OKDialog(context,appCheck.Title,appCheck.Ment,"확인", okFunc);
                           }
                         },
                         child: Stack(
@@ -1545,7 +1557,6 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                     heightPadding(screenHeight,14),
                     Container(
                       width: screenWidth,
-                      height:screenHeight*(114/640),
                       color: Colors.white,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1616,14 +1627,11 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                   }),
                             ),
                           ),
+
                         ],
                       ),
                     ),
-                    Container(
-                          height:screenHeight*(4/640),
-                          width:screenWidth,
-                          color:hexToColor('#FFFFFF'),
-                    ),
+                    heightPadding(screenHeight,16),
                     Container(
                       width: screenWidth,
                       color: Colors.white,
@@ -1686,26 +1694,25 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                   thumbColor: Colors.white,
                                 ),
                                 child: RangeSlider(
-                                  min: 0,
-                                  max: 310000,
-                                  divisions: 31,
+                                  min: S_PRICE_LOW_RANGE,
+                                  max: S_PRICE_HIGH_RANGE,
+                                  divisions: S_PRICE_DIVISION,
                                   inactiveColor: Color(0xffcccccc),
                                   activeColor: kPrimaryColor,
-                                  labels: RangeLabels(sPriceLowRange.floor().toString(),
-                                      sPriceHighRange.floor().toString()),
+                                  labels: null,
                                   values: sPriceValues,
                                   //RangeValues(_lowValue,_highValue),
                                   onChanged: (_range) {
                                     setState(() {
-                                      if(_range.end.toInt() == 310000) {
-                                        sInfinity = extractNum_Transfer(_range.start) + "만원-무제한";
+                                      if(_range.end.toInt() == S_PRICE_HIGH_RANGE) {
+                                        sInfinity = extractNum_Short_String(_range.start) + "만원-무제한";
                                       } else {
-                                        sInfinity = extractNum_Transfer(_range.start) + "만원-" + extractNum_Transfer(_range.end) + "만원";
+                                        sInfinity = extractNum_Short_String(_range.start) + "만원-" + extractNum_Short_String(_range.end) + "만원";
                                       }
 
                                       sPriceValues = _range;
-                                      sPriceLowRange = _range.start;
-                                      sPriceHighRange = _range.end;
+                                      sPriceLowRange = extractNum_Short_Int(_range.start).toDouble();
+                                      sPriceHighRange = extractNum_Short_Int(_range.end).toDouble();
 
                                     });
                                   },
@@ -1724,7 +1731,15 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                     color: hexToColor('#888888')
                                 ),
                               ),
-                              Expanded(child: SizedBox()),
+                              Spacer(),
+                              Text(
+                                '25만원',
+                                style: TextStyle(
+                                    fontSize: screenWidth*(10/360),
+                                    color: hexToColor('#888888')
+                                ),
+                              ),
+                              Spacer(),
                               Text(
                                 '최대',
                                 style: TextStyle(
@@ -1738,14 +1753,9 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                         ],
                       ),
                     ),
-                    Container(
-                      height:screenHeight*(4/640),
-                      width:screenWidth,
-                      color:hexToColor('#FFFFFF'),
-                    ),
+                    heightPadding(screenHeight,16),
                     Container(
                       width: screenWidth,
-                      height: screenHeight*(126/640),
                       color: Colors.white,
                       child: Column(
                         children: [
@@ -1876,14 +1886,9 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                         ],
                       ),
                     ),
-                    Container(
-                      height:screenHeight*(4/640),
-                      width:screenWidth,
-                      color:hexToColor('#FFFFFF'),
-                    ),
+                    heightPadding(screenHeight,16),
                     Container(
                       width: screenWidth,
-                      height:screenHeight*(114/640),
                       color: Colors.white,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1916,6 +1921,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                     return GestureDetector(
                                       onTap: (){
                                         sListOption[index].flag = !sListOption[index].flag;
+                                        sListOption[index].selected = !sListOption[index].selected;
                                         setState(() {
 
                                         });
@@ -1955,11 +1961,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                         ],
                       ),
                     ),
-                    Container(
-                      height:screenHeight*(4/640),
-                      width:screenWidth,
-                      color:hexToColor('#FFFFFF'),
-                    ),
+                    heightPadding(screenHeight,16),
                   ],
                 ),
               ),
@@ -1999,7 +2001,6 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                     heightPadding(screenHeight,14),
                     Container(
                       width: screenWidth,
-                      height:screenHeight*(114/640),
                       color: Colors.white,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2073,10 +2074,11 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                         ],
                       ),
                     ),
+                    heightPadding(screenHeight,16),
                     Container(
-                        width:screenWidth,
-                        height:screenHeight*(4/640),
-                        color:hexToColor('#FFFFFF'),
+                      width:screenWidth,
+                      height:screenHeight*(4/640),
+                      color:hexToColor('#FFFFFF'),
                     ),
                     Container(
                       width: screenWidth,
@@ -2192,21 +2194,20 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                   thumbColor: Colors.white,
                                 ),
                                 child: RangeSlider(
-                                  min: 0,
-                                  max: 10100000,
-                                  divisions: 101,
+                                  min: T_DEPOSIT_LOW_RANGE,
+                                  max: T_DEPOSIT_HIGH_RANGE,
+                                  divisions: T_DEPOSIT_DIVISION,
                                   inactiveColor: Color(0xffcccccc),
                                   activeColor: kPrimaryColor,
-                                  labels: RangeLabels(tDepositLowRange.floor().toString(),
-                                      tDepositHighRange.floor().toString()),
+                                  labels: null,
                                   values: tDepositValues,
                                   //RangeValues(_lowValue,_highValue),
                                   onChanged: (_range) {
                                     setState(() {
-                                      if(_range.end.toInt() == 10100000) {
-                                        tDepositInfinity = extractNum_Transfer(_range.start) + "만원-무제한";
+                                      if(_range.end.toInt() == T_DEPOSIT_HIGH_RANGE) {
+                                        tDepositInfinity = extractNum_Transfer_String(_range.start) + "만원-무제한";
                                       } else {
-                                        tDepositInfinity = extractNum_Transfer(_range.start) + "만원-" + extractNum_Transfer(_range.end) + "만원";
+                                        tDepositInfinity = extractNum_Transfer_String(_range.start) + "만원-" + extractNum_Transfer_String(_range.end) + "만원";
                                       }
 
                                       tDepositValues = _range;
@@ -2235,7 +2236,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                               ),
                               Spacer(),
                               Text(
-                                '500만원',
+                                '1억 5천만원',
                                 style: TextStyle(
                                     fontSize: screenWidth*(10/360),
                                     color: hexToColor('#888888')
@@ -2252,110 +2253,108 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                               widthPadding(screenWidth,14),
                             ],
                           ),
-                          heightPadding(screenHeight,20),
-                          Padding(
-                            padding:  EdgeInsets.only(left: screenWidth*(12/360)),
-                            child: Row(
-                              children: [
-                                Text(
-                                  "월세",
-                                  style:TextStyle(
-                                      fontSize: screenWidth*(14/360),
-                                      fontWeight: FontWeight.bold,
-                                      color:kPrimaryColor
-                                  ),
-                                ),
-                                Expanded(child: SizedBox()),
-                                Text(
-                                  tMonthlyInfinity,
-                                  style:TextStyle(
-                                      fontSize: screenWidth*(12/360),
-                                      color:kPrimaryColor
-                                  ),
-                                ),
-                                widthPadding(screenWidth,16),
-                              ],
-                            ),
-                          ),
-                          Center(
-                            child: Container(
-                              width: screenWidth * (336 / 360),
-                              child: SliderTheme(
-                                data: SliderThemeData(
-                                  thumbColor: Colors.white,
-                                ),
-                                child: RangeSlider(
-                                  min: 0,
-                                  max: 1010000,
-                                  divisions: 101,
-                                  inactiveColor: Color(0xffcccccc),
-                                  activeColor: kPrimaryColor,
-                                  labels: RangeLabels(tMonthlyFeeLowRange.floor().toString(),
-                                      tMonthlyFeeHighRange.floor().toString()),
-                                  values: tMonthlyFeeValues,
-                                  //RangeValues(_lowValue,_highValue),
-                                  onChanged: (_range) {
-                                    setState(() {
-                                      if(_range.end.toInt() == 1010000) {
-                                        tMonthlyInfinity = extractNum_Transfer(_range.start) + "만원-무제한";
-                                      } else {
-                                        tMonthlyInfinity = extractNum_Transfer(_range.start) + "만원-" + extractNum_Transfer(_range.end) + "만원";
-                                      }
-
-                                      tMonthlyFeeValues = _range;
-                                      tMonthlyFeeLowRange = _range.start;
-                                      tMonthlyFeeHighRange = _range.end;
-                                    });
-                                  },
-                                ),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            height: screenHeight*(8/640),
-                            width: 1,
-                            color: hexToColor('#888888'),
-                          ),
-                          Row(
+                          tListContractType[1].selected ? SizedBox() : Column(
                             children: [
-                              widthPadding(screenWidth,14),
-                              Text(
-                                '최소',
-                                style: TextStyle(
-                                    fontSize: screenWidth*(10/360),
-                                    color: hexToColor('#888888')
+                              heightPadding(screenHeight,20),
+                              Padding(
+                                padding:  EdgeInsets.only(left: screenWidth*(12/360)),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "월세",
+                                      style:TextStyle(
+                                          fontSize: screenWidth*(14/360),
+                                          fontWeight: FontWeight.bold,
+                                          color:kPrimaryColor
+                                      ),
+                                    ),
+                                    Expanded(child: SizedBox()),
+                                    Text(
+                                      tMonthlyInfinity,
+                                      style:TextStyle(
+                                          fontSize: screenWidth*(12/360),
+                                          color:kPrimaryColor
+                                      ),
+                                    ),
+                                    widthPadding(screenWidth,16),
+                                  ],
                                 ),
                               ),
-                              Spacer(),
-                              Text(
-                                '50만원',
-                                style: TextStyle(
-                                    fontSize: screenWidth*(10/360),
-                                    color: hexToColor('#888888')
+                              Center(
+                                child: Container(
+                                  width: screenWidth * (336 / 360),
+                                  child: SliderTheme(
+                                    data: SliderThemeData(
+                                      thumbColor: Colors.white,
+                                    ),
+                                    child: RangeSlider(
+                                      min: T_MONTHLY_LOW_RANGE,
+                                      max: T_MONTHLY_HIGH_RANGE,
+                                      divisions: T_MONTHLY_DIVISION,
+                                      inactiveColor: Color(0xffcccccc),
+                                      activeColor: kPrimaryColor,
+                                      labels: null,
+                                      values: tMonthlyFeeValues,
+                                      //RangeValues(_lowValue,_highValue),
+                                      onChanged: (_range) {
+                                        setState(() {
+                                          if(_range.end.toInt() == T_MONTHLY_HIGH_RANGE) {
+                                            tMonthlyInfinity = extractNum_Transfer_String(_range.start) + "만원-무제한";
+                                          } else {
+                                            tMonthlyInfinity = extractNum_Transfer_String(_range.start) + "만원-" + extractNum_Transfer_String(_range.end) + "만원";
+                                          }
+
+                                          tMonthlyFeeValues = _range;
+                                          tMonthlyFeeLowRange = _range.start;
+                                          tMonthlyFeeHighRange = _range.end;
+                                        });
+                                      },
+                                    ),
+                                  ),
                                 ),
                               ),
-                              Spacer(),
-                              Text(
-                                '최대',
-                                style: TextStyle(
-                                    fontSize: screenWidth*(10/360),
-                                    color: hexToColor('#888888')
-                                ),
+                              Container(
+                                height: screenHeight*(8/640),
+                                width: 1,
+                                color: hexToColor('#888888'),
                               ),
-                              widthPadding(screenWidth,14),
+                              Row(
+                                children: [
+                                  widthPadding(screenWidth,14),
+                                  Text(
+                                    '최소',
+                                    style: TextStyle(
+                                        fontSize: screenWidth*(10/360),
+                                        color: hexToColor('#888888')
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  Text(
+                                    '250만원',
+                                    style: TextStyle(
+                                        fontSize: screenWidth*(10/360),
+                                        color: hexToColor('#888888')
+                                    ),
+                                  ),
+                                  Spacer(),
+                                  Text(
+                                    '최대',
+                                    style: TextStyle(
+                                        fontSize: screenWidth*(10/360),
+                                        color: hexToColor('#888888')
+                                    ),
+                                  ),
+                                  widthPadding(screenWidth,14),
+                                ],
+                              ),
                             ],
-                          ),
+                          )
                         ],
                       ),
                     ),
-                    Container(
-                      width:screenWidth,
-                      height:screenHeight*(4/640),
-                      color:hexToColor('#FFFFFF'),
-                    ),
+                    heightPadding(screenHeight,16),
                     Container(
                       width: screenWidth,
-                      height: screenHeight*(126/640),
                       color: Colors.white,
                       child: Column(
                         children: [
@@ -2482,18 +2481,13 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                               ),
                               widthPadding(screenWidth,12),
                             ],
-                          ),
+                          )
                         ],
                       ),
                     ),
-                    Container(
-                      width:screenWidth,
-                      height:screenHeight*(4/640),
-                      color:hexToColor('#FFFFFF'),
-                    ),
+                    heightPadding(screenHeight,16),
                     Container(
                       width: screenWidth,
-                      height:screenHeight*(114/640),
                       color: Colors.white,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2526,6 +2520,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                     return GestureDetector(
                                       onTap: (){
                                         tListOption[index].flag = !tListOption[index].flag;
+                                        tListOption[index].selected = !tListOption[index].selected;
                                         setState(() {
 
                                         });
@@ -2562,6 +2557,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                   }),
                             ),
                           ),
+                          heightPadding(screenHeight,16),
                         ],
                       ),
                     )
@@ -2576,95 +2572,15 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
             //매물 리스트
             // EasyLoading.show(status: "",maskType: EasyLoadingMaskType.black);
             ShortFilterFlag = false;
-            sSubList.clear();
-            for(int i = 1; i <= sListRoomType.length; i++) {
-              if(sListRoomType[i-1].selected) {
-                sSubList.add(i.toString());
-              }
-            }
-            if(sSubList.length == 0) {//아무것도 선택 안한 경우
-              sSubList = ["1","2","3","4"];
-              sFilterList[0].flag = false;
-              sFilterList[0].title = "방 종류";
-              sFilterList[0].selected = false;
-            }else {
-              sFilterList[0].title = "";
-              for(int i =0; i < sListRoomType.length; i++){
-                if(sListRoomType[i].flag) {
-                  sFilterList[0].title += sListRoomType[i].title + "/";
-                }
-              }
-              String s = sFilterList[0].title;
-              int l = sFilterList[0].title.length;
-              sFilterList[0].title = s.substring(0,l-1);
-              sFilterList[0].selected = true;
-              sFilterList[0].flag = true;
-              sCloseFilter();
-            }
 
-            if((sPriceLowRange == 0 && sPriceHighRange == 310000)) {
-              sFilterList[1].flag = false;
-              sFilterList[1].title = "가격";
-              sFilterList[1].selected = false;
-            }else {
-              sFilterList[1].title = "일 / " +  extractNum_Transfer(sPriceLowRange)+"만원-"+extractNum_Transfer(sPriceHighRange)+"만원";
-              sFilterList[1].selected = true;
-              sFilterList[1].flag = true;
-              sCloseFilter();
-            }
-
-            if(sFilterRentStart == "" || sFilterRentDone ==""){
-              Function okFunc = () async{
-                Navigator.pop(context);
-
-              };
-              sFilterList[2].flag = false;
-              sFilterList[2].title = "임대 기간";
-              sFilterList[2].selected = false;
-              sCloseFilter();
-            }else {
-              sFilterList[2].title =
-                  sFilterRentStart + "-" + sFilterRentDone;
-              sFilterList[2].selected = true;
-              sFilterList[2].flag = true;
-            }
-
-            sFilterList[3].title = "";
-            for(int i =0; i < sListOption.length; i++){
-              if(sListOption[i].flag) {
-                sFilterList[3].title += sListOption[i].title + "/";
-              }
-            }
-            String s = sFilterList[3].title;
-            int l = sFilterList[3].title.length;
-
-            if(l==0) {//아무것도 선택 안한 경우
-              sFilterList[3].flag = false;
-              sFilterList[3].title = "추가 옵션";
-              sFilterList[3].selected = false;
-            }else {
-              sFilterList[3].selected = true;
-              sFilterList[3].flag = true;
-              sFilterList[3].title = s.substring(0,l-1);
-              sCloseFilter();
-            }
+            Process_S_Type();
+            Process_S_Price();
+            Process_S_Period();
+            Process_S_Option();
 
 
-
-            bool subFlag = Check_S_optionFlag();
-            sFilterList[2].selected;
-            var list = await ApiProvider().post("/RoomSalesInfo/ListShortFilter", jsonEncode(
-                {
-                  "types" : sSubList.length == 0 ? null : sSubList,
-                  "feemin" : sPriceLowRange,
-                  "feemax" : sPriceHighRange == 310000 ? 9999999999 : sPriceHighRange,
-                  "periodmin" : sFilterList[2].selected == false ? "1900.01.01" : sFilterRentStart,
-                  "periodmax" : sFilterList[2].selected == false ? "2900.12.31" : sFilterRentDone,
-                  "parking" : subFlag ? null : sListOption[0].selected ? 1 : 0,
-                  "cctv" : subFlag ? null :  sListOption[1].selected ? 1 : 0,
-                  "wifi" : subFlag ? null :  sListOption[2].selected ? 1 : 0,
-                }
-            ));
+            bool optionFlag = Check_S_optionFlag();
+            var list = await Return_ShortMarker_Filter(optionFlag);
 
             if (list != false) {
               List<MapMarker> markers = [];
@@ -2786,83 +2702,12 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
             //     EasyLoadingMaskType
             //         .black);
             ShortFilterFlag = false;
-            tSubList.clear();
-            for(int i = 1; i <= tListRoomType.length; i++) {
-              if(tListRoomType[i-1].selected) {
-                tSubList.add(i.toString());
-              }
-            }
-            if(tSubList.length == 0) {//아무것도 선택 안한 경우
-              tFilterList[0].flag = false;
-              tFilterList[0].title = "방 종류";
-              tFilterList[0].selected = false;
-            }else {
-              for(int i =0; i < tListRoomType.length; i++){
-                if(tListRoomType[i].flag) {
-                  tFilterList[0].title += tListRoomType[i].title + "/";
-                }
-              }
-              String s = tFilterList[0].title;
-              int l = tFilterList[0].title.length;
-              tFilterList[0].title = s.substring(0,l-1);
 
-              tFilterList[0].selected = true;
-              tFilterList[0].flag = true;
-              tCloseFilter();
-            }
-
-            String contractType;
-
-            if(!tListContractType[0].selected && !tListContractType[1].selected) {
-              if(tDepositLowRange == 0 && tDepositHighRange == 10100000 && tMonthlyFeeLowRange == 0 && tMonthlyFeeHighRange == 1010000) {
-                tFilterList[1].flag = false;
-                tFilterList[1].title = "가격";
-                tFilterList[1].selected = false;
-                contractType="";
-              } else {
-                tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer(tDepositLowRange)+"-"+extractNum_Transfer(tDepositHighRange)+"만원,월 "+
-                    extractNum_Transfer(tMonthlyFeeLowRange)+"-"+extractNum_Transfer(tMonthlyFeeHighRange)+"만원";
-                tFilterList[1].selected = true;
-                tFilterList[1].flag = true;
-              }
-
-              Function okFunc = () async{
-                Navigator.pop(context);
-
-              };
-            } else if(tListContractType[0].selected && !tListContractType[1].selected) {
-              flagContractType = 1;
-              contractType = "월세";
-
-              tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer(tDepositLowRange)+"-"+extractNum_Transfer(tDepositHighRange)+"만원,월 "+
-                  extractNum_Transfer(tMonthlyFeeLowRange)+"-"+extractNum_Transfer(tMonthlyFeeHighRange)+"만원";
-              tFilterList[1].selected = true;
-              tFilterList[1].flag = true;
-            } else {
-              flagContractType = 2;
-              contractType = "전세";
-
-              tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer(tDepositLowRange)+"-"+extractNum_Transfer(tDepositHighRange)+"만원,월 "+
-                  extractNum_Transfer(tMonthlyFeeLowRange)+"-"+extractNum_Transfer(tMonthlyFeeHighRange)+"만원";
-              tFilterList[1].selected = true;
-              tFilterList[1].flag = true;
-            }
-
-            if(tFilterRentStart == "" || tFilterRentDone ==""){
-              Function okFunc = () async{
-                Navigator.pop(context);
-
-              };
-              tFilterList[2].flag = false;
-              tFilterList[2].title = "임대 기간";
-              tFilterList[2].selected = false;
-              tCloseFilter();
-            }else {
-              Process_T_Period();
-              tFilterList[2].flag = true;
-            }
-
+            Process_T_Type();
+            Process_T_Price();
+            Process_T_Period();
             Process_T_Option();
+
 
 
 
@@ -2870,21 +2715,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
 
             bool subFlag = Check_T_optionFlag();
 
-            var list = await ApiProvider().post("/RoomSalesInfo/MarkerTransferFilter", jsonEncode(
-                {
-                  "types" : tSubList.length == 0 ? null : tSubList,
-                  "jeonse": subFlag2 == -1 ? null : subFlag2,
-                  "depositmin" : tDepositLowRange,
-                  "depositmax" : tDepositHighRange == 10100000 ? 9999999999 : tDepositHighRange,
-                  "monthlyfeemin" : tMonthlyFeeLowRange,
-                  "monthlyfeemax" : tMonthlyFeeHighRange == 1010000 ? 9999999999 : tDepositHighRange,
-                  "periodmin" : tFilterList[2].selected == false ? "1900.01.01" : tFilterRentStart,
-                  "periodmax" : tFilterList[2].selected == false ? "2900.12.31" : tFilterRentDone,
-                  "parking" : subFlag ? null : tListOption[0].selected ? 1 : 0,
-                  "cctv" : subFlag ? null :  tListOption[1].selected ? 1 : 0,
-                  "wifi" : subFlag ? null :  tListOption[2].selected ? 1 : 0,
-                }
-            ));
+            var list = await Return_TransferMarker_Filter(subFlag2, subFlag);
 
             if (list != false) {
               List<MapMarker> markers = [];
@@ -3158,7 +2989,6 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
 
                     bool optionFlag = Check_S_optionFlag();
 
-                    sFilterList[2].selected;
                     var list = await Return_ShortMarker_Filter(optionFlag);
 
                     if (list != false) {
@@ -3624,75 +3454,71 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
               Expanded(
                 child: InkWell(
                   onTap: () async {
-                    if(sFilterRentStart == "" || sFilterRentDone ==""){
-                      Process_S_Period_Null();
-                    }else {
-                      Process_S_Period();
+                    Process_S_Period();
 
-                      bool subFlag = Check_S_optionFlag();
-                      var list = await Return_ShortMarker_Filter(subFlag);
+                    bool subFlag = Check_S_optionFlag();
+                    var list = await Return_ShortMarker_Filter(subFlag);
 
-                      if (list != false) {
-                        List<MapMarker> markers = [];
+                    if (list != false) {
+                      List<MapMarker> markers = [];
 
-                        if(null != list) {
-                          final BitmapDescriptor markerImage = (Platform.isIOS) ? await BitmapDescriptor.fromAssetImage(
-                              ImageConfiguration(devicePixelRatio: 50,
-                                  size: Size(screenWidth*(20/360),screenWidth*(20/360))),
-                              'assets/images/logo/test2.png') : await BitmapDescriptor.fromAssetImage(
-                              ImageConfiguration(devicePixelRatio: 50,
-                                  size: Size(screenWidth*(20/360),screenWidth*(20/360))),
-                              'assets/images/logo/testandroid.png');
+                      if(null != list) {
+                        final BitmapDescriptor markerImage = (Platform.isIOS) ? await BitmapDescriptor.fromAssetImage(
+                            ImageConfiguration(devicePixelRatio: 50,
+                                size: Size(screenWidth*(20/360),screenWidth*(20/360))),
+                            'assets/images/logo/test2.png') : await BitmapDescriptor.fromAssetImage(
+                            ImageConfiguration(devicePixelRatio: 50,
+                                size: Size(screenWidth*(20/360),screenWidth*(20/360))),
+                            'assets/images/logo/testandroid.png');
 
-                          for(int i = 0; i < list.length; i++) {
-                            Map<String, dynamic> data = list[i];
-                            gCoordinate item = gCoordinate.fromJson(data);
-                            var finalLat, finalLng;
+                        for(int i = 0; i < list.length; i++) {
+                          Map<String, dynamic> data = list[i];
+                          gCoordinate item = gCoordinate.fromJson(data);
+                          var finalLat, finalLng;
 
-                            if(null == item.lng || null == item.lat) {
-                              var addresses = await Geocoder.google('AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c').findAddressesFromQuery(item.loc);
-                              var first = addresses.first;
+                          if(null == item.lng || null == item.lat) {
+                            var addresses = await Geocoder.google('AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c').findAddressesFromQuery(item.loc);
+                            var first = addresses.first;
 
-                              finalLat = first.coordinates.latitude;
-                              finalLng = first.coordinates.longitude;
-                            } else {
-                              finalLat = item.lat;
-                              finalLng = item.lng;
-                            }
+                            finalLat = first.coordinates.latitude;
+                            finalLng = first.coordinates.longitude;
+                          } else {
+                            finalLat = item.lat;
+                            finalLng = item.lng;
+                          }
 
-                            setState(() {
-                              markers.add(
-                                MapMarker(
+                          setState(() {
+                            markers.add(
+                              MapMarker(
                                   id: 'marker' + i.toString(),
                                   position: LatLng(finalLat, finalLng),
                                   icon: markerImage,
-                                    onMarkerTap: () async {
-                                      Initialize_MarkerTap(item);
-                                    }
-                                ),
-                              );
-                            });
-                          }
+                                  onMarkerTap: () async {
+                                    Initialize_MarkerTap(item);
+                                  }
+                              ),
+                            );
+                          });
                         }
-
-                        _clusterManager = await MapHelper.initClusterManager(
-                          markers,
-                          _minClusterZoom,
-                          _maxClusterZoom,
-                        );
-
-                        await _updateMarkers();
                       }
-                      else {
-                        Function okFunc = () async{
-                          Navigator.pop(context);
 
-                        };
-                        resetRoomRent();
-                        OKDialog(context, "조건에 맞는 방이 없어요!", "새로운 조건으로 다시 입력해주세요!", "확인",okFunc);
-                      }
-                      sCloseFilter();
+                      _clusterManager = await MapHelper.initClusterManager(
+                        markers,
+                        _minClusterZoom,
+                        _maxClusterZoom,
+                      );
+
+                      await _updateMarkers();
                     }
+                    else {
+                      Function okFunc = () async{
+                        Navigator.pop(context);
+
+                      };
+                      resetRoomRent();
+                      OKDialog(context, "조건에 맞는 방이 없어요!", "새로운 조건으로 다시 입력해주세요!", "확인",okFunc);
+                    }
+                    sCloseFilter();
 
                     setState(() {
 
@@ -3930,6 +3756,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
     }else {
       sFilterList[3].title = s.substring(0,l-1);
       sFilterList[3].selected = true;
+      sFilterList[3].flag = true;
     }
     sCloseFilter();
   }
@@ -3937,6 +3764,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
   void Process_S_Period() {
     sFilterList[sCurFilter].title = sFilterRentStart + "-"+sFilterRentDone;
     sFilterList[2].selected = true;
+    sFilterList[2].flag = true;
   }
 
   void Process_S_Period_Null() {
@@ -3959,6 +3787,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
     }else {
       sFilterList[1].title = "일 / " +  extractNum_Short_String(sPriceLowRange)+"만원-"+extractNum_Short_String(sPriceHighRange)+"만원";
       sFilterList[1].selected = true;
+      sFilterList[1].flag = true;
       sCloseFilter();
     }
   }
@@ -3986,6 +3815,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
       sFilterList[0].title = s.substring(0,l-1);
 
       sFilterList[0].selected = true;
+      sFilterList[0].flag = true;
       sCloseFilter();
     }
   }
@@ -4410,9 +4240,9 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                   onChanged: (_range) {
                     setState(() {
                       if(_range.end.toInt() == T_DEPOSIT_HIGH_RANGE) {
-                        tDepositInfinity = extractNum_Transfer(_range.start) + "만원-무제한";
+                        tDepositInfinity = extractNum_Transfer_String(_range.start) + "만원-무제한";
                       } else {
-                        tDepositInfinity = extractNum_Transfer(_range.start) + "만원-" + extractNum_Transfer(_range.end) + "만원";
+                        tDepositInfinity = extractNum_Transfer_String(_range.start) + "만원-" + extractNum_Transfer_String(_range.end) + "만원";
                       }
 
                       tDepositValues = _range;
@@ -4504,9 +4334,9 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                       onChanged: (_range) {
                         setState(() {
                           if(_range.end.toInt() == T_MONTHLY_HIGH_RANGE) {
-                            tMonthlyInfinity = extractNum_Transfer(_range.start) + "만원-무제한";
+                            tMonthlyInfinity = extractNum_Transfer_String(_range.start) + "만원-무제한";
                           } else {
-                            tMonthlyInfinity = extractNum_Transfer(_range.start) + "만원-" + extractNum_Transfer(_range.end) + "만원";
+                            tMonthlyInfinity = extractNum_Transfer_String(_range.start) + "만원-" + extractNum_Transfer_String(_range.end) + "만원";
                           }
 
                           tMonthlyFeeValues = _range;
@@ -4806,79 +4636,75 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
               Expanded(
                 child: InkWell(
                   onTap: () async {
-                    if(tFilterRentStart == "" || tFilterRentDone ==""){
-                      Process_T_Period_Null();
-                    }else {
-                      Process_T_Period();
+                    Process_T_Period();
 
-                      int subFlag2 = Check_T_jeonseFlag();
+                    int subFlag2 = Check_T_jeonseFlag();
 
-                      bool subFlag = Check_T_optionFlag();
+                    bool subFlag = Check_T_optionFlag();
 
-                      var list = await Return_TransferMarker_Filter(subFlag2, subFlag);
+                    var list = await Return_TransferMarker_Filter(subFlag2, subFlag);
 
-                      if (list != false) {
-                        List<MapMarker> markers = [];
+                    if (list != false) {
+                      List<MapMarker> markers = [];
 
-                        if(null != list) {
-                          final BitmapDescriptor markerImage = (Platform.isIOS) ? await BitmapDescriptor.fromAssetImage(
-                              ImageConfiguration(devicePixelRatio: 50,
-                                  size: Size(screenWidth*(20/360),screenWidth*(20/360))),
-                              'assets/images/logo/test2.png') : await BitmapDescriptor.fromAssetImage(
-                              ImageConfiguration(devicePixelRatio: 50,
-                                  size: Size(screenWidth*(20/360),screenWidth*(20/360))),
-                              'assets/images/logo/testandroid.png');
+                      if(null != list) {
+                        final BitmapDescriptor markerImage = (Platform.isIOS) ? await BitmapDescriptor.fromAssetImage(
+                            ImageConfiguration(devicePixelRatio: 50,
+                                size: Size(screenWidth*(20/360),screenWidth*(20/360))),
+                            'assets/images/logo/test2.png') : await BitmapDescriptor.fromAssetImage(
+                            ImageConfiguration(devicePixelRatio: 50,
+                                size: Size(screenWidth*(20/360),screenWidth*(20/360))),
+                            'assets/images/logo/testandroid.png');
 
-                          for(int i = 0; i < list.length; i++) {
-                            Map<String, dynamic> data = list[i];
-                            gCoordinate item = gCoordinate.fromJson(data);
-                            var finalLat, finalLng;
+                        for(int i = 0; i < list.length; i++) {
+                          Map<String, dynamic> data = list[i];
+                          gCoordinate item = gCoordinate.fromJson(data);
+                          var finalLat, finalLng;
 
-                            if(null == item.lng || null == item.lat) {
-                              var addresses = await Geocoder.google('AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c').findAddressesFromQuery(item.loc);
-                              var first = addresses.first;
+                          if(null == item.lng || null == item.lat) {
+                            var addresses = await Geocoder.google('AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c').findAddressesFromQuery(item.loc);
+                            var first = addresses.first;
 
-                              finalLat = first.coordinates.latitude;
-                              finalLng = first.coordinates.longitude;
-                            } else {
-                              finalLat = item.lat;
-                              finalLng = item.lng;
-                            }
-
-                            setState(() {
-                              markers.add(
-                                MapMarker(
-                                    id: 'marker' + i.toString(),
-                                    position: LatLng(finalLat, finalLng),
-                                    icon: markerImage,
-                                    onMarkerTap: () async {
-                                      Initialize_MarkerTap(item);
-                                    }
-                                ),
-                              );
-                            });
+                            finalLat = first.coordinates.latitude;
+                            finalLng = first.coordinates.longitude;
+                          } else {
+                            finalLat = item.lat;
+                            finalLng = item.lng;
                           }
+
+                          setState(() {
+                            markers.add(
+                              MapMarker(
+                                  id: 'marker' + i.toString(),
+                                  position: LatLng(finalLat, finalLng),
+                                  icon: markerImage,
+                                  onMarkerTap: () async {
+                                    Initialize_MarkerTap(item);
+                                  }
+                              ),
+                            );
+                          });
                         }
-
-                        _clusterManager = await MapHelper.initClusterManager(
-                          markers,
-                          _minClusterZoom,
-                          _maxClusterZoom,
-                        );
-
-                        await _updateMarkers();
                       }
-                      else {
-                        Function okFunc = () async{
-                          Navigator.pop(context);
 
-                        };
-                        resetTransferRent();
-                        OKDialog(context, "조건에 맞는 방이 없어요!", "새로운 조건으로 다시 입력해주세요!", "확인",okFunc);
-                      }
-                      tCloseFilter();
+                      _clusterManager = await MapHelper.initClusterManager(
+                        markers,
+                        _minClusterZoom,
+                        _maxClusterZoom,
+                      );
 
+                      await _updateMarkers();
                     }
+                    else {
+                      Function okFunc = () async{
+                        Navigator.pop(context);
+
+                      };
+                      resetTransferRent();
+                      OKDialog(context, "조건에 맞는 방이 없어요!", "새로운 조건으로 다시 입력해주세요!", "확인",okFunc);
+                    }
+                    tCloseFilter();
+
 
                     setState(() {
 
@@ -5154,8 +4980,8 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
         contractType="";
       } else {
         contractType = "월세";
-        tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer(tDepositLowRange)+"-"+extractNum_Transfer(tDepositHighRange)+"만원,월 "+
-            extractNum_Transfer(tMonthlyFeeLowRange)+"-"+extractNum_Transfer(tMonthlyFeeHighRange)+"만원";
+        tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer_String(tDepositLowRange)+"-"+extractNum_Transfer_String(tDepositHighRange)+"만원,월 "+
+            extractNum_Transfer_String(tMonthlyFeeLowRange)+"-"+extractNum_Transfer_String(tMonthlyFeeHighRange)+"만원";
         tFilterList[1].selected = true;
         tFilterList[1].flag = true;
       }
@@ -5174,7 +5000,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
       }
       else {contractType = "전세";
 
-      tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer(tDepositLowRange)+"-"+extractNum_Transfer(tDepositHighRange)+"만원";
+      tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer_String(tDepositLowRange)+"-"+extractNum_Transfer_String(tDepositHighRange)+"만원";
       tFilterList[1].selected = true;
       tFilterList[1].flag = true;
       }
@@ -5203,6 +5029,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
       int l = tFilterList[0].title.length;
       tFilterList[0].title = s.substring(0,l-1);
 
+      tFilterList[0].selected = true;
       tFilterList[0].selected = true;
       tCloseFilter();
     }

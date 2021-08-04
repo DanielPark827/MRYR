@@ -14,6 +14,7 @@ final String PencilIconInMoreScreen = baseURL + moreScreenFolder + '/PencilIconI
 final String QuestionIconInMoreScreen = baseURL + moreScreenFolder + '/QuestionIconInMoreScreen.svg';
 final String ReportIconInMoreScreen = baseURL + moreScreenFolder + '/ReportIconInMoreScreen.svg';
 final String RoomIconInMoreScreen = baseURL + moreScreenFolder + '/RoomIconInMoreScreen.svg';
+final String ContractIconInMoreScreen = baseURL + moreScreenFolder + '/ContractIconInMoreScreen.svg';
 final String SettingIconInMoreScreen = baseURL + moreScreenFolder + '/SettingIconInMoreScreen.svg';
 final String TimeIconInMoreScreen = baseURL + moreScreenFolder + '/TimeIconInMoreScreen.svg';
 final String ProfileIconInMoreScreen = baseURL + moreScreenFolder + '/ProfileIconInMoreScreen.svg';

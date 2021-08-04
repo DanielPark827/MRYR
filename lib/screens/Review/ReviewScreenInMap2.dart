@@ -7,12 +7,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:kopo/kopo.dart';
 import 'package:mryr/constants/AppConfig.dart';
 import 'package:mryr/constants/GlobalAsset.dart';
 import 'package:mryr/dummyData/DummyUser.dart';
 import 'package:mryr/main.dart';
 import 'package:mryr/network/ApiProvider.dart';
+import 'package:mryr/packages/kopo/kopo.dart';
 import 'package:mryr/screens/Review/ReviewScreenInMap5_phone.dart';
 import 'package:mryr/userData/GlobalProfile.dart';
 import 'package:mryr/utils/BoxDecoration.dart';
@@ -548,12 +548,22 @@ class _ReviewScreenInMap2State extends State<ReviewScreenInMap2> {
                     ),
                     GestureDetector(
                       onTap: () async {
-                        KopoModel model = await Navigator.push(
+                        /*KopoModel model = await Navigator.push(
                           context,
                           CupertinoPageRoute(
                             builder: (context) => Kopo(),
                           ),
+                        );*/
+                        KopoModel model = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => Kopo(
+                              useLocalServer: false,
+                              localPort: 1024,
+                            ),
+                          ),
                         );
+
                         setState(() {
                           location =
                           '${model.address} ${model.buildingName}${model.apartment == 'Y' ? '아파트' : ''}'; // ${model.zonecode} ';

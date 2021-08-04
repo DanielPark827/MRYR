@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:kopo/kopo.dart';
 import 'package:mryr/constants/AppConfig.dart';
 import 'package:mryr/constants/GlobalAsset.dart';
 import 'package:mryr/model/EnterRoomInfoProvider.dart';
+import 'package:mryr/packages/kopo/kopo.dart';
 import 'package:mryr/widget/MainReleaseRoomScreen/StringForMainReleaseRoomScreen.dart';
 import 'package:provider/provider.dart';
 
@@ -109,13 +109,22 @@ class _ItemLocationState extends State<ItemLocation> {
                 ),
                 GestureDetector(
                   onTap: () async {
+                    /*KopoModel model = await Navigator.push(
+                          context,
+                          CupertinoPageRoute(
+                            builder: (context) => Kopo(),
+                          ),
+                        );*/
                     KopoModel model = await Navigator.push(
                       context,
-                      CupertinoPageRoute(
-                        builder: (context) => Kopo(),
+                      MaterialPageRoute(
+                        builder: (_) => Kopo(
+                          useLocalServer: false,
+                          localPort: 1024,
+                        ),
                       ),
                     );
-                    print(model.toJson());
+
                     setState(() {
                       addressJSON =
                       '${model.address} ${model.buildingName}${model.apartment == 'Y' ? '아파트' : ''}';

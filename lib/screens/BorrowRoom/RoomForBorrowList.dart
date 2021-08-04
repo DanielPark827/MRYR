@@ -22,6 +22,7 @@ import 'package:mryr/screens/LookForRoomsScreen.dart';
 import 'package:mryr/screens/Registration/RegistrationPage.dart';
 import 'package:mryr/screens/RoomWannaLive.dart';
 import 'package:mryr/screens/TutorialScreenInLookForRooms.dart';
+import 'package:mryr/userData/AppCheck.dart';
 import 'package:mryr/userData/GlobalProfile.dart';
 import 'package:mryr/userData/Review.dart';
 import 'package:mryr/userData/Room.dart';
@@ -44,6 +45,7 @@ import 'package:intl/intl.dart';
 import 'package:mryr/screens/TransferRoom/WarningBeforeTransfer.dart';
 import 'package:mryr/screens/BorrowRoom/model/FilterPacket.dart';
 import 'package:mryr/widget/Dialog/OKDialog.dart';
+import 'package:mryr/constants/constFilter.dart';
 
 final PurpleMenuIcon = 'assets/images/Map/PurpleMenuIcon.svg';
 
@@ -90,6 +92,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
   String KeyForRecent = 'RecentLIst';
 
 
+  bool flagRoomList = false;
   //단기
   //4가지 필터 카테고리
   // S : 단기, T : 양도
@@ -104,14 +107,10 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
   var sSubList = [];
 
   //가격
-  double sPriceLowRange = 0;
-  double sPriceHighRange = 310000;
-  RangeValues sPriceValues = RangeValues(0, 310000);
+  double sPriceLowRange = S_PRICE_LOW_RANGE;
+  double sPriceHighRange = S_PRICE_HIGH_RANGE;
+  RangeValues sPriceValues = RangeValues(S_PRICE_LOW_RANGE, S_PRICE_HIGH_RANGE);
   String sInfinity = "무제한";
-
-  double extractNum(double v) {
-    return v / 10000;
-  }
 
   //임대 기간
   String sFilterRentStart = "";
@@ -129,18 +128,18 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
   int tCurRoomType = -1;
   var tSubList = [];
 
-  List<FilterType> tListContractType = [new FilterType("월세"), new FilterType("전세")];
+  List<FilterType> tListContractType = [new FilterType("월세",flag: true,selected: true), new FilterType("전세")];
   int tCurContractType = -1;
   int flagContractType = null;
 
-  double tDepositLowRange = 0;
-  double tDepositHighRange = 10100000;
-  RangeValues tDepositValues = RangeValues(0, 10100000);
+  double tDepositLowRange = T_DEPOSIT_LOW_RANGE;
+  double tDepositHighRange = T_DEPOSIT_HIGH_RANGE;
+  RangeValues tDepositValues = RangeValues(T_DEPOSIT_LOW_RANGE, T_DEPOSIT_HIGH_RANGE);
   String tDepositInfinity = "무제한";
 
-  double tMonthlyFeeLowRange = 0;
-  double tMonthlyFeeHighRange = 1010000;
-  RangeValues tMonthlyFeeValues = RangeValues(0, 1010000);
+  double tMonthlyFeeLowRange = T_MONTHLY_LOW_RANGE;
+  double tMonthlyFeeHighRange = T_MONTHLY_HIGH_RANGE;
+  RangeValues tMonthlyFeeValues = RangeValues(T_MONTHLY_LOW_RANGE, T_MONTHLY_HIGH_RANGE);
   String tMonthlyInfinity = "무제한";
 
   //임대 기간
@@ -149,6 +148,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
 
   //추가옵션
   List<FilterType> tListOption = [new FilterType("주차 가능"), new FilterType("현관 CCTV"),new FilterType("와이파이")];
+
   void initState() {
     refreshKey = GlobalKey<RefreshIndicatorState>();
 
@@ -401,6 +401,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                     InkWell(
                                       onTap: () async {
                                         ShortFilterFlag = !ShortFilterFlag;
+                                        flagRoomList= false;
                                         // fp = new FilterPacket(sSubList,sPriceLowRange.toInt(),sPriceHighRange.toInt(),sFilterRentStart,sFilterRentDone,
                                         //     sListOption[0].selected ? 1 : 0,sListOption[1].selected ? 1 : 0,sListOption[2].selected ? 1 : 0);
 
@@ -455,6 +456,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                             itemBuilder: (BuildContext context, int index) {
                                               return GestureDetector(
                                                 onTap: (){
+                                                  flagRoomList = false;
                                                   if(sCurFilter != -1) {
                                                     //켜져있던 필터를 다시 누르면 -1로 바뀌면서 꺼져야함
                                                     if(sCurFilter == index){//내가 누른게 지금 현재 필터야
@@ -501,9 +503,10 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                                     });
                                                   }
 
+
                                                 },
                                                 child: Container(
-                                                  height: screenHeight * 0.05,
+                                                  height: screenHeight * (32/640),
                                                   child: Padding(
                                                     padding: EdgeInsets.symmetric(horizontal: screenHeight * 0.009375),
                                                     child: Center(
@@ -542,6 +545,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                             itemBuilder: (BuildContext context, int index) {
                                               return GestureDetector(
                                                 onTap: (){
+                                                  flagRoomList = false;
                                                   if(tCurFilter != -1) {
                                                     //켜져있던 필터를 다시 누르면 -1로 바뀌면서 꺼져야함
                                                     if(tCurFilter == index){//내가 누른게 지금 현재 필터야
@@ -824,38 +828,38 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                                 Column(
                                                   children: [
                                                     SizedBox(height: screenHeight * 0.00875),
-                                                    //양도이미지
-                                                    // Container(
-                                                    //   width: screenWidth * 0.3333333,
-                                                    //   height: screenWidth * (100/360),
-                                                    //   child: ClipRRect(
-                                                    //       borderRadius: new BorderRadius.circular(4.0),
-                                                    //       child:     (nbnbRoom[index].imageUrl1=="BasicImage" || nbnbRoom[index].imageUrl1 == null)
-                                                    //           ?
-                                                    //       FittedBox(
-                                                    //         fit: BoxFit.cover,
-                                                    //         child: SvgPicture.asset(
-                                                    //           mryrInReviewScreen,
-                                                    //
-                                                    //         ),
-                                                    //       )
-                                                    //           :  Stack(
-                                                    //             children: [
-                                                    //               FittedBox(
-                                                    //         fit: BoxFit.cover,
-                                                    //         child:    getExtendedImage(get_resize_image_name(nbnbRoom[index].imageUrl1,360), 0,extendedController),
-                                                    //       ),
-                                                    //               Center(
-                                                    //                 child: SvgPicture.asset(
-                                                    //                     RoomWaterMark,
-                                                    //                     width: screenWidth*(56/360),
-                                                    //                     height:screenHeight*(16/640)
-                                                    //                 ),
-                                                    //               ),
-                                                    //             ],
-                                                    //           )
-                                                    //   ),
-                                                    // ),
+                                                    // 양도이미지
+                                                    Container(
+                                                      width: screenWidth * 0.3333333,
+                                                      height: screenWidth * (100/360),
+                                                      child: ClipRRect(
+                                                          borderRadius: new BorderRadius.circular(4.0),
+                                                          child:     (nbnbRoom[index].imageUrl1=="BasicImage" || nbnbRoom[index].imageUrl1 == null)
+                                                              ?
+                                                          FittedBox(
+                                                            fit: BoxFit.cover,
+                                                            child: SvgPicture.asset(
+                                                              mryrInReviewScreen,
+
+                                                            ),
+                                                          )
+                                                              :  Stack(
+                                                                children: [
+                                                                  FittedBox(
+                                                            fit: BoxFit.cover,
+                                                            child:    getExtendedImage(get_resize_image_name(nbnbRoom[index].imageUrl1,360), 0,extendedController),
+                                                          ),
+                                                                  Center(
+                                                                    child: SvgPicture.asset(
+                                                                        RoomWaterMark,
+                                                                        width: screenWidth*(56/360),
+                                                                        height:screenHeight*(16/640)
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              )
+                                                      ),
+                                                    ),
                                                   ],
                                                 ),
                                                 SizedBox(
@@ -1135,7 +1139,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                           Column(
                                             mainAxisAlignment: MainAxisAlignment.start,
                                             children: [
-                                              SizedBox(height: screenHeight * 0.01875),
+                                              SizedBox(height: screenHeight * 0.00875),
                                               Container(
                                                 width: screenWidth * 0.3333333,
                                                 height: screenWidth * (100/360),
@@ -1737,7 +1741,6 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                           heightPadding(screenHeight,14),
                           Container(
                             width: screenWidth,
-                            height:screenHeight*(114/640),
                             color: Colors.white,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1808,14 +1811,11 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                         }),
                                   ),
                                 ),
+
                               ],
                             ),
                           ),
-                          Container(
-                            height:screenHeight*(4/640),
-                            width:screenWidth,
-                            color:hexToColor('#FFFFFF'),
-                          ),
+                          heightPadding(screenHeight,16),
                           Container(
                             width: screenWidth,
                             color: Colors.white,
@@ -1878,26 +1878,25 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                         thumbColor: Colors.white,
                                       ),
                                       child: RangeSlider(
-                                        min: 0,
-                                        max: 310000,
-                                        divisions: 31,
+                                        min: S_PRICE_LOW_RANGE,
+                                        max: S_PRICE_HIGH_RANGE,
+                                        divisions: S_PRICE_DIVISION,
                                         inactiveColor: Color(0xffcccccc),
                                         activeColor: kPrimaryColor,
-                                        labels: RangeLabels(sPriceLowRange.floor().toString(),
-                                            sPriceHighRange.floor().toString()),
+                                        labels: null,
                                         values: sPriceValues,
                                         //RangeValues(_lowValue,_highValue),
                                         onChanged: (_range) {
                                           setState(() {
-                                            if(_range.end.toInt() == 310000) {
-                                              sInfinity = extractNum(_range.start).toInt().toString() + "만원-무제한";
+                                            if(_range.end.toInt() == S_PRICE_HIGH_RANGE) {
+                                              sInfinity = extractNum_Short_String(_range.start) + "만원-무제한";
                                             } else {
-                                              sInfinity = extractNum(_range.start).toInt().toString() + "만원-" + extractNum(_range.end).toInt().toString() + "만원";
+                                              sInfinity = extractNum_Short_String(_range.start) + "만원-" + extractNum_Short_String(_range.end) + "만원";
                                             }
 
                                             sPriceValues = _range;
-                                            sPriceLowRange = _range.start;
-                                            sPriceHighRange = _range.end;
+                                            sPriceLowRange = extractNum_Short_Int(_range.start).toDouble();
+                                            sPriceHighRange = extractNum_Short_Int(_range.end).toDouble();
 
                                           });
                                         },
@@ -1916,7 +1915,15 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                           color: hexToColor('#888888')
                                       ),
                                     ),
-                                    Expanded(child: SizedBox()),
+                                    Spacer(),
+                                    Text(
+                                      '25만원',
+                                      style: TextStyle(
+                                          fontSize: screenWidth*(10/360),
+                                          color: hexToColor('#888888')
+                                      ),
+                                    ),
+                                    Spacer(),
                                     Text(
                                       '최대',
                                       style: TextStyle(
@@ -1930,14 +1937,9 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                               ],
                             ),
                           ),
-                          Container(
-                            height:screenHeight*(4/640),
-                            width:screenWidth,
-                            color:hexToColor('#FFFFFF'),
-                          ),
+                          heightPadding(screenHeight,16),
                           Container(
                             width: screenWidth,
-                            height: screenHeight*(126/640),
                             color: Colors.white,
                             child: Column(
                               children: [
@@ -2068,14 +2070,9 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                               ],
                             ),
                           ),
-                          Container(
-                            height:screenHeight*(4/640),
-                            width:screenWidth,
-                            color:hexToColor('#FFFFFF'),
-                          ),
+                          heightPadding(screenHeight,16),
                           Container(
                             width: screenWidth,
-                            height:screenHeight*(114/640),
                             color: Colors.white,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2108,6 +2105,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                           return GestureDetector(
                                             onTap: (){
                                               sListOption[index].flag = !sListOption[index].flag;
+                                              sListOption[index].selected = !sListOption[index].selected;
                                               setState(() {
 
                                               });
@@ -2147,183 +2145,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                               ],
                             ),
                           ),
-                          Container(
-                            height:screenHeight*(4/640),
-                            width:screenWidth,
-                            color:hexToColor('#FFFFFF'),
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              //매물 리스트
-                              // EasyLoading.show(status: "",maskType: EasyLoadingMaskType.black);
-                              ShortFilterFlag = false;
-                              sSubList.clear();
-                              for(int i = 1; i <= sListRoomType.length; i++) {
-                                if(sListRoomType[i-1].selected) {
-                                  sSubList.add(i.toString());
-                                }
-                              }
-                              if(sSubList.length == 0) {//아무것도 선택 안한 경우
-                                sSubList = ["1","2","3","4"];
-                                sFilterList[0].flag = false;
-                                sFilterList[0].title = "방 종류";
-                                sFilterList[0].selected = false;
-                              }else {
-                                sFilterList[0].title = "";
-                                for(int i =0; i < sListRoomType.length; i++){
-                                  if(sListRoomType[i].flag) {
-                                    sFilterList[0].title += sListRoomType[i].title + "/";
-                                  }
-                                }
-                                String s = sFilterList[0].title;
-                                int l = sFilterList[0].title.length;
-                                sFilterList[0].title = s.substring(0,l-1);
-                                sFilterList[0].selected = true;
-                                sFilterList[0].flag = true;
-                                sCloseFilter();
-                              }
-
-                              if((sPriceLowRange == 0 && sPriceHighRange == 30000)) {
-                                sFilterList[1].flag = false;
-                                sFilterList[1].title = "가격";
-                                sFilterList[1].selected = false;
-                              }else {
-                                sFilterList[1].title = "일 / " +  extractNum(sPriceLowRange).toInt().toString()+"만원-"+extractNum(sPriceHighRange).toInt().toString()+"만원";
-                                sFilterList[1].selected = true;
-                                sFilterList[1].flag = true;
-                                sCloseFilter();
-                              }
-
-                              if(sFilterRentStart == "" || sFilterRentDone ==""){
-                                Function okFunc = () async{
-                                  Navigator.pop(context);
-
-                                };
-                                sFilterList[2].flag = false;
-                                sFilterList[2].title = "임대 기간";
-                                sFilterList[2].selected = false;
-                                sCloseFilter();
-                              }else {
-                                sFilterList[2].title =
-                                    sFilterRentStart + "-" + sFilterRentDone;
-                                sFilterList[2].selected = true;
-                                sFilterList[2].flag = true;
-                              }
-
-                              sFilterList[3].title = "";
-                              for(int i =0; i < sListOption.length; i++){
-                                if(sListOption[i].flag) {
-                                  sFilterList[3].title += sListOption[i].title + "/";
-                                }
-                              }
-                              String s = sFilterList[3].title;
-                              int l = sFilterList[3].title.length;
-
-                              if(l==0) {//아무것도 선택 안한 경우
-                                sFilterList[3].flag = false;
-                                sFilterList[3].title = "추가 옵션";
-                                sFilterList[3].selected = false;
-                              }else {
-                                sFilterList[3].selected = true;
-                                sFilterList[3].flag = true;
-                                sFilterList[3].title = s.substring(0,l-1);
-                                sCloseFilter();
-                              }
-
-
-
-                              bool subFlag = true;
-                              for(int i = 0; i <sListOption.length; i++) {
-                                if(sListOption[i].selected) {
-                                  subFlag = false;
-                                  break;
-                                }
-                              }
-
-                              globalRoomSalesInfoListFiltered
-                                  .clear();
-                              var list = await ApiProvider().post("/RoomSalesInfo/ListShortFilter", jsonEncode(
-                                  {
-                                    "types" : sSubList.length == 0 ? null : sSubList,
-                                    "feemin" : sPriceLowRange,
-                                    "feemax" : sPriceHighRange == 310000 ? 9999999999 : sPriceHighRange,
-                                    "periodmin" : sFilterList[2].selected == false ? "1900.01.01" : sFilterRentStart,
-                                    "periodmax" : sFilterList[2].selected == false ? "2900.12.31" : sFilterRentDone,
-                                    "parking" : subFlag ? null : sListOption[0].selected ? 1 : 0,
-                                    "cctv" : subFlag ? null :  sListOption[1].selected ? 1 : 0,
-                                    "wifi" : subFlag ? null :  sListOption[2].selected ? 1 : 0,
-                                  }
-                              ));
-
-                              // var Llist = await ApiProvider()
-                              //     .post(
-                              //     '/RoomSalesInfo/Select/Like',
-                              //     jsonEncode(
-                              //         {
-                              //           "userID": GlobalProfile
-                              //               .loggedInUser
-                              //               .userID,
-                              //         }
-                              //     ));
-
-                              if (list != null && list != false) {
-                                for (int i = 0; i <
-                                    list.length; ++i) {
-                                  RoomSalesInfo item = RoomSalesInfo
-                                      .fromJson(list[i]);
-
-                                  // for (int j = 0; j <
-                                  //     Llist.length; j++) {
-                                  //   Map<String,
-                                  //       dynamic> data = Llist[j];
-                                  //   ModelRoomLikes Litem = ModelRoomLikes
-                                  //       .fromJson(data);
-                                  //
-                                  //   if (item.id ==
-                                  //       Litem.RoomSaleID) {
-                                  //     item.Likes = true;
-                                  //     setState(() {});
-                                  //     break;
-                                  //   }
-                                  // }
-
-                                  globalRoomSalesInfoListFiltered
-                                      .add(item);
-                                }
-                                FlagForFilter = true;
-                              }
-                              else {
-                                Function okFunc = () async{
-                                  Navigator.pop(context);
-
-                                };
-                                resetRoomAll();
-                                OKDialog(context, "조건에 맞는 방이 없어요!", "새로운 조건으로 다시 입력해주세요!", "확인",okFunc);
-                              }
-                              sCloseFilter();
-
-
-                              setState(() {
-
-                              });
-                              // EasyLoading.dismiss();
-                            },
-                            child: Container(
-                              height: screenHeight*(60/640),
-                              width: screenWidth,
-                              color: kPrimaryColor,
-                              child: Center(
-                                child: Text(
-                                  '적용하기',
-                                  style: TextStyle(
-                                      fontSize: MediaQuery.of(context).size.width*(16/360),
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold
-                                  ),
-                                ),
-                              ),
-                            ),
-                          )
+                          heightPadding(screenHeight,16),
                         ],
                       ),
                     ),
@@ -2363,7 +2185,6 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                           heightPadding(screenHeight,14),
                           Container(
                             width: screenWidth,
-                            height:screenHeight*(114/640),
                             color: Colors.white,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2437,6 +2258,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                               ],
                             ),
                           ),
+                          heightPadding(screenHeight,16),
                           Container(
                             width:screenWidth,
                             height:screenHeight*(4/640),
@@ -2556,21 +2378,20 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                         thumbColor: Colors.white,
                                       ),
                                       child: RangeSlider(
-                                        min: 0,
-                                        max: 10100000,
-                                        divisions: 101,
+                                        min: T_DEPOSIT_LOW_RANGE,
+                                        max: T_DEPOSIT_HIGH_RANGE,
+                                        divisions: T_DEPOSIT_DIVISION,
                                         inactiveColor: Color(0xffcccccc),
                                         activeColor: kPrimaryColor,
-                                        labels: RangeLabels(tDepositLowRange.floor().toString(),
-                                            tDepositHighRange.floor().toString()),
+                                        labels: null,
                                         values: tDepositValues,
                                         //RangeValues(_lowValue,_highValue),
                                         onChanged: (_range) {
                                           setState(() {
-                                            if(_range.end.toInt() == 10100000) {
-                                              tDepositInfinity = extractNum(_range.start).toInt().toString() + "만원-무제한";
+                                            if(_range.end.toInt() == T_DEPOSIT_HIGH_RANGE) {
+                                              tDepositInfinity = extractNum_Transfer_String(_range.start) + "만원-무제한";
                                             } else {
-                                              tDepositInfinity = extractNum(_range.start).toInt().toString() + "만원-" + extractNum(_range.end).toInt().toString() + "만원";
+                                              tDepositInfinity = extractNum_Transfer_String(_range.start) + "만원-" + extractNum_Transfer_String(_range.end) + "만원";
                                             }
 
                                             tDepositValues = _range;
@@ -2599,7 +2420,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                     ),
                                     Spacer(),
                                     Text(
-                                      '500만원',
+                                      '1억 5천만원',
                                       style: TextStyle(
                                           fontSize: screenWidth*(10/360),
                                           color: hexToColor('#888888')
@@ -2616,111 +2437,108 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                     widthPadding(screenWidth,14),
                                   ],
                                 ),
-                                heightPadding(screenHeight,20),
-                                Padding(
-                                  padding:  EdgeInsets.only(left: screenWidth*(12/360)),
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        "월세",
-                                        style:TextStyle(
-                                            fontSize: screenWidth*(14/360),
-                                            fontWeight: FontWeight.bold,
-                                            color:kPrimaryColor
-                                        ),
-                                      ),
-                                      Expanded(child: SizedBox()),
-                                      Text(
-                                        tMonthlyInfinity,
-                                        style:TextStyle(
-                                            fontSize: screenWidth*(12/360),
-                                            color:kPrimaryColor
-                                        ),
-                                      ),
-                                      widthPadding(screenWidth,16),
-                                    ],
-                                  ),
-                                ),
-                                Center(
-                                  child: Container(
-                                    width: screenWidth * (336 / 360),
-                                    child: SliderTheme(
-                                      data: SliderThemeData(
-                                        thumbColor: Colors.white,
-                                      ),
-                                      child: RangeSlider(
-                                        min: 0,
-                                        max: 1010000,
-                                        divisions: 101,
-                                        inactiveColor: Color(0xffcccccc),
-                                        activeColor: kPrimaryColor,
-                                        labels: RangeLabels(tMonthlyFeeLowRange.floor().toString(),
-                                            tMonthlyFeeHighRange.floor().toString()),
-                                        values: tMonthlyFeeValues,
-                                        //RangeValues(_lowValue,_highValue),
-                                        onChanged: (_range) {
-                                          setState(() {
-
-                                            if(_range.end.toInt() == 1010000) {
-                                              tMonthlyInfinity = extractNum(_range.start).toInt().toString() + "만원-무제한";
-                                            } else {
-                                              tMonthlyInfinity = extractNum(_range.start).toInt().toString() + "만원-" + extractNum(_range.end).toInt().toString() + "만원";
-                                            }
-
-                                            tMonthlyFeeValues = _range;
-                                            tMonthlyFeeLowRange = _range.start;
-                                            tMonthlyFeeHighRange = _range.end;
-                                          });
-                                        },
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  height: screenHeight*(8/640),
-                                  width: 1,
-                                  color: hexToColor('#888888'),
-                                ),
-                                Row(
+                                tListContractType[1].selected ? SizedBox() : Column(
                                   children: [
-                                    widthPadding(screenWidth,14),
-                                    Text(
-                                      '최소',
-                                      style: TextStyle(
-                                          fontSize: screenWidth*(10/360),
-                                          color: hexToColor('#888888')
+                                    heightPadding(screenHeight,20),
+                                    Padding(
+                                      padding:  EdgeInsets.only(left: screenWidth*(12/360)),
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            "월세",
+                                            style:TextStyle(
+                                                fontSize: screenWidth*(14/360),
+                                                fontWeight: FontWeight.bold,
+                                                color:kPrimaryColor
+                                            ),
+                                          ),
+                                          Expanded(child: SizedBox()),
+                                          Text(
+                                            tMonthlyInfinity,
+                                            style:TextStyle(
+                                                fontSize: screenWidth*(12/360),
+                                                color:kPrimaryColor
+                                            ),
+                                          ),
+                                          widthPadding(screenWidth,16),
+                                        ],
                                       ),
                                     ),
-                                    Spacer(),
-                                    Text(
-                                      '50만원',
-                                      style: TextStyle(
-                                          fontSize: screenWidth*(10/360),
-                                          color: hexToColor('#888888')
+                                    Center(
+                                      child: Container(
+                                        width: screenWidth * (336 / 360),
+                                        child: SliderTheme(
+                                          data: SliderThemeData(
+                                            thumbColor: Colors.white,
+                                          ),
+                                          child: RangeSlider(
+                                            min: T_MONTHLY_LOW_RANGE,
+                                            max: T_MONTHLY_HIGH_RANGE,
+                                            divisions: T_MONTHLY_DIVISION,
+                                            inactiveColor: Color(0xffcccccc),
+                                            activeColor: kPrimaryColor,
+                                            labels: null,
+                                            values: tMonthlyFeeValues,
+                                            //RangeValues(_lowValue,_highValue),
+                                            onChanged: (_range) {
+                                              setState(() {
+                                                if(_range.end.toInt() == T_MONTHLY_HIGH_RANGE) {
+                                                  tMonthlyInfinity = extractNum_Transfer_String(_range.start) + "만원-무제한";
+                                                } else {
+                                                  tMonthlyInfinity = extractNum_Transfer_String(_range.start) + "만원-" + extractNum_Transfer_String(_range.end) + "만원";
+                                                }
+
+                                                tMonthlyFeeValues = _range;
+                                                tMonthlyFeeLowRange = _range.start;
+                                                tMonthlyFeeHighRange = _range.end;
+                                              });
+                                            },
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                    Spacer(),
-                                    Text(
-                                      '최대',
-                                      style: TextStyle(
-                                          fontSize: screenWidth*(10/360),
-                                          color: hexToColor('#888888')
-                                      ),
+                                    Container(
+                                      height: screenHeight*(8/640),
+                                      width: 1,
+                                      color: hexToColor('#888888'),
                                     ),
-                                    widthPadding(screenWidth,14),
+                                    Row(
+                                      children: [
+                                        widthPadding(screenWidth,14),
+                                        Text(
+                                          '최소',
+                                          style: TextStyle(
+                                              fontSize: screenWidth*(10/360),
+                                              color: hexToColor('#888888')
+                                          ),
+                                        ),
+                                        Spacer(),
+                                        Text(
+                                          '250만원',
+                                          style: TextStyle(
+                                              fontSize: screenWidth*(10/360),
+                                              color: hexToColor('#888888')
+                                          ),
+                                        ),
+                                        Spacer(),
+                                        Text(
+                                          '최대',
+                                          style: TextStyle(
+                                              fontSize: screenWidth*(10/360),
+                                              color: hexToColor('#888888')
+                                          ),
+                                        ),
+                                        widthPadding(screenWidth,14),
+                                      ],
+                                    ),
                                   ],
-                                ),
+                                )
                               ],
                             ),
                           ),
-                          Container(
-                            width:screenWidth,
-                            height:screenHeight*(4/640),
-                            color:hexToColor('#FFFFFF'),
-                          ),
+                          heightPadding(screenHeight,16),
                           Container(
                             width: screenWidth,
-                            height: screenHeight*(126/640),
                             color: Colors.white,
                             child: Column(
                               children: [
@@ -2847,18 +2665,13 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                     ),
                                     widthPadding(screenWidth,12),
                                   ],
-                                ),
+                                )
                               ],
                             ),
                           ),
-                          Container(
-                            width:screenWidth,
-                            height:screenHeight*(4/640),
-                            color:hexToColor('#FFFFFF'),
-                          ),
+                          heightPadding(screenHeight,16),
                           Container(
                             width: screenWidth,
-                            height:screenHeight*(114/640),
                             color: Colors.white,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -2891,6 +2704,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                           return GestureDetector(
                                             onTap: (){
                                               tListOption[index].flag = !tListOption[index].flag;
+                                              tListOption[index].selected = !tListOption[index].selected;
                                               setState(() {
 
                                               });
@@ -2927,217 +2741,8 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                         }),
                                   ),
                                 ),
+                                heightPadding(screenHeight,16),
                               ],
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              // EasyLoading.show(
-                              //     status: "",
-                              //     maskType:
-                              //     EasyLoadingMaskType
-                              //         .black);
-                              ShortFilterFlag = false;
-                              tSubList.clear();
-                              for(int i = 1; i <= tListRoomType.length; i++) {
-                                if(tListRoomType[i-1].selected) {
-                                  tSubList.add(i.toString());
-                                }
-                              }
-                              if(tSubList.length == 0) {//아무것도 선택 안한 경우
-                                tFilterList[0].flag = false;
-                                tFilterList[0].title = "방 종류";
-                                tFilterList[0].selected = false;
-                              }else {
-                                for(int i =0; i < tListRoomType.length; i++){
-                                  if(tListRoomType[i].flag) {
-                                    tFilterList[0].title += tListRoomType[i].title + "/";
-                                  }
-                                }
-                                String s = tFilterList[0].title;
-                                int l = tFilterList[0].title.length;
-                                tFilterList[0].title = s.substring(0,l-1);
-                                tFilterList[0].selected = true;
-                                tFilterList[0].flag = true;
-                                tCloseFilter();
-                              }
-
-                              String contractType;
-
-                              if(!tListContractType[0].selected && !tListContractType[1].selected) {
-                                if(tDepositLowRange == 0 && tDepositHighRange == 10100000 && tMonthlyFeeLowRange == 0 && tMonthlyFeeHighRange == 1010000) {
-                                  tFilterList[1].flag = false;
-                                  tFilterList[1].title = "가격";
-                                  tFilterList[1].selected = false;
-                                  contractType="";
-                                } else {
-                                  tFilterList[1].title = contractType + " / " + "보 " + extractNum(tDepositLowRange).toInt().toString()+"-"+extractNum(tDepositHighRange).toInt().toString()+"만원,월 "+
-                                      extractNum(tMonthlyFeeLowRange).toInt().toString()+"-"+extractNum(tMonthlyFeeHighRange).toInt().toString()+"만원";
-                                  tFilterList[1].selected = true;
-                                  tFilterList[1].flag = true;
-                                }
-
-                                Function okFunc = () async{
-                                  Navigator.pop(context);
-
-                                };
-                              } else if(tListContractType[0].selected && !tListContractType[1].selected) {
-                                flagContractType = 1;
-                                contractType = "월세";
-
-                                tFilterList[1].title = contractType + " / " + "보 " + extractNum(tDepositLowRange).toInt().toString()+"-"+extractNum(tDepositHighRange).toInt().toString()+"만원,월 "+
-                                    extractNum(tMonthlyFeeLowRange).toInt().toString()+"-"+extractNum(tMonthlyFeeHighRange).toInt().toString()+"만원";
-                                tFilterList[1].selected = true;
-                                tFilterList[1].flag = true;
-                              } else {
-                                flagContractType = 2;
-                                contractType = "전세";
-
-                                tFilterList[1].title = contractType + " / " + "보 " + extractNum(tDepositLowRange).toInt().toString()+"-"+extractNum(tDepositHighRange).toInt().toString()+"만원,월 "+
-                                    extractNum(tMonthlyFeeLowRange).toInt().toString()+"-"+extractNum(tMonthlyFeeHighRange).toInt().toString()+"만원";
-                                tFilterList[1].selected = true;
-                                tFilterList[1].flag = true;
-                              }
-
-                              if(tFilterRentStart == "" || tFilterRentDone ==""){
-                                Function okFunc = () async{
-                                  Navigator.pop(context);
-
-                                };
-                                tFilterList[2].flag = false;
-                                tFilterList[2].title = "임대 기간";
-                                tFilterList[2].selected = false;
-                                tCloseFilter();
-                              }else {
-                                tFilterList[2].title = tFilterRentStart + "-" + tFilterRentDone;
-                                tFilterList[2].selected = true;
-                                tFilterList[2].flag = true;
-                              }
-
-                              tFilterList[3].title = "";
-                              for(int i =0; i < tListOption.length; i++){
-                                if(tListOption[i].flag) {
-                                  tFilterList[3].title += tListOption[i].title + "/";
-                                }
-                              }
-                              String s = tFilterList[3].title;
-                              int l = tFilterList[3].title.length;
-
-                              if(l==0) {//아무것도 선택 안한 경우
-                                tFilterList[3].flag = false;
-                                tFilterList[3].title = "추가 옵션";
-                                tFilterList[3].selected = false;
-                              }else {
-                                tFilterList[3].selected = true;
-                                tFilterList[3].title = s.substring(0,l-1);
-                                tFilterList[3].flag = true;
-                                sCloseFilter();
-                              }
-
-
-
-                              int subFlag2 = -1;
-                              for(int i = 0; i < tListContractType.length; i++) {
-                                if(tListContractType[i].flag){
-                                  subFlag2 = i+1;
-                                  break;
-                                }
-                              }
-
-                              bool subFlag = true;
-                              for(int i = 0; i <tListOption.length; i++) {
-                                if(tListOption[i].selected) {
-                                  subFlag = false;
-                                  break;
-                                }
-                              }
-
-                              globalRoomSalesInfoListFiltered
-                                  .clear();
-                              var list = await ApiProvider().post("/RoomSalesInfo/ListTransferFilter", jsonEncode(
-                                  {
-                                    "types" : tSubList.length == 0 ? null : tSubList,
-                                    "jeonse": subFlag2 == -1 ? null : subFlag2,
-                                    "depositmin" : tDepositLowRange,
-                                    "depositmax" : tDepositHighRange == 30000 ? 9999999999 : tDepositHighRange,
-                                    "monthlyfeemin" : tMonthlyFeeLowRange,
-                                    "monthlyfeemax" : tMonthlyFeeHighRange == 30000 ? 9999999999 : tDepositHighRange,
-                                    "periodmin" : tFilterList[2].selected == false ? "1900.01.01" : tFilterRentStart,
-                                    "periodmax" : tFilterList[2].selected == false ? "2900.12.31" : tFilterRentDone,
-                                    "parking" : subFlag ? null : tListOption[0].selected ? 1 : 0,
-                                    "cctv" : subFlag ? null :  tListOption[1].selected ? 1 : 0,
-                                    "wifi" : subFlag ? null :  tListOption[2].selected ? 1 : 0,
-                                  }
-                              ));
-
-                              // var Llist = await ApiProvider()
-                              //     .post(
-                              //     '/RoomSalesInfo/Select/Like',
-                              //     jsonEncode(
-                              //         {
-                              //           "userID": GlobalProfile
-                              //               .loggedInUser
-                              //               .userID,
-                              //         }
-                              //     ));
-
-                              if (list != null && list != false) {
-                                for (int i = 0; i <
-                                    list.length; ++i) {
-                                  RoomSalesInfo item = RoomSalesInfo
-                                      .fromJson(list[i]);
-
-                                  // for (int j = 0; j <
-                                  //     Llist.length; j++) {
-                                  //   Map<String,
-                                  //       dynamic> data = Llist[j];
-                                  //   ModelRoomLikes Litem = ModelRoomLikes
-                                  //       .fromJson(data);
-                                  //
-                                  //   if (item.id ==
-                                  //       Litem.RoomSaleID) {
-                                  //     item.Likes = true;
-                                  //     setState(() {});
-                                  //     break;
-                                  //   }
-                                  // }
-
-                                  globalRoomSalesInfoListFiltered
-                                      .add(item);
-                                }
-                                FlagForFilter = true;
-                              }
-                              else {
-                                Function okFunc = () async{
-                                  Navigator.pop(context);
-
-                                };
-                                resetTransferAll();
-                                OKDialog(context, "조건에 맞는 방이 없어요!", "새로운 조건으로 다시 입력해주세요!", "확인",okFunc);
-                              }
-
-                              tCloseFilter();
-
-
-                              setState(() {
-
-                              });
-                              // EasyLoading.dismiss();
-                            },
-                            child: Container(
-                              height: screenHeight*(60/640),
-                              width: screenWidth,
-                              color: kPrimaryColor,
-                              child: Center(
-                                child: Text(
-                                  '적용하기',
-                                  style: TextStyle(
-                                      fontSize: MediaQuery.of(context).size.width*(16/360),
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold
-                                  ),
-                                ),
-                              ),
                             ),
                           )
                         ],
@@ -3153,17 +2758,29 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                         children: [
                           GestureDetector(
                             onTap: () async {
-                              if (GlobalProfile.roomSalesInfoList.length <= 4) {
-                                Navigator.push(
-                                    context, // 기본 파라미터, SecondRoute로 전달
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          WarningBeforeTransfer(),
-                                    ) // SecondRoute를 생성하여 적재
-                                );
-                              } else {
-                                CustomOKDialog(context, "방 등록은 5개까지 가능합니다", "올리셨던 방을 수정해주세요");
+                              var t = await ApiProvider().get('/Manage/roomdialog');
+                              AppCheck appCheck = AppCheck.fromJson(t[0]);
+                              if(appCheck.Switch == 0){
+                                if (GlobalProfile.roomSalesInfoList.length <= 4) {
+                                  Navigator.push(
+                                      context, // 기본 파라미터, SecondRoute로 전달
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            WarningBeforeTransfer(),
+                                      ) // SecondRoute를 생성하여 적재
+                                  );
+                                } else {
+                                  CustomOKDialog(context, "방 등록은 5개까지 가능합니다",
+                                      "올리셨던 방을 수정해주세요");
+                                }
                               }
+                              else {
+                                Function okFunc = () async{
+                                  Navigator.pop(context);
+                                };
+                                OKDialog(context,appCheck.Title,appCheck.Ment,"확인", okFunc);
+                              }
+
                             },
                             child: Stack(
                               children: [
@@ -3205,7 +2822,125 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
               ),
             ),
           ),
+            bottomNavigationBar: ShortFilterFlag && isShortForRoomList ? GestureDetector(
+              onTap: () async {
+                //매물 리스트
+                // EasyLoading.show(status: "",maskType: EasyLoadingMaskType.black);
+                ShortFilterFlag = false;
 
+                Process_S_Type();
+                Process_S_Price();
+                Process_S_Period();
+                Process_S_Option();
+
+
+                bool optionFlag = Check_S_optionFlag();
+                globalRoomSalesInfoListFiltered.clear();
+                var list = await Return_ShortFilter_List(optionFlag);
+                FlagForFilter = true;
+
+                if (list != null && list != false) {
+                  for (int i = 0; i <
+                      list.length; ++i) {
+                    RoomSalesInfo item = RoomSalesInfo
+                        .fromJson(list[i]);
+                    globalRoomSalesInfoListFiltered
+                        .add(item);
+                  }
+                }
+                else {
+                  Function okFunc = () async{
+                    Navigator.pop(context);
+
+                  };
+                  resetRoomAll();
+                  OKDialog(context, "조건에 맞는 방이 없어요!", "새로운 조건으로 다시 입력해주세요!", "확인",okFunc);
+                }
+                sCloseFilter();
+                setState(() {
+
+                });
+                // EasyLoading.dismiss();
+              },
+              child: Container(
+                height: screenHeight*(60/640),
+                width: screenWidth,
+                color: kPrimaryColor,
+                child: Center(
+                  child: Text(
+                    '적용하기',
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.width*(16/360),
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ),
+              ),
+            ):
+            ShortFilterFlag && !isShortForRoomList ? GestureDetector(
+              onTap: () async {
+                // EasyLoading.show(
+                //     status: "",
+                //     maskType:
+                //     EasyLoadingMaskType
+                //         .black);
+                ShortFilterFlag = false;
+
+                Process_T_Type();
+                Process_T_Price();
+                Process_T_Period();
+                Process_T_Option();
+
+                int subFlag2 = Check_T_jeonseFlag();
+
+                bool subFlag = Check_T_optionFlag();
+
+                globalRoomSalesInfoListFiltered.clear();
+                var list = await Return_TransferFilter_List(subFlag2, subFlag);
+                FlagForFilter = true;
+
+                if (list != null && list != false) {
+                  for (int i = 0; i <
+                      list.length; ++i) {
+                    RoomSalesInfo item = RoomSalesInfo
+                        .fromJson(list[i]);
+                    globalRoomSalesInfoListFiltered
+                        .add(item);
+                  }
+                }
+                else {
+                  Function okFunc = () async{
+                    Navigator.pop(context);
+
+                  };
+                  resetTransferAll();
+                  OKDialog(context, "조건에 맞는 방이 없어요!", "새로운 조건으로 다시 입력해주세요!", "확인",okFunc);
+                }
+                tCloseFilter();
+
+
+                setState(() {
+
+                });
+                // EasyLoading.dismiss();
+              },
+              child: Container(
+                height: screenHeight*(60/640),
+                width: screenWidth,
+                color: kPrimaryColor,
+                child: Center(
+                  child: Text(
+                    '적용하기',
+                    style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.width*(16/360),
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ),
+              ),
+            ):SizedBox()
         ),
       ),
     );
@@ -3311,96 +3046,34 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                     //     maskType:
                     //     EasyLoadingMaskType
                     //         .black);
-                    sSubList.clear();
-                    for(int i = 1; i <= sListRoomType.length; i++) {
-                      if(sListRoomType[i-1].selected) {
-                        sSubList.add(i.toString());
-                      }
-                    }
-                    if(sSubList.length == 0) {//아무것도 선택 안한 경우
-                      sFilterList[0].flag = false;
-                      sFilterList[0].title = "방 종류";
-                      sFilterList[0].selected = false;
-                    }else {
-                      sFilterList[0].title = "";
-                      for(int i =0; i < sListRoomType.length; i++){
-                        if(sListRoomType[i].flag) {
-                          sFilterList[0].title += sListRoomType[i].title + "/";
-                        }
-                      }
-                      String s = sFilterList[0].title;
-                      int l = sFilterList[0].title.length;
-                      sFilterList[0].title = s.substring(0,l-1);
-                      sFilterList[0].selected = true;
-                      sCloseFilter();
-                    }
 
-                    bool subFlag = true;
-                    for(int i = 0; i <sListOption.length; i++) {
-                      if(sListOption[i].selected) {
-                        subFlag = false;
-                        break;
-                      }
-                    }
 
-                    var list = await ApiProvider().post("/RoomSalesInfo/ListShortFilter", jsonEncode(
-                        {
-                          "types" : sSubList.length == 0 ? null : sSubList,
-                          "feemin" : sPriceLowRange,
-                          "feemax" : sPriceHighRange == 310000 ? 9999999999 : sPriceHighRange,
-                          "periodmin" : sFilterList[2].selected == false ? "1900.01.01" : sFilterRentStart,
-                          "periodmax" : sFilterList[2].selected == false ? "2900.12.31" : sFilterRentDone,
-                          "parking" : subFlag ? null : sListOption[0].selected ? 1 : 0,
-                          "cctv" : subFlag ? null :  sListOption[1].selected ? 1 : 0,
-                          "wifi" : subFlag ? null :  sListOption[2].selected ? 1 : 0,
-                        }
-                    ));
+                    Process_S_Type();
 
-                    // var Llist = await ApiProvider()
-                    //     .post(
-                    //     '/RoomSalesInfo/Select/Like',
-                    //     jsonEncode(
-                    //         {
-                    //           "userID": GlobalProfile
-                    //               .loggedInUser
-                    //               .userID,
-                    //         }
-                    //     ));
-                    globalRoomSalesInfoListFiltered
-                        .clear();
+                    bool optionFlag = Check_S_optionFlag();
+
+                    globalRoomSalesInfoListFiltered.clear();
+                    var list = await Return_ShortFilter_List(optionFlag);
+                    FlagForFilter = true;
+
                     if (list != null && list != false) {
-
-
                       for (int i = 0; i <
                           list.length; ++i) {
                         RoomSalesInfo item = RoomSalesInfo
                             .fromJson(list[i]);
-
-                        // for (int j = 0; j <
-                        //     Llist.length; j++) {
-                        //   Map<String,
-                        //       dynamic> data = Llist[j];
-                        //   ModelRoomLikes Litem = ModelRoomLikes
-                        //       .fromJson(data);
-                        //
-                        //   if (item.id ==
-                        //       Litem.RoomSaleID) {
-                        //     item.Likes = true;
-                        //     setState(() {});
-                        //     break;
-                        //   }
-                        // }
-
                         globalRoomSalesInfoListFiltered
                             .add(item);
                       }
-                      FlagForFilter = true;
                     }
                     else {
                       Function okFunc = () async{
                         Navigator.pop(context);
 
                       };
+                      sFilterList[0].flag = false;
+                      sFilterList[0].title = "방 종류";
+                      sFilterList[0].selected = false;
+
                       resetRoomType();
                       OKDialog(context, "조건에 맞는 방이 없어요!", "새로운 조건으로 다시 입력해주세요!", "확인",okFunc);
                     }
@@ -3428,7 +3101,8 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                 ),
               ),
             ],
-          )
+          ),
+          Container(height: 1,color:hexToColor('#EEEEEE'),),
         ],
       ),
     ) :
@@ -3494,26 +3168,26 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                   thumbColor: Colors.white,
                 ),
                 child: RangeSlider(
-                  min: 0,
-                  max: 310000,
-                  divisions: 31,
+                  min: S_PRICE_LOW_RANGE,
+                  max: S_PRICE_HIGH_RANGE,
+                  divisions: S_PRICE_DIVISION,
                   inactiveColor: Color(0xffcccccc),
                   activeColor: kPrimaryColor,
-                  labels: RangeLabels(sPriceLowRange.floor().toString(),
-                      sPriceHighRange.floor().toString()),
+                  labels: null,
                   values: sPriceValues,
                   //RangeValues(_lowValue,_highValue),
                   onChanged: (_range) {
                     setState(() {
-                      if(_range.end.toInt() == 310000) {
-                        sInfinity = extractNum(_range.start).toInt().toString() + "만원-무제한";
+                      if(_range.end.toInt() == S_PRICE_HIGH_RANGE) {
+                        sInfinity = extractNum_Short_String(_range.start) + "만원-무제한";
                       } else {
-                        sInfinity = extractNum(_range.start).toInt().toString() + "만원-" + extractNum(_range.end).toInt().toString() + "만원";
+                        sInfinity = extractNum_Short_String(_range.start) + "만원-" + extractNum_Short_String(_range.end) + "만원";
                       }
 
                       sPriceValues = _range;
-                      sPriceLowRange = _range.start;
-                      sPriceHighRange = _range.end;
+                      sPriceLowRange = extractNum_Short_Int(_range.start).toDouble();
+                      sPriceHighRange = extractNum_Short_Int(_range.end).toDouble();
+
                     });
                   },
                 ),
@@ -3531,7 +3205,15 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                     color: hexToColor('#888888')
                 ),
               ),
-              Expanded(child: SizedBox()),
+              Spacer(),
+              Text(
+                '25만원',
+                style: TextStyle(
+                    fontSize: screenWidth*(10/360),
+                    color: hexToColor('#888888')
+                ),
+              ),
+              Spacer(),
               Text(
                 '최대',
                 style: TextStyle(
@@ -3557,75 +3239,21 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                   onTap: () async {
 
 
-                    if((sPriceLowRange == 0 && sPriceHighRange == 30000)) {
-                      sFilterList[1].flag = false;
-                      sFilterList[1].title = "가격";
-                      sFilterList[1].selected = false;
-                    }else {
-                      sFilterList[sCurFilter].title = "일 / " +  extractNum(sPriceLowRange).toInt().toString()+"만원-"+extractNum(sPriceHighRange).toInt().toString()+"만원";
-                      sFilterList[1].selected = true;
-                      sCloseFilter();
-                    }
+                    Process_S_Price();
 
-                    bool subFlag = true;
-                    for(int i = 0; i <sListOption.length; i++) {
-                      if(sListOption[i].selected) {
-                        subFlag = false;
-                        break;
-                      }
-                    }
-
-                    globalRoomSalesInfoListFiltered
-                        .clear();
-                    var list = await ApiProvider().post("/RoomSalesInfo/ListShortFilter", jsonEncode(
-                        {
-                          "types" : sSubList.length == 0 ? null : sSubList,
-                          "feemin" : sPriceLowRange,
-                          "feemax" : sPriceHighRange == 310000 ? 9999999999 : sPriceHighRange,
-                          "periodmin" : sFilterList[2].selected == false ? "1900.01.01" : sFilterRentStart,
-                          "periodmax" : sFilterList[2].selected == false ? "2900.12.31" : sFilterRentDone,
-                          "parking" : subFlag ? null : sListOption[0].selected ? 1 : 0,
-                          "cctv" : subFlag ? null :  sListOption[1].selected ? 1 : 0,
-                          "wifi" : subFlag ? null :  sListOption[2].selected ? 1 : 0,
-                        }
-                    ));
-
-                    // var Llist = await ApiProvider()
-                    //     .post(
-                    //     '/RoomSalesInfo/Select/Like',
-                    //     jsonEncode(
-                    //         {
-                    //           "userID": GlobalProfile
-                    //               .loggedInUser
-                    //               .userID,
-                    //         }
-                    //     ));
+                    bool optionFlag = Check_S_optionFlag();
+                    globalRoomSalesInfoListFiltered.clear();
+                    var list = await Return_ShortFilter_List(optionFlag);
+                    FlagForFilter = true;
 
                     if (list != null && list != false) {
                       for (int i = 0; i <
                           list.length; ++i) {
                         RoomSalesInfo item = RoomSalesInfo
                             .fromJson(list[i]);
-
-                        // for (int j = 0; j <
-                        //     Llist.length; j++) {
-                        //   Map<String,
-                        //       dynamic> data = Llist[j];
-                        //   ModelRoomLikes Litem = ModelRoomLikes
-                        //       .fromJson(data);
-                        //
-                        //   if (item.id ==
-                        //       Litem.RoomSaleID) {
-                        //     item.Likes = true;
-                        //     setState(() {});
-                        //     break;
-                        //   }
-                        // }
-
                         globalRoomSalesInfoListFiltered
                             .add(item);
                       }
-                      FlagForFilter = true;
                     }
                     else {
                       Function okFunc = () async{
@@ -3633,6 +3261,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
 
                       };
                       resetRoomPrice();
+
                       OKDialog(context, "조건에 맞는 방이 없어요!", "새로운 조건으로 다시 입력해주세요!", "확인",okFunc);
                     }
                     sCloseFilter();
@@ -3658,7 +3287,8 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                 ),
               ),
             ],
-          )
+          ),
+          Container(height: 1,color:hexToColor('#EEEEEE'),),
         ],
       ),
     ) :
@@ -3807,91 +3437,31 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
               Expanded(
                 child: InkWell(
                   onTap: () async {
-                    if(sFilterRentStart == "" || sFilterRentDone ==""){
+                    Process_S_Period();
+
+                    bool optionFlag = Check_S_optionFlag();
+                    globalRoomSalesInfoListFiltered.clear();
+                    var list = await Return_ShortFilter_List(optionFlag);
+                    FlagForFilter = true;
+
+                    if (list != null && list != false) {
+                      for (int i = 0; i <
+                          list.length; ++i) {
+                        RoomSalesInfo item = RoomSalesInfo
+                            .fromJson(list[i]);
+                        globalRoomSalesInfoListFiltered
+                            .add(item);
+                      }
+                    }
+                    else {
                       Function okFunc = () async{
                         Navigator.pop(context);
 
                       };
-                      sFilterList[2].flag = false;
-                      sFilterList[2].title = "임대 기간";
-                      sFilterList[2].selected = false;
-                      sCloseFilter();
-                      OKDialog(context, "임대 기간을 입력해주세요!", "입주나 퇴실 기간을 선택해주세요", "확인",okFunc);
-                    }else {
-                      sFilterList[sCurFilter].title = sFilterRentStart + "-"+sFilterRentDone;
-                      sFilterList[2].selected = true;
-
-                      bool subFlag = true;
-                      for(int i = 0; i <sListOption.length; i++) {
-                        if(sListOption[i].selected) {
-                          subFlag = false;
-                          break;
-                        }
-                      }
-
-                      globalRoomSalesInfoListFiltered
-                          .clear();
-                      var list = await ApiProvider().post("/RoomSalesInfo/ListShortFilter", jsonEncode(
-                          {
-                            "types" : sSubList.length == 0 ? null : sSubList,
-                            "feemin" : sPriceLowRange,
-                            "feemax" : sPriceHighRange == 310000 ? 9999999999 : sPriceHighRange,
-                            "periodmin" : sFilterList[2].selected == false ? "1900.01.01" : sFilterRentStart,
-                            "periodmax" : sFilterList[2].selected == false ? "2900.12.31" : sFilterRentDone,
-                            "parking" : subFlag ? null : sListOption[0].selected ? 1 : 0,
-                            "cctv" : subFlag ? null :  sListOption[1].selected ? 1 : 0,
-                            "wifi" : subFlag ? null :  sListOption[2].selected ? 1 : 0,
-                          }
-                      ));
-
-                      // var Llist = await ApiProvider()
-                      //     .post(
-                      //     '/RoomSalesInfo/Select/Like',
-                      //     jsonEncode(
-                      //         {
-                      //           "userID": GlobalProfile
-                      //               .loggedInUser
-                      //               .userID,
-                      //         }
-                      //     ));
-
-                      if (list != null&& list != false) {
-                        for (int i = 0; i <
-                            list.length; ++i) {
-                          RoomSalesInfo item = RoomSalesInfo
-                              .fromJson(list[i]);
-
-                          // for (int j = 0; j <
-                          //     Llist.length; j++) {
-                          //   Map<String,
-                          //       dynamic> data = Llist[j];
-                          //   ModelRoomLikes Litem = ModelRoomLikes
-                          //       .fromJson(data);
-                          //
-                          //   if (item.id ==
-                          //       Litem.RoomSaleID) {
-                          //     item.Likes = true;
-                          //     setState(() {});
-                          //     break;
-                          //   }
-                          // }
-
-                          globalRoomSalesInfoListFiltered
-                              .add(item);
-                        }
-                        FlagForFilter = true;
-                      }
-                      else {
-                        Function okFunc = () async{
-                          Navigator.pop(context);
-
-                        };
-                        resetRoomRent();
-                        OKDialog(context, "조건에 맞는 방이 없어요!", "새로운 조건으로 다시 입력해주세요!", "확인",okFunc);
-                      }
-                      sCloseFilter();
-
+                      resetRoomRent();
+                      OKDialog(context, "조건에 맞는 방이 없어요!", "새로운 조건으로 다시 입력해주세요!", "확인",okFunc);
                     }
+                    sCloseFilter();
 
                     setState(() {
 
@@ -3913,7 +3483,8 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                 ),
               ),
             ],
-          )
+          ),
+          Container(height: 1,color:hexToColor('#EEEEEE'),),
         ],
       ),
     ) :
@@ -3951,6 +3522,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                     return GestureDetector(
                       onTap: (){
                         sListOption[index].flag = !sListOption[index].flag;
+                        sListOption[index].selected = !sListOption[index].selected;
                         setState(() {
 
                         });
@@ -4002,84 +3574,21 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
               Expanded(
                 child: InkWell(
                   onTap: () async {
-                    sFilterList[3].title = "";
-                    for(int i =0; i < sListOption.length; i++){
-                      if(sListOption[i].flag) {
-                        sFilterList[3].title += sListOption[i].title + "/";
-                      }
-                    }
-                    String s = sFilterList[3].title;
-                    int l = sFilterList[3].title.length;
+                    Process_S_Option();
 
-                    if(l==0) {//아무것도 선택 안한 경우
-                      sFilterList[3].flag = false;
-                      sFilterList[3].title = "추가 옵션";
-                      sFilterList[3].selected = false;
-                    }else {
-                      sFilterList[3].selected = true;
-                      sFilterList[3].title = s.substring(0,l-1);
-                      sCloseFilter();
-                    }
+                    bool optionFlag = Check_S_optionFlag();
+                    globalRoomSalesInfoListFiltered.clear();
+                    var list = await Return_ShortFilter_List(optionFlag);
+                    FlagForFilter = true;
 
-                    bool subFlag = true;
-                    for(int i = 0; i <sListOption.length; i++) {
-                      if(sListOption[i].selected) {
-                        subFlag = false;
-                        break;
-                      }
-                    }
-
-                    globalRoomSalesInfoListFiltered
-                        .clear();
-                    var list = await ApiProvider().post("/RoomSalesInfo/ListShortFilter", jsonEncode(
-                        {
-                          "types" : sSubList.length == 0 ? null : sSubList,
-                          "feemin" : sPriceLowRange,
-                          "feemax" : sPriceHighRange == 310000 ? 9999999999 : sPriceHighRange,
-                          "periodmin" : sFilterList[2].selected == false ? "1900.01.01" : sFilterRentStart,
-                          "periodmax" : sFilterList[2].selected == false ? "2900.12.31" : sFilterRentDone,
-                          "parking" : subFlag ? null : sListOption[0].selected ? 1 : 0,
-                          "cctv" : subFlag ? null :  sListOption[1].selected ? 1 : 0,
-                          "wifi" : subFlag ? null :  sListOption[2].selected ? 1 : 0,
-                        }
-                    ));
-
-                    // var Llist = await ApiProvider()
-                    //     .post(
-                    //     '/RoomSalesInfo/Select/Like',
-                    //     jsonEncode(
-                    //         {
-                    //           "userID": GlobalProfile
-                    //               .loggedInUser
-                    //               .userID,
-                    //         }
-                    //     ));
-
-                    if (list != null&& list != false ) {
+                    if (list != null && list != false) {
                       for (int i = 0; i <
                           list.length; ++i) {
                         RoomSalesInfo item = RoomSalesInfo
                             .fromJson(list[i]);
-
-                        // for (int j = 0; j <
-                        //     Llist.length; j++) {
-                        //   Map<String,
-                        //       dynamic> data = Llist[j];
-                        //   ModelRoomLikes Litem = ModelRoomLikes
-                        //       .fromJson(data);
-                        //
-                        //   if (item.id ==
-                        //       Litem.RoomSaleID) {
-                        //     item.Likes = true;
-                        //     setState(() {});
-                        //     break;
-                        //   }
-                        // }
-
                         globalRoomSalesInfoListFiltered
                             .add(item);
                       }
-                      FlagForFilter = true;
                     }
                     else {
                       Function okFunc = () async{
@@ -4089,7 +3598,6 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                       resetRoomOption();
                       OKDialog(context, "조건에 맞는 방이 없어요!", "새로운 조건으로 다시 입력해주세요!", "확인",okFunc);
                     }
-
                     sCloseFilter();
 
 
@@ -4113,10 +3621,135 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                 ),
               ),
             ],
-          )
+          ),
+          Container(height: 1,color:hexToColor('#EEEEEE'),),
         ],
       ),
     ) : Container();
+  }
+
+  Future Return_ShortFilter_List(bool optionFlag) async {
+    var list = await ApiProvider().post("/RoomSalesInfo/ListShortFilter", jsonEncode(
+        {
+          "types" : sSubList.length == 0 ? null : sSubList,
+          "feemin" : sPriceLowRange,
+          "feemax" : sPriceHighRange == S_PRICE_HIGH_RANGE ? IF_S_PRICE_HIGH_DEFAULT : sPriceHighRange,
+          "periodmin" : sFilterList[2].selected == false ? IF_S_PERIOD_MIN_DEFAULT : sFilterRentStart,
+          "periodmax" : sFilterList[2].selected == false ? IF_S_PERIOD_HIGH_DEFAULT : sFilterRentDone,
+          "parking" : optionFlag ? null : sListOption[0].selected ? 1 : 0,
+          "cctv" : optionFlag ? null :  sListOption[1].selected ? 1 : 0,
+          "wifi" : optionFlag ? null :  sListOption[2].selected ? 1 : 0,
+        }
+    ));
+    return list;
+  }
+
+  Future Return_ShortMarker_Filter(bool optionFlag) async {
+    var list = await ApiProvider().post("/RoomSalesInfo/MarkerShortFilter", jsonEncode(
+        {
+          "types" : sSubList.length == 0 ? null : sSubList,
+          "feemin" : sPriceLowRange,
+          "feemax" : sPriceHighRange == S_PRICE_HIGH_RANGE ? IF_S_PRICE_HIGH_DEFAULT : sPriceHighRange,
+          "periodmin" : sFilterList[2].selected == false ? IF_S_PERIOD_MIN_DEFAULT : sFilterRentStart,
+          "periodmax" : sFilterList[2].selected == false ? IF_S_PERIOD_HIGH_DEFAULT : sFilterRentDone,
+          "parking" : optionFlag ? null : sListOption[0].selected ? 1 : 0,
+          "cctv" : optionFlag ? null :  sListOption[1].selected ? 1 : 0,
+          "wifi" : optionFlag ? null :  sListOption[2].selected ? 1 : 0,
+        }
+    ));
+    return list;
+  }
+
+  void Process_S_Option() {
+    sFilterList[3].title = "";
+    for(int i =0; i < sListOption.length; i++){
+      if(sListOption[i].flag) {
+        sFilterList[3].title += sListOption[i].title + "/";
+      }
+    }
+    String s = sFilterList[3].title;
+    int l = sFilterList[3].title.length;
+
+    if(l == 0) {//아무것도 선택 안한 경우
+      sFilterList[3].flag = false;
+      sFilterList[3].title = "추가 옵션";
+      sFilterList[3].selected = false;
+    }else {
+      sFilterList[3].title = s.substring(0,l-1);
+      sFilterList[3].selected = true;
+      sFilterList[3].flag = true;
+    }
+    sCloseFilter();
+  }
+
+  void Process_S_Period() {
+    sFilterList[sCurFilter].title = sFilterRentStart + "-"+sFilterRentDone;
+    sFilterList[2].selected = true;
+    sFilterList[2].flag = true;
+  }
+
+  void Process_S_Period_Null() {
+    Function okFunc = () async{
+      Navigator.pop(context);
+
+    };
+    sFilterList[2].flag = false;
+    sFilterList[2].title = "임대 기간";
+    sFilterList[2].selected = false;
+    sCloseFilter();
+    OKDialog(context, "임대 기간을 입력해주세요!", "입주나 퇴실 기간을 선택해주세요", "확인",okFunc);
+  }
+
+  void Process_S_Price() {
+    if((sPriceLowRange == 0 && sPriceHighRange == 510000)) {
+      sFilterList[1].flag = false;
+      sFilterList[1].title = "가격";
+      sFilterList[1].selected = false;
+    }else {
+      sFilterList[1].title = "일 / " +  extractNum_Short_String(sPriceLowRange)+"만원-"+extractNum_Short_String(sPriceHighRange)+"만원";
+      sFilterList[1].selected = true;
+      sFilterList[1].flag = true;
+      sCloseFilter();
+    }
+  }
+
+  void Process_S_Type() {
+    sSubList.clear();
+    for(int i = 1; i <= sListRoomType.length; i++) {
+      if(sListRoomType[i-1].selected) {
+        sSubList.add(i.toString());
+      }
+    }
+    if(sSubList.length == 0) {//아무것도 선택 안한 경우
+      sFilterList[0].flag = false;
+      sFilterList[0].title = "방 종류";
+      sFilterList[0].selected = false;
+    }else {
+      sFilterList[0].title = "";
+      for(int i =0; i < sListRoomType.length; i++){
+        if(sListRoomType[i].flag) {
+          sFilterList[0].title += sListRoomType[i].title + "/";
+        }
+      }
+      String s = sFilterList[0].title;
+      int l = sFilterList[0].title.length;
+      sFilterList[0].title = s.substring(0,l-1);
+
+      sFilterList[0].selected = true;
+      sFilterList[0].flag = true;
+      sCloseFilter();
+    }
+  }
+
+  bool Check_S_optionFlag() {
+    bool subFlag = true;
+    for(int i = 0; i <sListOption.length; i++) {
+      if(sListOption[i].selected) {
+        subFlag = false;
+        break;
+      }
+    }
+    return subFlag;
   }
 
   Container tReturnFilter(double screenWidth, double screenHeight) {
@@ -4206,100 +3839,23 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
               Expanded(
                 child: InkWell(
                   onTap: () async {
-                    tSubList.clear();
-                    for(int i = 1; i <= tListRoomType.length; i++) {
-                      if(tListRoomType[i-1].selected) {
-                        tSubList.add(i.toString());
-                      }
-                    }
-                    if(tSubList.length == 0) {//아무것도 선택 안한 경우
-                      tFilterList[0].flag = false;
-                      tFilterList[0].title = "방 종류";
-                      tFilterList[0].selected = false;
-                    }else {
-                      for(int i =0; i < tListRoomType.length; i++){
-                        if(tListRoomType[i].flag) {
-                          tFilterList[0].title += tListRoomType[i].title + "/";
-                        }
-                      }
-                      String s = tFilterList[0].title;
-                      int l = tFilterList[0].title.length;
-                      tFilterList[0].title = s.substring(0,l-1);
-                      tFilterList[0].selected = true;
-                      tCloseFilter();
-                    }
+                    Process_T_Type();
 
-                    int subFlag2 = -1;
-                    for(int i = 0; i < tListContractType.length; i++) {
-                      if(tListContractType[i].flag){
-                        subFlag2 = i+1;
-                        break;
-                      }
-                    }
+                    int subFlag2 = Check_T_jeonseFlag();
 
-                    bool subFlag = true;
-                    for(int i = 0; i <tListOption.length; i++) {
-                      if(tListOption[i].selected) {
-                        subFlag = false;
-                        break;
-                      }
-                    }
-
-                    globalRoomSalesInfoListFiltered
-                        .clear();
-                    var list = await ApiProvider().post("/RoomSalesInfo/ListTransferFilter", jsonEncode(
-                        {
-                          "userID": GlobalProfile.loggedInUser.userID,
-                          "types" : tSubList.length == 0 ? null : tSubList,
-                          "jeonse": subFlag2 == -1 ? null : subFlag2,
-                          "depositmin" : tDepositLowRange,
-                          "depositmax" : tDepositHighRange == 30000 ? 9999999999 : tDepositHighRange,
-                          "monthlyfeemin" : tMonthlyFeeLowRange,
-                          "monthlyfeemax" : tMonthlyFeeHighRange == 30000 ? 9999999999 : tDepositHighRange,
-                          "periodmin" : tFilterList[2].selected == false ? "1900.01.01" : tFilterRentStart,
-                          "periodmax" : tFilterList[2].selected == false ? "2900.12.31" : tFilterRentDone,
-                          "parking" : subFlag ? null : tListOption[0].selected ? 1 : 0,
-                          "cctv" : subFlag ? null :  tListOption[1].selected ? 1 : 0,
-                          "wifi" : subFlag ? null :  tListOption[2].selected ? 1 : 0,
-                        }
-                    ));
-
-                    // var Llist = await ApiProvider()
-                    //     .post(
-                    //     '/RoomSalesInfo/Select/Like',
-                    //     jsonEncode(
-                    //         {
-                    //           "userID": GlobalProfile
-                    //               .loggedInUser
-                    //               .userID,
-                    //         }
-                    //     ));
+                    bool subFlag = Check_T_optionFlag();
+                    globalRoomSalesInfoListFiltered.clear();
+                    var list = await Return_TransferFilter_List(subFlag2, subFlag);
+                    FlagForFilter = true;
 
                     if (list != null && list != false) {
                       for (int i = 0; i <
                           list.length; ++i) {
                         RoomSalesInfo item = RoomSalesInfo
                             .fromJson(list[i]);
-
-                        // for (int j = 0; j <
-                        //     Llist.length; j++) {
-                        //   Map<String,
-                        //       dynamic> data = Llist[j];
-                        //   ModelRoomLikes Litem = ModelRoomLikes
-                        //       .fromJson(data);
-                        //
-                        //   if (item.id ==
-                        //       Litem.RoomSaleID) {
-                        //     item.Likes = true;
-                        //     setState(() {});
-                        //     break;
-                        //   }
-                        // }
-
                         globalRoomSalesInfoListFiltered
                             .add(item);
                       }
-                      FlagForFilter = true;
                     }
                     else {
                       Function okFunc = () async{
@@ -4315,7 +3871,6 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                     setState(() {
 
                     });
-
                   },
                   child: Container(
                     height: screenHeight*(40/640),
@@ -4333,7 +3888,8 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                 ),
               ),
             ],
-          )
+          ),
+          Container(height: 1,color:hexToColor('#EEEEEE'),),
         ],
       ),
     ) :
@@ -4451,21 +4007,20 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                   thumbColor: Colors.white,
                 ),
                 child: RangeSlider(
-                  min: 0,
-                  max: 10100000,
-                  divisions: 101,
+                  min: T_DEPOSIT_LOW_RANGE,
+                  max: T_DEPOSIT_HIGH_RANGE,
+                  divisions: T_DEPOSIT_DIVISION,
                   inactiveColor: Color(0xffcccccc),
                   activeColor: kPrimaryColor,
-                  labels: RangeLabels(tDepositLowRange.floor().toString(),
-                      tDepositHighRange.floor().toString()),
+                  labels: null,
                   values: tDepositValues,
                   //RangeValues(_lowValue,_highValue),
                   onChanged: (_range) {
                     setState(() {
-                      if(_range.end.toInt() == 10100000) {
-                        tDepositInfinity = extractNum(_range.start).toInt().toString() + "만원-무제한";
+                      if(_range.end.toInt() == T_DEPOSIT_HIGH_RANGE) {
+                        tDepositInfinity = extractNum_Transfer_String(_range.start) + "만원-무제한";
                       } else {
-                        tDepositInfinity = extractNum(_range.start).toInt().toString() + "만원-" + extractNum(_range.end).toInt().toString() + "만원";
+                        tDepositInfinity = extractNum_Transfer_String(_range.start) + "만원-" + extractNum_Transfer_String(_range.end) + "만원";
                       }
 
                       tDepositValues = _range;
@@ -4494,7 +4049,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
               ),
               Spacer(),
               Text(
-                '1억 2000만원',
+                '1억 5천만원',
                 style: TextStyle(
                     fontSize: screenWidth*(10/360),
                     color: hexToColor('#888888')
@@ -4511,97 +4066,100 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
               widthPadding(screenWidth,14),
             ],
           ),
-          heightPadding(screenHeight,20),
-          Padding(
-            padding:  EdgeInsets.only(left: screenWidth*(12/360)),
-            child: Row(
-              children: [
-                Text(
-                  "월세",
-                  style:TextStyle(
-                      fontSize: screenWidth*(14/360),
-                      fontWeight: FontWeight.bold,
-                      color:kPrimaryColor
-                  ),
-                ),
-                Expanded(child: SizedBox()),
-                Text(
-                  tMonthlyInfinity,
-                  style:TextStyle(
-                      fontSize: screenWidth*(12/360),
-                      color:kPrimaryColor
-                  ),
-                ),
-                widthPadding(screenWidth,16),
-              ],
-            ),
-          ),
-          Center(
-            child: Container(
-              width: screenWidth * (336 / 360),
-              child: SliderTheme(
-                data: SliderThemeData(
-                  thumbColor: Colors.white,
-                ),
-                child: RangeSlider(
-                  min: 0,
-                  max: 1010000,
-                  divisions: 101,
-                  inactiveColor: Color(0xffcccccc),
-                  activeColor: kPrimaryColor,
-                  labels: RangeLabels(tMonthlyFeeLowRange.floor().toString(),
-                      tMonthlyFeeHighRange.floor().toString()),
-                  values: tMonthlyFeeValues,
-                  //RangeValues(_lowValue,_highValue),
-                  onChanged: (_range) {
-                    setState(() {
-                      if(_range.end.toInt() == 1010000) {
-                        tMonthlyInfinity = extractNum(_range.start).toInt().toString() + "만원-무제한";
-                      } else {
-                        tMonthlyInfinity = extractNum(_range.start).toInt().toString() + "만원-" + extractNum(_range.end).toInt().toString() + "만원";
-                      }
-
-                      tMonthlyFeeValues = _range;
-                      tMonthlyFeeLowRange = _range.start;
-                      tMonthlyFeeHighRange = _range.end;
-                    });
-                  },
-                ),
-              ),
-            ),
-          ),
-          Container(
-            height: screenHeight*(8/640),
-            width: 1,
-            color: hexToColor('#888888'),
-          ),
-          Row(
+          tListContractType[1].selected ? SizedBox() : Column(
             children: [
-              widthPadding(screenWidth,14),
-              Text(
-                '최소',
-                style: TextStyle(
-                    fontSize: screenWidth*(10/360),
-                    color: hexToColor('#888888')
+              heightPadding(screenHeight,20),
+              Padding(
+                padding:  EdgeInsets.only(left: screenWidth*(12/360)),
+                child: Row(
+                  children: [
+                    Text(
+                      "월세",
+                      style:TextStyle(
+                          fontSize: screenWidth*(14/360),
+                          fontWeight: FontWeight.bold,
+                          color:kPrimaryColor
+                      ),
+                    ),
+                    Expanded(child: SizedBox()),
+                    Text(
+                      tMonthlyInfinity,
+                      style:TextStyle(
+                          fontSize: screenWidth*(12/360),
+                          color:kPrimaryColor
+                      ),
+                    ),
+                    widthPadding(screenWidth,16),
+                  ],
                 ),
               ),
-              Spacer(),
-              Text(
-                '50만원',
-                style: TextStyle(
-                    fontSize: screenWidth*(10/360),
-                    color: hexToColor('#888888')
+              Center(
+                child: Container(
+                  width: screenWidth * (336 / 360),
+                  child: SliderTheme(
+                    data: SliderThemeData(
+                      thumbColor: Colors.white,
+                    ),
+                    child: RangeSlider(
+                      min: T_MONTHLY_LOW_RANGE,
+                      max: T_MONTHLY_HIGH_RANGE,
+                      divisions: T_MONTHLY_DIVISION,
+                      inactiveColor: Color(0xffcccccc),
+                      activeColor: kPrimaryColor,
+                      labels: null,
+                      values: tMonthlyFeeValues,
+                      //RangeValues(_lowValue,_highValue),
+                      onChanged: (_range) {
+                        setState(() {
+                          if(_range.end.toInt() == T_MONTHLY_HIGH_RANGE) {
+                            tMonthlyInfinity = extractNum_Transfer_String(_range.start) + "만원-무제한";
+                          } else {
+                            tMonthlyInfinity = extractNum_Transfer_String(_range.start) + "만원-" + extractNum_Transfer_String(_range.end) + "만원";
+                          }
+
+                          tMonthlyFeeValues = _range;
+                          tMonthlyFeeLowRange = _range.start;
+                          tMonthlyFeeHighRange = _range.end;
+                        });
+                      },
+                    ),
+                  ),
                 ),
               ),
-              Spacer(),
-              Text(
-                '최대',
-                style: TextStyle(
-                    fontSize: screenWidth*(10/360),
-                    color: hexToColor('#888888')
-                ),
+              Container(
+                height: screenHeight*(8/640),
+                width: 1,
+                color: hexToColor('#888888'),
               ),
-              widthPadding(screenWidth,14),
+              Row(
+                children: [
+                  widthPadding(screenWidth,14),
+                  Text(
+                    '최소',
+                    style: TextStyle(
+                        fontSize: screenWidth*(10/360),
+                        color: hexToColor('#888888')
+                    ),
+                  ),
+                  Spacer(),
+                  Text(
+                    '250만원',
+                    style: TextStyle(
+                        fontSize: screenWidth*(10/360),
+                        color: hexToColor('#888888')
+                    ),
+                  ),
+                  Spacer(),
+                  Text(
+                    '최대',
+                    style: TextStyle(
+                        fontSize: screenWidth*(10/360),
+                        color: hexToColor('#888888')
+                    ),
+                  ),
+                  widthPadding(screenWidth,14),
+                ],
+              ),
             ],
           ),
           heightPadding(screenHeight,18),
@@ -4617,113 +4175,24 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
               Expanded(
                 child: InkWell(
                   onTap: () async {
-                    String contractType;
+                    Process_T_Price();
 
-                    if(!tListContractType[0].selected && !tListContractType[1].selected) {
-                      if(tDepositLowRange == 0 && tDepositHighRange == 10100000 && tMonthlyFeeLowRange == 0 && tMonthlyFeeHighRange == 1010000) {
-                        tFilterList[1].flag = false;
-                        tFilterList[1].title = "가격";
-                        tFilterList[1].selected = false;
-                        contractType="";
-                      } else {
-                        tFilterList[1].title = contractType + " / " + "보 " + extractNum(tDepositLowRange).toInt().toString()+"-"+extractNum(tDepositHighRange).toInt().toString()+"만원,월 "+
-                            extractNum(tMonthlyFeeLowRange).toInt().toString()+"-"+extractNum(tMonthlyFeeHighRange).toInt().toString()+"만원";
-                        tFilterList[1].selected = true;
-                        tFilterList[1].flag = true;
-                      }
+                    int subFlag2 = Check_T_jeonseFlag();
 
-                      Function okFunc = () async{
-                        Navigator.pop(context);
+                    bool subFlag = Check_T_optionFlag();
 
-                      };
-                    } else if(tListContractType[0].selected && !tListContractType[1].selected) {
-                      flagContractType = 1;
-                      contractType = "월세";
-
-                      tFilterList[1].title = contractType + " / " + "보 " + extractNum(tDepositLowRange).toInt().toString()+"-"+extractNum(tDepositHighRange).toInt().toString()+"만원,월 "+
-                          extractNum(tMonthlyFeeLowRange).toInt().toString()+"-"+extractNum(tMonthlyFeeHighRange).toInt().toString()+"만원";
-                      tFilterList[1].selected = true;
-                      tFilterList[1].flag = true;
-                    } else {
-                      flagContractType = 2;
-                      contractType = "전세";
-
-                      tFilterList[1].title = contractType + " / " + "보 " + extractNum(tDepositLowRange).toInt().toString()+"-"+extractNum(tDepositHighRange).toInt().toString()+"만원,월 "+
-                          extractNum(tMonthlyFeeLowRange).toInt().toString()+"-"+extractNum(tMonthlyFeeHighRange).toInt().toString()+"만원";
-                      tFilterList[1].selected = true;
-                      tFilterList[1].flag = true;
-                    }
-
-                    int subFlag2 = -1;
-                    for(int i = 0; i < tListContractType.length; i++) {
-                      if(tListContractType[i].flag){
-                        subFlag2 = i+1;
-                        break;
-                      }
-                    }
-
-                    bool subFlag = true;
-                    for(int i = 0; i <tListOption.length; i++) {
-                      if(tListOption[i].selected) {
-                        subFlag = false;
-                        break;
-                      }
-                    }
-
-                    globalRoomSalesInfoListFiltered
-                        .clear();
-                    var list = await ApiProvider().post("/RoomSalesInfo/ListTransferFilter", jsonEncode(
-                        {
-                          "types" : tSubList.length == 0 ? null : tSubList,
-                          "jeonse": subFlag2 == -1 ? null : subFlag2,
-                          "depositmin" : tDepositLowRange,
-                          "depositmax" : tDepositHighRange == 10100000 ? 9999999999 : tDepositHighRange,
-                          "monthlyfeemin" : tMonthlyFeeLowRange,
-                          "monthlyfeemax" : tMonthlyFeeHighRange == 1010000 ? 9999999999 : tDepositHighRange,
-                          "periodmin" : tFilterList[2].selected == false ? "1900.01.01" : tFilterRentStart,
-                          "periodmax" : tFilterList[2].selected == false ? "2900.12.31" : tFilterRentDone,
-                          "parking" : subFlag ? null : tListOption[0].selected ? 1 : 0,
-                          "cctv" : subFlag ? null :  tListOption[1].selected ? 1 : 0,
-                          "wifi" : subFlag ? null :  tListOption[2].selected ? 1 : 0,
-                        }
-                    ));
-
-                    // var Llist = await ApiProvider()
-                    //     .post(
-                    //     '/RoomSalesInfo/Select/Like',
-                    //     jsonEncode(
-                    //         {
-                    //           "userID": GlobalProfile
-                    //               .loggedInUser
-                    //               .userID,
-                    //         }
-                    //     ));
+                    globalRoomSalesInfoListFiltered.clear();
+                    var list = await Return_TransferFilter_List(subFlag2, subFlag);
+                    FlagForFilter = true;
 
                     if (list != null && list != false) {
                       for (int i = 0; i <
                           list.length; ++i) {
                         RoomSalesInfo item = RoomSalesInfo
                             .fromJson(list[i]);
-
-                        // for (int j = 0; j <
-                        //     Llist.length; j++) {
-                        //   Map<String,
-                        //       dynamic> data = Llist[j];
-                        //   ModelRoomLikes Litem = ModelRoomLikes
-                        //       .fromJson(data);
-                        //
-                        //   if (item.id ==
-                        //       Litem.RoomSaleID) {
-                        //     item.Likes = true;
-                        //     setState(() {});
-                        //     break;
-                        //   }
-                        // }
-
                         globalRoomSalesInfoListFiltered
                             .add(item);
                       }
-                      FlagForFilter = true;
                     }
                     else {
                       Function okFunc = () async{
@@ -4733,7 +4202,6 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                       resetTransferPrice();
                       OKDialog(context, "조건에 맞는 방이 없어요!", "새로운 조건으로 다시 입력해주세요!", "확인",okFunc);
                     }
-
                     tCloseFilter();
 
 
@@ -4757,7 +4225,8 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                 ),
               ),
             ],
-          )
+          ),
+          Container(height: 1,color:hexToColor('#EEEEEE'),),
         ],
       ),
     ) :
@@ -4906,109 +4375,35 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
               Expanded(
                 child: InkWell(
                   onTap: () async {
-                    if(tFilterRentStart == "" || tFilterRentDone ==""){
+                    Process_T_Period();
+
+                    int subFlag2 = Check_T_jeonseFlag();
+
+                    bool subFlag = Check_T_optionFlag();
+
+                    globalRoomSalesInfoListFiltered.clear();
+                    var list = await Return_TransferFilter_List(subFlag2, subFlag);
+                    FlagForFilter = true;
+
+                    if (list != null && list != false) {
+                      for (int i = 0; i <
+                          list.length; ++i) {
+                        RoomSalesInfo item = RoomSalesInfo
+                            .fromJson(list[i]);
+                        globalRoomSalesInfoListFiltered
+                            .add(item);
+                      }
+                    }
+                    else {
                       Function okFunc = () async{
                         Navigator.pop(context);
 
                       };
-                      tFilterList[2].flag = false;
-                      tFilterList[2].title = "임대 기간";
-                      tFilterList[2].selected = false;
-                      tCloseFilter();
-                      OKDialog(context, "임대 기간을 입력해주세요!", "입주나 퇴실 기간을 선택해주세요", "확인",okFunc);
-                    }else {
-                      tFilterList[2].title = tFilterRentStart + "-"+tFilterRentDone;
-                      tFilterList[2].selected = true;
-
-                      int subFlag2 = -1;
-                      for(int i = 0; i < tListContractType.length; i++) {
-                        if(tListContractType[i].flag){
-                          subFlag2 = i+1;
-                          break;
-                        }
-                      }
-
-                      bool subFlag = true;
-                      for(int i = 0; i <tListOption.length; i++) {
-                        if(tListOption[i].selected) {
-                          subFlag = false;
-                          break;
-                        }
-                      }
-
-                      globalRoomSalesInfoListFiltered
-                          .clear();
-                      var list = await ApiProvider().post("/RoomSalesInfo/ListTransferFilter", jsonEncode(
-                          {
-                            "types" : tSubList.length == 0 ? null : tSubList,
-                            "jeonse": subFlag2 == -1 ? null : subFlag2,
-                            "depositmin" : tDepositLowRange,
-                            "depositmax" : tDepositHighRange == 30000 ? 9999999999 : tDepositHighRange,
-                            "monthlyfeemin" : tMonthlyFeeLowRange,
-                            "monthlyfeemax" : tMonthlyFeeHighRange == 30000 ? 9999999999 : tDepositHighRange,
-                            "periodmin" : tFilterList[2].selected == false ? "1900.01.01" : tFilterRentStart,
-                            "periodmax" : tFilterList[2].selected == false ? "2900.12.31" : tFilterRentDone,
-                            "parking" : subFlag ? null : tListOption[0].selected ? 1 : 0,
-                            "cctv" : subFlag ? null :  tListOption[1].selected ? 1 : 0,
-                            "wifi" : subFlag ? null :  tListOption[2].selected ? 1 : 0,
-                          }
-                      ));
-
-                      // var Llist = await ApiProvider()
-                      //     .post(
-                      //     '/RoomSalesInfo/Select/Like',
-                      //     jsonEncode(
-                      //         {
-                      //           "userID": GlobalProfile
-                      //               .loggedInUser
-                      //               .userID,
-                      //         }
-                      //     ));
-
-                      if (list != null && list != false) {
-                        for (int i = 0; i <
-                            list.length; ++i) {
-                          RoomSalesInfo item = RoomSalesInfo
-                              .fromJson(list[i]);
-
-                          // for (int j = 0; j <
-                          //     Llist.length; j++) {
-                          //   Map<String,
-                          //       dynamic> data = Llist[j];
-                          //   ModelRoomLikes Litem = ModelRoomLikes
-                          //       .fromJson(data);
-                          //
-                          //   if (item.id ==
-                          //       Litem.RoomSaleID) {
-                          //     item.Likes = true;
-                          //     setState(() {});
-                          //     break;
-                          //   }
-                          // }
-
-                          globalRoomSalesInfoListFiltered
-                              .add(item);
-                        }
-                        FlagForFilter = true;
-                      }
-                      else {
-                        Function okFunc = () async{
-                          Navigator.pop(context);
-
-                        };
-                        resetTransferRent();
-                        OKDialog(context, "조건에 맞는 방이 없어요!", "새로운 조건으로 다시 입력해주세요!", "확인",okFunc);
-                      }
-
-
-                      tCloseFilter();
-
-
-                      setState(() {
-
-                      });
-
+                      resetTransferRent();
+                      OKDialog(context, "조건에 맞는 방이 없어요!", "새로운 조건으로 다시 입력해주세요!", "확인",okFunc);
                     }
+                    tCloseFilter();
+
 
                     setState(() {
 
@@ -5030,7 +4425,8 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                 ),
               ),
             ],
-          )
+          ),
+          Container(height: 1,color:hexToColor('#EEEEEE'),),
         ],
       ),
     ) :
@@ -5068,6 +4464,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                     return GestureDetector(
                       onTap: (){
                         tListOption[index].flag = !tListOption[index].flag;
+                        tListOption[index].selected = !tListOption[index].selected;
                         setState(() {
 
                         });
@@ -5119,95 +4516,23 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
               Expanded(
                 child: InkWell(
                   onTap: () async {
-                    tFilterList[3].title = "";
-                    for(int i =0; i < tListOption.length; i++){
-                      if(tListOption[i].flag) {
-                        tFilterList[3].title += tListOption[i].title + "/";
-                      }
-                    }
-                    String s = tFilterList[3].title;
-                    int l = tFilterList[3].title.length;
+                    Process_T_Option();
 
-                    if(l==0) {//아무것도 선택 안한 경우
-                      tFilterList[3].flag = false;
-                      tFilterList[3].title = "추가 옵션";
-                      tFilterList[3].selected = false;
-                    }else {
-                      tFilterList[3].selected = true;
-                      tFilterList[3].title = s.substring(0,l-1);
-                      sCloseFilter();
-                    }
+                    int subFlag2 = Check_T_jeonseFlag();
 
-                    int subFlag2 = -1;
-                    for(int i = 0; i < tListContractType.length; i++) {
-                      if(tListContractType[i].flag){
-                        subFlag2 = i+1;
-                        break;
-                      }
-                    }
+                    bool subFlag = Check_T_optionFlag();
 
-                    bool subFlag = true;
-                    for(int i = 0; i <tListOption.length; i++) {
-                      if(tListOption[i].selected) {
-                        subFlag = false;
-                        break;
-                      }
-                    }
-
-                    globalRoomSalesInfoListFiltered
-                        .clear();
-                    var list = await ApiProvider().post("/RoomSalesInfo/ListTransferFilter", jsonEncode(
-                        {
-                          "types" : tSubList.length == 0 ? null : tSubList,
-                          "jeonse": subFlag2 == -1 ? null : subFlag2,
-                          "depositmin" : tDepositLowRange,
-                          "depositmax" : tDepositHighRange == 30000 ? 9999999999 : tDepositHighRange,
-                          "monthlyfeemin" : tMonthlyFeeLowRange,
-                          "monthlyfeemax" : tMonthlyFeeHighRange == 30000 ? 9999999999 : tDepositHighRange,
-                          "periodmin" : tFilterList[2].selected == false ? "1900.01.01" : tFilterRentStart,
-                          "periodmax" : tFilterList[2].selected == false ? "2900.12.31" : tFilterRentDone,
-                          "parking" : subFlag ? null : tListOption[0].selected ? 1 : 0,
-                          "cctv" : subFlag ? null :  tListOption[1].selected ? 1 : 0,
-                          "wifi" : subFlag ? null :  tListOption[2].selected ? 1 : 0,
-                        }
-                    ));
-
-                    // var Llist = await ApiProvider()
-                    //     .post(
-                    //     '/RoomSalesInfo/Select/Like',
-                    //     jsonEncode(
-                    //         {
-                    //           "userID": GlobalProfile
-                    //               .loggedInUser
-                    //               .userID,
-                    //         }
-                    //     ));
+                    var list = await Return_TransferMarker_Filter(subFlag2, subFlag);
+                    FlagForFilter = true;
 
                     if (list != null && list != false) {
                       for (int i = 0; i <
                           list.length; ++i) {
                         RoomSalesInfo item = RoomSalesInfo
                             .fromJson(list[i]);
-
-                        // for (int j = 0; j <
-                        //     Llist.length; j++) {
-                        //   Map<String,
-                        //       dynamic> data = Llist[j];
-                        //   ModelRoomLikes Litem = ModelRoomLikes
-                        //       .fromJson(data);
-                        //
-                        //   if (item.id ==
-                        //       Litem.RoomSaleID) {
-                        //     item.Likes = true;
-                        //     setState(() {});
-                        //     break;
-                        //   }
-                        // }
-
                         globalRoomSalesInfoListFiltered
                             .add(item);
                       }
-                      FlagForFilter = true;
                     }
                     else {
                       Function okFunc = () async{
@@ -5217,7 +4542,6 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                       resetTransferOption();
                       OKDialog(context, "조건에 맞는 방이 없어요!", "새로운 조건으로 다시 입력해주세요!", "확인",okFunc);
                     }
-
                     tCloseFilter();
 
 
@@ -5241,10 +4565,175 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                 ),
               ),
             ],
-          )
+          ),
+          Container(height: 1,color:hexToColor('#EEEEEE'),),
         ],
       ),
     ) : Container();
+  }
+
+  Future Return_TransferFilter_List(int subFlag2, bool subFlag) async {
+    var list = await ApiProvider().post("/RoomSalesInfo/ListTransferFilter", jsonEncode(
+        {
+          "types" : tSubList.length == 0 ? null : tSubList,
+          "jeonse": subFlag2 == -1 ? null : subFlag2,
+          "depositmin" : tDepositLowRange,
+          "depositmax" : tDepositHighRange == T_DEPOSIT_HIGH_RANGE ? IF_T_DEPOSIT_HIGH_DEFAULT : tDepositHighRange,
+          "monthlyfeemin" : tMonthlyFeeLowRange,
+          "monthlyfeemax" : tMonthlyFeeHighRange == T_MONTHLY_HIGH_RANGE ? IF_T_MONTHLY_HIGH_DEFAULT : tDepositHighRange,
+          "periodmin" : tFilterList[2].selected == false ? IF_T_PERIOD_MIN_DEFAULT : tFilterRentStart,
+          "periodmax" : tFilterList[2].selected == false ? IF_T_PERIOD_HIGH_DEFAULT : tFilterRentDone,
+          "parking" : subFlag ? null : tListOption[0].selected ? 1 : 0,
+          "cctv" : subFlag ? null :  tListOption[1].selected ? 1 : 0,
+          "wifi" : subFlag ? null :  tListOption[2].selected ? 1 : 0,
+        }
+    ));
+    return list;
+  }
+
+  Future Return_TransferMarker_Filter(int subFlag2, bool subFlag) async {
+    var list = await ApiProvider().post("/RoomSalesInfo/MarkerTransferFilter", jsonEncode(
+        {
+          "types" : tSubList.length == 0 ? null : tSubList,
+          "jeonse": subFlag2 == -1 ? null : subFlag2,
+          "depositmin" : tDepositLowRange,
+          "depositmax" : tDepositHighRange == T_DEPOSIT_HIGH_RANGE ? IF_T_DEPOSIT_HIGH_DEFAULT : tDepositHighRange,
+          "monthlyfeemin" : tMonthlyFeeLowRange,
+          "monthlyfeemax" : tMonthlyFeeHighRange == T_MONTHLY_HIGH_RANGE ? IF_T_MONTHLY_HIGH_DEFAULT : tDepositHighRange,
+          "periodmin" : tFilterList[2].selected == false ? IF_T_PERIOD_MIN_DEFAULT : tFilterRentStart,
+          "periodmax" : tFilterList[2].selected == false ? IF_T_PERIOD_HIGH_DEFAULT : tFilterRentDone,
+          "parking" : subFlag ? null : tListOption[0].selected ? 1 : 0,
+          "cctv" : subFlag ? null :  tListOption[1].selected ? 1 : 0,
+          "wifi" : subFlag ? null :  tListOption[2].selected ? 1 : 0,
+        }
+    ));
+    return list;
+  }
+
+  void Process_T_Option() {
+    tFilterList[3].title = "";
+    for(int i =0; i < tListOption.length; i++){
+      if(tListOption[i].flag) {
+        tFilterList[3].title += tListOption[i].title + "/";
+      }
+    }
+    String s = tFilterList[3].title;
+    int l = tFilterList[3].title.length;
+
+    if(l==0) {//아무것도 선택 안한 경우
+      tFilterList[3].flag = false;
+      tFilterList[3].title = "추가 옵션";
+      tFilterList[3].selected = false;
+    }else {
+      tFilterList[3].selected = true;
+      tFilterList[3].title = s.substring(0,l-1);
+      sCloseFilter();
+    }
+  }
+
+  void Process_T_Period() {
+    tFilterList[2].title = tFilterRentStart + "-"+tFilterRentDone;
+    tFilterList[2].selected = true;
+  }
+
+  void Process_T_Period_Null() {
+    Function okFunc = () async{
+      Navigator.pop(context);
+
+    };
+    tFilterList[2].flag = false;
+    tFilterList[2].title = "임대 기간";
+    tFilterList[2].selected = false;
+    tCloseFilter();
+    OKDialog(context, "임대 기간을 입력해주세요!", "입주나 퇴실 기간을 선택해주세요", "확인",okFunc);
+  }
+
+  void Process_T_Price() {
+    String contractType;
+
+    if(tListContractType[0].selected && !tListContractType[1].selected) {
+      if(tDepositLowRange == 0 && tDepositHighRange == 301000000 && tMonthlyFeeLowRange == 0 && tMonthlyFeeHighRange == 5010000) {
+        tFilterList[1].flag = false;
+        tFilterList[1].title = "가격";
+        tFilterList[1].selected = false;
+        contractType="";
+      } else {
+        contractType = "월세";
+        tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer_String(tDepositLowRange)+"-"+extractNum_Transfer_String(tDepositHighRange)+"만원,월 "+
+            extractNum_Transfer_String(tMonthlyFeeLowRange)+"-"+extractNum_Transfer_String(tMonthlyFeeHighRange)+"만원";
+        tFilterList[1].selected = true;
+        tFilterList[1].flag = true;
+      }
+
+      Function okFunc = () async{
+        Navigator.pop(context);
+
+      };
+    } else {
+      flagContractType = 2;
+      if(tDepositLowRange == 0 && tDepositHighRange == 301000000) {
+        tFilterList[1].flag = false;
+        tFilterList[1].title = "가격";
+        tFilterList[1].selected = false;
+        contractType="";
+      }
+      else {contractType = "전세";
+
+      tFilterList[1].title = contractType + " / " + "보 " + extractNum_Transfer_String(tDepositLowRange)+"-"+extractNum_Transfer_String(tDepositHighRange)+"만원";
+      tFilterList[1].selected = true;
+      tFilterList[1].flag = true;
+      }
+    }
+  }
+
+  void Process_T_Type() {
+    tSubList.clear();
+    for(int i = 1; i <= tListRoomType.length; i++) {
+      if(tListRoomType[i-1].selected) {
+        tSubList.add(i.toString());
+      }
+    }
+    if(tSubList.length == 0) {//아무것도 선택 안한 경우
+      tFilterList[0].flag = false;
+      tFilterList[0].title = "방 종류";
+      tFilterList[0].selected = false;
+    }else {
+      tFilterList[0].title = "";
+      for(int i =0; i < tListRoomType.length; i++){
+        if(tListRoomType[i].flag) {
+          tFilterList[0].title += tListRoomType[i].title + "/";
+        }
+      }
+      String s = tFilterList[0].title;
+      int l = tFilterList[0].title.length;
+      tFilterList[0].title = s.substring(0,l-1);
+
+      tFilterList[0].selected = true;
+      tFilterList[0].selected = true;
+      tCloseFilter();
+    }
+  }
+
+  int Check_T_jeonseFlag() {
+    int subFlag2 = -1;
+    for(int i = 0; i < tListContractType.length; i++) {
+      if(tListContractType[i].flag){
+        subFlag2 = i+1;
+        break;
+      }
+    }
+    return subFlag2;
+  }
+
+  bool Check_T_optionFlag() {
+    bool subFlag = true;
+    for(int i = 0; i <tListOption.length; i++) {
+      if(tListOption[i].selected) {
+        subFlag = false;
+        break;
+      }
+    }
+    return subFlag;
   }
 
   InkWell sFilterCancelWidget(double screenHeight, double screenWidth) {

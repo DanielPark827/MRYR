@@ -4,8 +4,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:image_size_getter/file_input.dart';
-import 'package:image_size_getter/image_size_getter.dart';
 import 'package:mryr/constants/AppConfig.dart';
 import 'package:mryr/dummyData/DummyUser.dart';
 import 'package:mryr/model/MultipartImgFilesProvider.dart';

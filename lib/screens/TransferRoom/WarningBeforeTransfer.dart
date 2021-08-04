@@ -7,11 +7,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:mryr/constants/AppConfig.dart';
 import 'package:mryr/model/EnterRoomInfoProvider.dart';
+import 'package:mryr/model/NavigationNumProvider.dart';
+import 'package:mryr/network/ApiProvider.dart';
 import 'package:mryr/widget/MainReleaseRoomScreen/StringForMainReleaseRoomScreen.dart';
 import 'package:mryr/screens/ReleaseRoom/NewRoom/EnterRoomInfo.dart';
 import 'package:mryr/screens/MoreScreen/AskScreen.dart';
 import 'package:mryr/constants/GlobalAsset.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 
@@ -21,10 +24,21 @@ class WarningBeforeTransfer extends StatefulWidget {
 }
 
 class _WarningBeforeTransferState extends State<WarningBeforeTransfer> {
-
+  void _launchUrl(String Url)async{
+    if(await canLaunch(Url)){
+      await launch(Url);
+    }
+    else{
+      throw 'Could not open Url';
+    }
+  }
+  String Link;
   @override
   void initState() {
-    super.initState();
+    () async {
+     var ttt = await ApiProvider().get('/Manage/filedrive');
+     Link = ttt[0]["Link"] as String;
+    } ();
     WidgetsBinding.instance.addPostFrameCallback((_) => showModalBottomSheet(
         backgroundColor: Colors.transparent,
         isScrollControlled: true,
@@ -95,6 +109,8 @@ class _WarningBeforeTransferState extends State<WarningBeforeTransfer> {
 
   @override
   Widget build(BuildContext context) {
+    final navigationNumProvider = Provider.of<NavigationNumProvider>(context);
+
     EnterRoomInfoProvider data = Provider.of<EnterRoomInfoProvider>(context);
     var screenWidth = MediaQuery.of(context).size.width;
     var screenHeight = MediaQuery.of(context).size.height;
@@ -177,16 +193,29 @@ class _WarningBeforeTransferState extends State<WarningBeforeTransfer> {
               ),
             ),
             heightPadding(screenHeight,20),
-            Padding(
-              padding: EdgeInsets.only(left: screenWidth*(20/360)),
-              child: RichText(
-                text: TextSpan(
-                    style: DefaultTextStyle.of(context).style,
-                    children: <TextSpan>[
-                      TextSpan(text: "3. 전대동의서는 ‘문의하기'를 통해 요청하시면 ",style: defaultDescription(screenWidth)),
-                      TextSpan(text: "1일 이내\n",style: boldDescription(screenWidth)),
-                      TextSpan(text: "로 보내드립니다.",style: defaultDescription(screenWidth)),
-                    ]
+            GestureDetector(
+              onTap: (){
+                _launchUrl(Link);
+              },
+              child: Container(
+                child: Padding(
+                  padding: EdgeInsets.only(left: screenWidth*(20/360)),
+                  child: RichText(
+                    text: TextSpan(
+                        style: DefaultTextStyle.of(context).style,
+                        children: <TextSpan>[
+                          TextSpan(text: "3. ",style: defaultDescription(screenWidth)),
+                          TextSpan(text: "전대차 계약서",style: TextStyle(
+                            fontSize: screenWidth*(14/360),    decoration: TextDecoration.underline,color: Color(0xff2e4a81)
+                          )),
+                          TextSpan(text: "를 클릭하셔서 다운받으시거나,",style: defaultDescription(screenWidth)),
+                          TextSpan(text: "더보기\n",style: boldDescription(screenWidth)),
+                          TextSpan(text: "에서",style: defaultDescription(screenWidth)),
+                          TextSpan(text: "\'전대차 계약서 받기\'",style: boldDescription(screenWidth)),
+                          TextSpan(text: "를 찾아 다운받으세요",style: defaultDescription(screenWidth)),
+                        ]
+                    ),
+                  ),
                 ),
               ),
             ),

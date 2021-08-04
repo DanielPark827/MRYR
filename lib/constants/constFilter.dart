@@ -1,5 +1,5 @@
 const double S_PRICE_LOW_RANGE = 0;
-const double S_PRICE_HIGH_RANGE = 501000;
+const double S_PRICE_HIGH_RANGE = 510000;
 const int S_PRICE_DIVISION = 51;
 const int IF_S_PRICE_HIGH_DEFAULT = 9999999999;
 const String IF_S_PERIOD_MIN_DEFAULT = "1900.01.01";
@@ -17,7 +17,7 @@ const int T_MONTHLY_DIVISION = 501;
 const String IF_T_PERIOD_MIN_DEFAULT = "1900.01.01";
 const String IF_T_PERIOD_HIGH_DEFAULT = "2900.12.31";
 
-String extractNum_Transfer(double v) {
+String extractNum_Transfer_String(double v) {
   int target = v.toInt();
   if(target < 100000000)
   {

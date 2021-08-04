@@ -12,6 +12,7 @@ import 'package:mryr/chat/models/ChatRecvMessageModel.dart';
 import 'package:mryr/main.dart';
 import 'package:mryr/network/ApiProvider.dart';
 import 'package:mryr/network/SocketProvider.dart';
+import 'package:mryr/userData/AppCheck.dart';
 import 'package:mryr/userData/Chat.dart';
 import 'package:mryr/userData/GlobalProfile.dart';
 import 'package:mryr/userData/NeedRoomInfo.dart';
@@ -86,7 +87,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
       }
 
-      if(versionCheck == true) {
+
+      var t = await ApiProvider().get('/Manage/systemdialog');
+      AppCheck appCheck;
+      if(null != t){
+        appCheck = AppCheck.fromJson(t[0]);
+      }
+
+      if(versionCheck == true && appCheck != null && appCheck.Switch == 0) {
         try {
           final SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -754,7 +762,7 @@ class _SplashScreenState extends State<SplashScreen> {
           });
         }
       }
-      else{
+      else if(versionCheck == false){
 
         Function okFunc = () {
           //_launchUrl('https://myroomyourroom.page.link/mryr2');
@@ -762,8 +770,14 @@ class _SplashScreenState extends State<SplashScreen> {
         };
         OKDialog(context,"업데이트가 필요","중요한 변경으로 인해 업데이트를 해야만 앱을 이용할 수 있어요.","확인", okFunc);
 
-
-
+      }
+      else if(appCheck.Switch != 0){
+        Function okFunc = () async{
+          Navigator.pop(context);
+        };
+        OKDialog(context,appCheck.Title,appCheck.Ment,"확인", okFunc);
+      }
+      else{
       }
     })();
     if(NFlag) {

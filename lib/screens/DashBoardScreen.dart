@@ -127,6 +127,20 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
         AllNotification = await getNotiByStatus();
       });
     });
+
+    Timer.periodic(Duration(seconds: 5), (Timer timer) {
+      if (currentPage < 2) {
+        currentPage++;
+      } else {
+        currentPage = 0;
+      }
+
+      _PageController.animateToPage(
+        currentPage,
+        duration: Duration(milliseconds: 350),
+        curve: Curves.easeIn,
+      );
+    });
   }
 
   @override

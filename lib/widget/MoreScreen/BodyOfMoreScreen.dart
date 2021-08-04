@@ -36,6 +36,7 @@ import 'package:mryr/screens/ReleaseRoom/ReleaseRoomTutorialScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mryr/screens/Registration/RegistrationPage.dart';
 import 'package:mryr/screens/TransferRoom/WarningBeforeTransfer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 
@@ -45,7 +46,7 @@ Row RegistedRoomListAndMyCommentInChatListScreen(BuildContext context,double scr
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
-      GestureDetector(
+      InkWell(
         onTap: ()async {
 
             Navigator.push(
@@ -122,12 +123,19 @@ Row RegistedRoomListAndMyCommentInChatListScreen(BuildContext context,double scr
     ],
   );
 }
-
+void _launchUrl(String Url)async{
+  if(await canLaunch(Url)){
+    await launch(Url);
+  }
+  else{
+    throw 'Could not open Url';
+  }
+}
 Row ReleaseRoomAndReverseListInMoreScreen(BuildContext context,double screenWidth, double screenHeight) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
-      GestureDetector(
+      InkWell(
         onTap: ()async {
           if (GlobalProfile.roomSalesInfoList.length <= 4) {
             Navigator.push(
@@ -176,9 +184,12 @@ Row ReleaseRoomAndReverseListInMoreScreen(BuildContext context,double screenWidt
       SizedBox(
         width: screenWidth * (8 / 360),
       ),
-      GestureDetector(
-        onTap: (){
+      InkWell(
+        onTap: ()async {
 
+          var ttt = await ApiProvider().get('/Manage/filedrive');
+          String Link = ttt[0]["Link"] as String;
+          _launchUrl(Link);
         },
         child: Container(
           width: screenWidth * (164 / 360),
@@ -191,26 +202,25 @@ Row ReleaseRoomAndReverseListInMoreScreen(BuildContext context,double screenWidt
                   width: screenWidth * (8 / 360),
                 ),
                 SvgPicture.asset(
-                  ListIconInMoreScreen,
-                  width: screenWidth * (24 / 360),// screenHeight * (24 / 640),
+                  ContractIconInMoreScreen,
+                  width: screenWidth * (24 / 360),//screenHeight * (24 / 640),
                   height: screenHeight * (24 / 640),
-                    color: Color(0xffBEBEBE)
                 ),
                 SizedBox(
                   width: screenWidth * (12 / 360),
                 ),
                 Text(
-                  "내방니방 마켓",
+                  "전대차 계약서 받기",
                   style: TextStyle(
                       fontSize: screenWidth * (12 / 360),
                       //fontSize: screenHeight * (12 / 640),
-                      color: Color(0xffBEBEBE)),
+                      color: Color(0xff222222)),
                 ),
               ],
             ),
           ),
         ),
-      )
+      ),
     ],
   );
 }

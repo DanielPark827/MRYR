@@ -150,7 +150,7 @@ class _MyRoomLikesState extends State<MyRoomLikes> with SingleTickerProviderStat
       data: MediaQuery.of(context).copyWith(textScaleFactor:1.0),
       child: Scaffold(
         backgroundColor: (selectedLeft == 1 &&
-            RoomLikesList.length != 0) ? Colors.white : (RecentListIndex != 0 && selectedLeft == 1) ? Colors.white : hexToColor('#F8F8F8'),
+            RoomLikesList.length != 0) ? Colors.white : (RecentListIndex != 0 && selectedLeft == 1) ? Colors.white : Colors.white,
         appBar: AppBar(
           brightness: Brightness.light,
           backgroundColor: Colors.white ,

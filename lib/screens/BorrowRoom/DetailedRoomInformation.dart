@@ -1002,7 +1002,7 @@ class _DetailedRoomInformationState extends State<DetailedRoomInformation> with 
                                     fontSize: screenWidth*OptionFontSize,
                                   ),),
                               ),
-                              Text(widget.roomSalesInfo.square.toString()+'평',
+                              Text(widget.roomSalesInfo.square.toString()+'㎡',
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontSize:screenWidth*OptionFontSize,
