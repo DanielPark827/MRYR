@@ -48,7 +48,6 @@ class _MyRoomLikesState extends State<MyRoomLikes> with SingleTickerProviderStat
 
     RecentList = await prefs.getStringList(KeyForRecent);
     RecentListIndex = await RecentList.length;
-    print("RecentListIndex : "+" ${RecentList}");
     return true;
   }
   AnimationController extendedController;
@@ -97,10 +96,8 @@ class _MyRoomLikesState extends State<MyRoomLikes> with SingleTickerProviderStat
         }
       }
 
-      print('sdfs6');
       return true;
     } else {
-      print('no');
       return false;
     }
   }
@@ -125,9 +122,7 @@ class _MyRoomLikesState extends State<MyRoomLikes> with SingleTickerProviderStat
       subList.add(index.toString());
       prefs.setStringList(KeyForRecent, subList);
     }
-
-    print("ddddddddddddddddd"+"${subList.length.toString()}"+"    ${subList}");
-  }
+}
 
 
 
@@ -255,8 +250,6 @@ class _MyRoomLikesState extends State<MyRoomLikes> with SingleTickerProviderStat
                             globalRoomSalesInfoList[i].ChangeLikesWithValue(true);
                           }
                         }
-
-                        print('sdfs5');
                       }
                       setState(() {
                         selectedLeft = 1;
@@ -1011,8 +1004,7 @@ class _MyRoomLikesState extends State<MyRoomLikes> with SingleTickerProviderStat
                                                   }
                                               ));
                                               bool sub = !getRoomSalesInfoByID(int.parse(RecentList[index])).Likes;
-                                              getRoomSalesInfoByID(int.parse(RecentList[index])).ChangeLikesWithValue(sub);
-                                              getRoomSalesInfoByIDFromMainTransfer(getRoomSalesInfoByID(int.parse(RecentList[index])).id).ChangeLikesWithValue(sub);
+                                              getRoomSalesInfoByID(int.parse(RecentList[index])).Likes = sub;
                                               setState(() {
 
                                               });
@@ -1410,7 +1402,6 @@ class _MyRoomLikesState extends State<MyRoomLikes> with SingleTickerProviderStat
                                     ));
                                     bool sub = !RoomLikesList[index].Likes;
                                     RoomLikesList[index].ChangeLikesWithValue(sub);
-                                    getRoomSalesInfoByIDFromMainTransfer(RoomLikesList[index].id).ChangeLikesWithValue(sub);
                                     setState(() {
                                       RoomLikesList[index].Likes = sub;
                                     });

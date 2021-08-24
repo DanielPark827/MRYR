@@ -180,8 +180,6 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
       subList = [];
       prefs.setStringList(KeyForRecent, subList);
     }
-    print("ddddddddddddddddd"+"${subList.length.toString()}"+"    ${subList}");
-
     if(subList.contains(index.toString())) {
       subList.remove(index.toString());
     }
@@ -190,9 +188,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
       subList.removeAt(0);
     }
     prefs.setStringList(KeyForRecent, subList);
-
-    print("ddddddddddddddddd"+"${subList.length.toString()}"+"    ${subList}");
-  }
+}
 
   Future<List<String>> getRecentList() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -213,8 +209,6 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
           globalRoomSalesInfoList.add(_roomSalesInfo);
         }
       }
-      else
-        print("error&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
     });
   }
 
@@ -309,26 +303,37 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                           SizedBox(width: screenWidth*(8/360),),
                           IconButton(
                               icon: Icon(Icons.arrow_back_ios, color: Colors.black),
-                              onPressed: () {
-                                if(navigationNumProvider.getPastNum() == -1) {
-                                  Navigator.pop(context);
+                              onPressed: () async {
+                                if(isShortForRoomList) {
+                                  nbnbRoom.clear();
+                                  var tmp = await ApiProvider().post('/RoomSalesInfo/ShortListWithLike', jsonEncode(
+                                      {
+                                        "userID" : GlobalProfile.loggedInUser.userID,
+                                      }
+                                  ));
+                                  if(null != tmp){
+                                    for(int i = 0;i<tmp.length;i++){
+                                      nbnbRoom.add(RoomSalesInfo.fromJsonLittle(tmp[i]));
+                                    }
+                                  }
                                 } else {
-                                  Navigator.pop(context);
-                                  // Navigator.push(
-                                  //   context,
-                                  //   SearchMapForBorrowRoom()
-                                  //       .builder(),
-                                  // );
-                              /*    Navigator.push(
-                                      context,
+                                  var list = await ApiProvider().post(
+                                      '/RoomSalesInfo/TransferListWithLike', jsonEncode(
+                                      {
+                                        "userID": GlobalProfile.loggedInUser.userID,
+                                      }
+                                  ));
 
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            SearchMapForBorrowRoom()),
-                                     // 기본 파라미터, SecondRoute로 전달
-                                 // SecondRoute를 생성하여 적재
-                                  );*/
+                                  globalRoomSalesInfoList.clear();
+                                  if (list != null) {
+                                    for (int i = 0; i < list.length; ++i) {
+                                      RoomSalesInfo tmp = RoomSalesInfo.fromJsonLittle(list[i]);
+                                      globalRoomSalesInfoList.add(tmp);
+                                    }
+                                  }
                                 }
+                                Navigator.pop(context);
+
                               }),
 
                           GestureDetector(
@@ -644,9 +649,9 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                       Expanded(
                         child: ListView.separated(
                           controller: _scrollController,
-                            separatorBuilder: (BuildContext context, int index) =>  (isShortForRoomList) ? Container(): Container(height:screenHeight*(4/640),color:hexToColor('#F8F8F8')),
-                            physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-                            shrinkWrap: true,
+                          separatorBuilder: (BuildContext context, int index) =>  (isShortForRoomList) ? Container(): Container(height:screenHeight*(4/640),color:hexToColor('#F8F8F8')),
+                          physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+                          shrinkWrap: true,
                           scrollDirection: Axis.vertical,
                           itemCount: globalRoomSalesInfoList.length,
                           itemBuilder: (BuildContext context, int index) {
@@ -662,389 +667,365 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                     itemCount: nbnbRoom.length,
                                     itemBuilder: (BuildContext context, int index) {
 
-                                      return Column(children: [
-                                        GestureDetector(
-                                          onTap: () async {
+                                      return GestureDetector(
+                                        onTap: () async {
 
-                                            if(doubleCheck == false) {
-                                              doubleCheck = true;
+                                          if(doubleCheck == false) {
+                                            doubleCheck = true;
 
-                                              //내방니방 직영 예약 날짜 받아오기
-                                              var tmp9 = await ApiProvider()
-                                                  .post(
-                                                  '/RoomSalesInfo/NbnbRoomDateSelect',
-                                                  jsonEncode(
-                                                      {"roomID": nbnbRoom[index]
-                                                          .id.toString()}));
-                                              GlobalProfile.reserveDateList
-                                                  .clear();
-                                              if(tmp9 != null && tmp9.length !=0){
-                                                Map<String,
-                                                    dynamic> data = tmp9[0];
-                                                String tmp = data["Date"] as String;
-                                                if (tmp == "") {}
-                                                else {
-                                                  for (int i = 0; i <
-                                                      tmp9.length; i++) {
-                                                    ReserveDate _reserveDate = ReserveDate
-                                                        .fromJson(tmp9[i]);
+                                            //내방니방 직영 예약 날짜 받아오기
+                                            var tmp9 = await ApiProvider()
+                                                .post(
+                                                '/RoomSalesInfo/NbnbRoomDateSelect',
+                                                jsonEncode(
+                                                    {"roomID": nbnbRoom[index]
+                                                        .id.toString()}));
+                                            GlobalProfile.reserveDateList
+                                                .clear();
+                                            if(tmp9 != null && tmp9.length !=0){
+                                              Map<String,
+                                                  dynamic> data = tmp9[0];
+                                              String tmp = data["Date"] as String;
+                                              if (tmp == "") {}
+                                              else {
+                                                for (int i = 0; i <
+                                                    tmp9.length; i++) {
+                                                  ReserveDate _reserveDate = ReserveDate
+                                                      .fromJson(tmp9[i]);
 
-                                                    if ((DateTime
-                                                        .now()
-                                                        .year ==
-                                                        _reserveDate.year &&
-                                                        DateTime
-                                                            .now()
-                                                            .month <=
-                                                            _reserveDate.month)
-                                                        || (DateTime
-                                                            .now()
-                                                            .year + 1 ==
-                                                            _reserveDate.year &&
-                                                            DateTime
-                                                                .now()
-                                                                .month >
-                                                                _reserveDate
-                                                                    .month))
-                                                      GlobalProfile
-                                                          .reserveDateList.add(
-                                                          _reserveDate);
-                                                  }
+                                                  if ((DateTime
+                                                      .now()
+                                                      .year ==
+                                                      _reserveDate.year &&
+                                                      DateTime
+                                                          .now()
+                                                          .month <=
+                                                          _reserveDate.month)
+                                                      || (DateTime
+                                                          .now()
+                                                          .year + 1 ==
+                                                          _reserveDate.year &&
+                                                          DateTime
+                                                              .now()
+                                                              .month >
+                                                              _reserveDate
+                                                                  .month))
+                                                    GlobalProfile
+                                                        .reserveDateList.add(
+                                                        _reserveDate);
                                                 }
                                               }
-                                              // if (null ==
-                                              //     nbnbRoom[index].lng ||
-                                              //     null == nbnbRoom[index]
-                                              //         .lat) {
-                                              //   var addresses = await Geocoder.google(
-                                              //       'AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c')
-                                              //       .findAddressesFromQuery(
-                                              //       nbnbRoom[index]
-                                              //           .location);
-                                              //   var first = addresses.first;
-                                              //   nbnbRoom[index].lat = first.coordinates.latitude;
-                                              //   nbnbRoom[index].lng = first.coordinates.longitude;
-                                              // }
-                                              await AddRecent(
-                                                  nbnbRoom[index].id);
+                                            }
 
-                                              GlobalProfile.detailReviewList
-                                                  .clear();
+                                            await AddRecent(
+                                                nbnbRoom[index].id);
 
-                                              var detailReviewList = await ApiProvider()
-                                                  .post('/Review/SelectRoom',
-                                                  jsonEncode({
-                                                    "location": nbnbRoom[index]
-                                                        .location
-                                                  }));
+                                            GlobalProfile.detailReviewList
+                                                .clear();
 
-                                              if (detailReviewList != null) {
-                                                for (int i = 0;
-                                                i < detailReviewList.length;
-                                                ++i) {
-                                                  GlobalProfile.detailReviewList
-                                                      .add(
-                                                      DetailReview.fromJson(
-                                                          detailReviewList[i]));
-                                                }
+                                            var detailReviewList = await ApiProvider()
+                                                .post('/Review/SelectRoom',
+                                                jsonEncode({
+                                                  "location": nbnbRoom[index]
+                                                      .location
+                                                }));
+
+                                            if (detailReviewList != null) {
+                                              for (int i = 0;
+                                              i < detailReviewList.length;
+                                              ++i) {
+                                                GlobalProfile.detailReviewList
+                                                    .add(
+                                                    DetailReview.fromJson(
+                                                        detailReviewList[i]));
                                               }
+                                            }
 
-                                              var tmp = await ApiProvider()
-                                                  .post('/RoomSalesInfo/RoomSelectWithLike',
-                                                  jsonEncode({
-                                                    "roomID": nbnbRoom[index].id,
-                                                    "userID": GlobalProfile.loggedInUser.userID,
-                                                  }));
+                                            var tmp = await ApiProvider()
+                                                .post('/RoomSalesInfo/RoomSelectWithLike',
+                                                jsonEncode({
+                                                  "roomID": nbnbRoom[index].id,
+                                                  "userID": GlobalProfile.loggedInUser.userID,
+                                                }));
 
-                                              RoomSalesInfo tmpRoom = RoomSalesInfo.fromJson(tmp);
+                                            RoomSalesInfo tmpRoom = RoomSalesInfo.fromJson(tmp);
 
-                                              if (null ==
-                                                  tmpRoom.lng ||
-                                                  null == tmpRoom
-                                                      .lat) {
-                                                var addresses = await Geocoder.google(
-                                                    'AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c')
-                                                    .findAddressesFromQuery(
-                                                    tmpRoom
-                                                        .location);
-                                                var first = addresses.first;
-                                                tmpRoom.lat = first.coordinates.latitude;
-                                                tmpRoom.lng = first.coordinates.longitude;
-                                              }
+                                            if (null ==
+                                                tmpRoom.lng ||
+                                                null == tmpRoom
+                                                    .lat) {
+                                              var addresses = await Geocoder.google(
+                                                  'AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c')
+                                                  .findAddressesFromQuery(
+                                                  tmpRoom
+                                                      .location);
+                                              var first = addresses.first;
+                                              tmpRoom.lat = first.coordinates.latitude;
+                                              tmpRoom.lng = first.coordinates.longitude;
+                                            }
 
 
-                                              res = await Navigator.push(
-                                                  context,
-                                                  // 기본 파라미터, SecondRoute로 전달
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          DetailedRoomInformation(
-                                                            roomSalesInfo: tmpRoom,
-                                                            nbnb:tmpRoom.ShortTerm,
-                                                          )) // SecondRoute를 생성하여 적재
-                                              ).then((value) {
-                                                if(null == value) {
-                                                  return;
-                                                }
-                                                if (value == false) {
-                                                  nbnbRoom[index]
-                                                      .ChangeLikesWithValue(false);
-                                                  return;
-                                                }
-                                                nbnbRoom[index]
-                                                    .ChangeLikesWithValue(value);
-                                                setState(() {
-
-                                                });
+                                            res = await Navigator.push(
+                                                context,
+                                                // 기본 파라미터, SecondRoute로 전달
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        DetailedRoomInformation(
+                                                          roomSalesInfo: tmpRoom,
+                                                          nbnb:tmpRoom.ShortTerm,
+                                                        )) // SecondRoute를 생성하여 적재
+                                            ).then((value) {
+                                              if(null == value) {
                                                 return;
-                                              });;;
-                                              extendedController.reset();
+                                              }
+                                              if (value == false) {
+                                                nbnbRoom[index]
+                                                    .ChangeLikesWithValue(false);
+                                                return;
+                                              }
+                                              nbnbRoom[index]
+                                                  .ChangeLikesWithValue(value);
                                               setState(() {
 
                                               });
-                                            }
-                                          },
-                                          child: Container(
-                                            width: screenWidth,
-                                            height: screenHeight * (110/620),
-                                            decoration: BoxDecoration(
-                                              /* boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.grey.withOpacity(0.5),
-                                          spreadRadius: 1,
-                                          blurRadius: 2,
-                                          offset: Offset(
-                                              1, 1), // changes position of shadow
-                                        ),
-                                      ],*/
+                                              return;
+                                            });;;
+                                            extendedController.reset();
+                                            setState(() {
 
+                                            });
+                                          }
+                                        },
+                                        child: Container(
+                                          width: screenWidth,
+                                          height: screenHeight * (110/620),
+                                          decoration: BoxDecoration(
 
-                                              color: Color(0xffffffff),
-                                            ),
-                                            child: Row(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                SizedBox(width: screenWidth*(12/360),),
-                                                Column(
-                                                  children: [
-                                                    SizedBox(height: screenHeight * 0.00875),
-                                                    // 양도이미지
-                                                    Container(
-                                                      width: screenWidth * 0.3333333,
-                                                      height: screenWidth * (100/360),
-                                                      child: ClipRRect(
-                                                          borderRadius: new BorderRadius.circular(4.0),
-                                                          child:     (nbnbRoom[index].imageUrl1=="BasicImage" || nbnbRoom[index].imageUrl1 == null)
-                                                              ?
-                                                          FittedBox(
-                                                            fit: BoxFit.cover,
-                                                            child: SvgPicture.asset(
-                                                              mryrInReviewScreen,
+                                            color: Color(0xffffffff),
+                                          ),
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              SizedBox(width: screenWidth*(12/360),),
+                                              Column(
+                                                children: [
+                                                  SizedBox(height: screenHeight * 0.00875),
+                                                  // 양도이미지
+                                                  Container(
+                                                    width: screenWidth * 0.3333333,
+                                                    height: screenWidth * (100/360),
+                                                    child: ClipRRect(
+                                                        borderRadius: new BorderRadius.circular(4.0),
+                                                        child:     (nbnbRoom[index].imageUrl1=="BasicImage" || nbnbRoom[index].imageUrl1 == null)
+                                                            ?
+                                                        FittedBox(
+                                                          fit: BoxFit.cover,
+                                                          child: SvgPicture.asset(
+                                                            mryrInReviewScreen,
 
-                                                            ),
-                                                          )
-                                                              :  Stack(
-                                                                children: [
-                                                                  FittedBox(
-                                                            fit: BoxFit.cover,
-                                                            child:    getExtendedImage(get_resize_image_name(nbnbRoom[index].imageUrl1,360), 0,extendedController),
                                                           ),
-                                                                  Center(
-                                                                    child: SvgPicture.asset(
-                                                                        RoomWaterMark,
-                                                                        width: screenWidth*(56/360),
-                                                                        height:screenHeight*(16/640)
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              )
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                SizedBox(
-                                                  width: screenWidth * 0.033333,
-                                                ),
-                                                Stack(
-                                                  children: [
-                                                    Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        Row(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          children: [
-                                                            Column(
-                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                        )
+                                                            :  Stack(
                                                               children: [
-                                                                SizedBox(height: screenHeight * 0.01875),
-                                                                SizedBox(
-                                                                  width: screenWidth*(180/360),
-                                                                  child: Row(
-                                                                    children: [
-                                                                      Wrap(
-                                                                        alignment: WrapAlignment.center,
-                                                                        spacing: screenWidth * 0.011111,
-                                                                        children: [
-                                                                          Container(
-                                                                            height: screenHeight * 0.028125,
-                                                                            child: Padding(
-                                                                              padding: EdgeInsets.fromLTRB(
-                                                                                  screenWidth * 0.022222,
-                                                                                  screenHeight * 0.000225,
-                                                                                  screenWidth * 0.022222,0),
-                                                                              child: Align(
-                                                                                alignment: Alignment.center,
-                                                                                child: Text(
-                                                                                  "내방니방 직영",
-                                                                                  style: TextStyle(
-                                                                                      fontSize:
-                                                                                      screenWidth*TagFontSize,
-                                                                                      color: kPrimaryColor,
-                                                                                      fontWeight: FontWeight.bold
-                                                                                  ),
-                                                                                ),
-                                                                              ),
-                                                                            ),
-                                                                            decoration: BoxDecoration(
-                                                                              borderRadius:
-                                                                              new BorderRadius.circular(4.0),
-                                                                              color: hexToColor('#EEEEEE'),
-                                                                            ),
-                                                                          ),
-
-                                                                          Container(
-                                                                            height: screenHeight * 0.028125,
-                                                                            child: Padding(
-                                                                              padding: EdgeInsets.fromLTRB(
-                                                                                  screenWidth * 0.022222,
-                                                                                  screenHeight * 0.000225,
-                                                                                  screenWidth * 0.022222,
-                                                                                  0),
-                                                                              child: Align(
-                                                                                alignment: Alignment.center,
-                                                                                child: Text(
-                                                                                  "하루 가능",
-                                                                                  style: TextStyle(
-                                                                                      fontSize:
-                                                                                      screenWidth*TagFontSize,
-                                                                                      color: kPrimaryColor,
-                                                                                      fontWeight: FontWeight.bold
-                                                                                  ),
-                                                                                ),
-                                                                              ),
-                                                                            ),
-                                                                            decoration: BoxDecoration(
-                                                                              borderRadius:
-                                                                              new BorderRadius.circular(4.0),
-                                                                              color: hexToColor('#EEEEEE'),
-                                                                            ),
-                                                                          )
-                                                                        ],
-                                                                      ),
-
-                                                                    ],
+                                                                FittedBox(
+                                                          fit: BoxFit.cover,
+                                                          child:    getExtendedImage(get_resize_image_name(nbnbRoom[index].imageUrl1,360), 0,extendedController),
+                                                        ),
+                                                                Center(
+                                                                  child: SvgPicture.asset(
+                                                                      RoomWaterMark,
+                                                                      width: screenWidth*(56/360),
+                                                                      height:screenHeight*(16/640)
                                                                   ),
                                                                 ),
                                                               ],
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        SizedBox(
-                                                          height: screenHeight * 0.00625,
-                                                        ),
-                                                        Row(
-                                                          mainAxisAlignment: MainAxisAlignment.start,
-                                                          crossAxisAlignment: CrossAxisAlignment.end,
-                                                          children: [
-                                                            Text(
-                                                              nbnbRoom[index].DailyRentFeesOffer.toString() +
-                                                                  '만원 / 일',
-                                                              style: TextStyle(
-                                                                  fontSize: screenHeight * 0.025,
-                                                                  fontWeight: FontWeight.bold),
-                                                            ),
-
-                                                           Text(
-                                                              ' ( '+nbnbRoom[index].WeeklyRentFeesOffer.toString() +
-                                                                  '만원 / 주 )',
-                                                              style: TextStyle(
-                                                                  fontSize: screenWidth * (12/360),
-                                                                  color: Color(0xff888888)),
-                                                            ),
-                                                          ],
-                                                        ),
-
-                                                        SizedBox(
-                                                          height: screenHeight * 0.00625,
-                                                        ),
-                                                        Container(
-                                                          width:screenWidth*(205/360),
-                                                          child: Row(
-                                                            crossAxisAlignment: CrossAxisAlignment.end,
+                                                            )
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                width: screenWidth * 0.033333,
+                                              ),
+                                              Stack(
+                                                children: [
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Row(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Column(
+                                                            mainAxisAlignment: MainAxisAlignment.start,
                                                             children: [
-                                                              Container(
-                                                                width: screenWidth*0.45,
-                                                                height: screenHeight*(36/640),
-                                                                child: Text(
-                                                                  nbnbRoom[index].information==null?"":nbnbRoom[index].information,
-                                                                  maxLines: 2,
-                                                                  overflow: TextOverflow.ellipsis,
-                                                                  style: TextStyle(
-                                                                      color: hexToColor("#888888")),
+                                                              SizedBox(height: screenHeight * 0.01875),
+                                                              SizedBox(
+                                                                width: screenWidth*(180/360),
+                                                                child: Row(
+                                                                  children: [
+                                                                    Wrap(
+                                                                      alignment: WrapAlignment.center,
+                                                                      spacing: screenWidth * 0.011111,
+                                                                      children: [
+                                                                        Container(
+                                                                          height: screenHeight * 0.028125,
+                                                                          child: Padding(
+                                                                            padding: EdgeInsets.fromLTRB(
+                                                                                screenWidth * 0.022222,
+                                                                                screenHeight * 0.000225,
+                                                                                screenWidth * 0.022222,0),
+                                                                            child: Align(
+                                                                              alignment: Alignment.center,
+                                                                              child: Text(
+                                                                                "내방니방 직영",
+                                                                                style: TextStyle(
+                                                                                    fontSize:
+                                                                                    screenWidth*TagFontSize,
+                                                                                    color: kPrimaryColor,
+                                                                                    fontWeight: FontWeight.bold
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          decoration: BoxDecoration(
+                                                                            borderRadius:
+                                                                            new BorderRadius.circular(4.0),
+                                                                            color: hexToColor('#EEEEEE'),
+                                                                          ),
+                                                                        ),
+
+                                                                        Container(
+                                                                          height: screenHeight * 0.028125,
+                                                                          child: Padding(
+                                                                            padding: EdgeInsets.fromLTRB(
+                                                                                screenWidth * 0.022222,
+                                                                                screenHeight * 0.000225,
+                                                                                screenWidth * 0.022222,
+                                                                                0),
+                                                                            child: Align(
+                                                                              alignment: Alignment.center,
+                                                                              child: Text(
+                                                                                "하루 가능",
+                                                                                style: TextStyle(
+                                                                                    fontSize:
+                                                                                    screenWidth*TagFontSize,
+                                                                                    color: kPrimaryColor,
+                                                                                    fontWeight: FontWeight.bold
+                                                                                ),
+                                                                              ),
+                                                                            ),
+                                                                          ),
+                                                                          decoration: BoxDecoration(
+                                                                            borderRadius:
+                                                                            new BorderRadius.circular(4.0),
+                                                                            color: hexToColor('#EEEEEE'),
+                                                                          ),
+                                                                        )
+                                                                      ],
+                                                                    ),
+
+                                                                  ],
                                                                 ),
                                                               ),
-                                                              Text(timeCheck( nbnbRoom[index].updatedAt.toString()),style: TextStyle(fontSize: screenWidth*(10/360),color: Color(0xff888888)),),
-
                                                             ],
                                                           ),
+                                                        ],
+                                                      ),
+                                                      SizedBox(
+                                                        height: screenHeight * 0.00625,
+                                                      ),
+                                                      Row(
+                                                        mainAxisAlignment: MainAxisAlignment.start,
+                                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                                        children: [
+                                                          Text(
+                                                            nbnbRoom[index].DailyRentFeesOffer.toString() +
+                                                                '만원 / 일',
+                                                            style: TextStyle(
+                                                                fontSize: screenHeight * 0.025,
+                                                                fontWeight: FontWeight.bold),
+                                                          ),
+
+                                                         Text(
+                                                            ' ( '+nbnbRoom[index].WeeklyRentFeesOffer.toString() +
+                                                                '만원 / 주 )',
+                                                            style: TextStyle(
+                                                                fontSize: screenWidth * (12/360),
+                                                                color: Color(0xff888888)),
+                                                          ),
+                                                        ],
+                                                      ),
+
+                                                      SizedBox(
+                                                        height: screenHeight * 0.00625,
+                                                      ),
+                                                      Container(
+                                                        width:screenWidth*(205/360),
+                                                        child: Row(
+                                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                                          children: [
+                                                            Container(
+                                                              width: screenWidth*0.45,
+                                                              height: screenHeight*(36/640),
+                                                              child: Text(
+                                                                nbnbRoom[index].information==null?"":nbnbRoom[index].information,
+                                                                maxLines: 2,
+                                                                overflow: TextOverflow.ellipsis,
+                                                                style: TextStyle(
+                                                                    color: hexToColor("#888888")),
+                                                              ),
+                                                            ),
+                                                            Text(timeCheck( nbnbRoom[index].updatedAt.toString()),style: TextStyle(fontSize: screenWidth*(10/360),color: Color(0xff888888)),),
+
+                                                          ],
                                                         ),
+                                                      ),
 
-                                                      ],
-                                                    ),
-                                                    Positioned(
-                                                      top: screenWidth*(8/360),
-                                                      right:screenWidth*(4/360),
-                                                      child: GestureDetector(
+                                                    ],
+                                                  ),
+                                                  Positioned(
+                                                    top: screenWidth*(8/360),
+                                                    right:screenWidth*(4/360),
+                                                    child: GestureDetector(
 
-                                                          onTap: () async {
-                                                            var res = await ApiProvider().post('/RoomSalesInfo/Insert/Like', jsonEncode(
-                                                                {
-                                                                  "userID" : GlobalProfile.loggedInUser.userID,
-                                                                  "roomSaleID": nbnbRoom[index].id,
-                                                                }
-                                                            ));
-                                                            bool sub = !nbnbRoom[index].Likes;
-                                                            nbnbRoom[index].ChangeLikesWithValue(sub);
-                                                            getRoomSalesInfoByIDFromMainTransfer(nbnbRoom[index].id).ChangeLikesWithValue(sub);
-                                                            setState(() {
+                                                        onTap: () async {
+                                                          var res = await ApiProvider().post('/RoomSalesInfo/Insert/Like', jsonEncode(
+                                                              {
+                                                                "userID" : GlobalProfile.loggedInUser.userID,
+                                                                "roomSaleID": nbnbRoom[index].id,
+                                                              }
+                                                          ));
+                                                          bool sub = !nbnbRoom[index].Likes;
+                                                          nbnbRoom[index].ChangeLikesWithValue(sub);
+                                                          getRoomSalesInfoByIDFromMainTransfer(nbnbRoom[index].id).ChangeLikesWithValue(sub);
+                                                          setState(() {
 
-                                                            });
+                                                          });
 
-                                                          },
-                                                          child:  ( nbnbRoom[index].Likes == null || !nbnbRoom[index].Likes) ?
-                                                          SvgPicture.asset(
-                                                            GreyEmptyHeartIcon,
+                                                        },
+                                                        child:  ( nbnbRoom[index].Likes == null || !nbnbRoom[index].Likes) ?
+                                                        SvgPicture.asset(
+                                                          GreyEmptyHeartIcon,
 
-                                                            width: screenHeight * 0.0375,
-                                                            height: screenHeight * 0.0375,
-                                                            color: Color(0xffEEEEEE),
-                                                          )
-                                                              : SvgPicture.asset(
-                                                            PurpleFilledHeartIcon,
-                                                            width: screenHeight * 0.0375,
-                                                            height: screenHeight * 0.0375,
-                                                            color: kPrimaryColor,
-                                                          )),
-                                                    )
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-
+                                                          width: screenHeight * 0.0375,
+                                                          height: screenHeight * 0.0375,
+                                                          color: Color(0xffEEEEEE),
+                                                        )
+                                                            : SvgPicture.asset(
+                                                          PurpleFilledHeartIcon,
+                                                          width: screenHeight * 0.0375,
+                                                          height: screenHeight * 0.0375,
+                                                          color: kPrimaryColor,
+                                                        )),
+                                                  )
+                                                ],
+                                              ),
+                                            ],
                                           ),
-                                        )
-                                      ],);})
-                                    : Container(),
+
+                                        ),
+                                      );})
+                                    : SizedBox(),
 
 
                                 !isShortForRoomList ? GestureDetector(
@@ -1145,7 +1126,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                                 height: screenWidth * (100/360),
                                                 child: ClipRRect(
                                                     borderRadius: new BorderRadius.circular(4.0),
-                                                    child:      globalRoomSalesInfoList[index].imageUrl1=="BasicImage"
+                                                    child:      (globalRoomSalesInfoList[index].imageUrl1=="BasicImage" || globalRoomSalesInfoList[index].imageUrl1 == null)
                                                         ?
                                                     FittedBox(
                                                       fit: BoxFit.cover,
@@ -1364,122 +1345,498 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                           itemCount: globalRoomSalesInfoListFiltered.length ,
                           itemBuilder: (BuildContext context, int index) =>
 
-                              Column(
-                                children: [
+                              isShortForRoomList ? GestureDetector(
+                                onTap: () async {
 
+                                  if(doubleCheck == false) {
+                                    doubleCheck = true;
 
-                                  GestureDetector(
-                                    onTap: () async {
-                                      if(doubleCheck == false) {
-                                        doubleCheck = true;
+                                    //내방니방 직영 예약 날짜 받아오기
+                                    var tmp9 = await ApiProvider()
+                                        .post(
+                                        '/RoomSalesInfo/NbnbRoomDateSelect',
+                                        jsonEncode(
+                                            {"roomID": globalRoomSalesInfoListFiltered[index]
+                                                .id.toString()}));
+                                    GlobalProfile.reserveDateList
+                                        .clear();
+                                    if(tmp9 != null && tmp9.length !=0){
+                                      Map<String,
+                                          dynamic> data = tmp9[0];
+                                      String tmp = data["Date"] as String;
+                                      if (tmp == "") {}
+                                      else {
+                                        for (int i = 0; i <
+                                            tmp9.length; i++) {
+                                          ReserveDate _reserveDate = ReserveDate
+                                              .fromJson(tmp9[i]);
 
-                                        GlobalProfile.detailReviewList.clear();
-
-                                        var detailReviewList = await ApiProvider()
-                                            .post('/Review/SelectRoom',
-                                            jsonEncode({
-                                              "location": globalRoomSalesInfoListFiltered[index]
-                                                  .location
-                                            }));
-
-                                        if (detailReviewList != null) {
-                                          for (int i = 0;
-                                          i < detailReviewList.length;
-                                          ++i) {
-                                            GlobalProfile.detailReviewList.add(
-                                                DetailReview.fromJson(
-                                                    detailReviewList[i]));
-                                          }
+                                          if ((DateTime
+                                              .now()
+                                              .year ==
+                                              _reserveDate.year &&
+                                              DateTime
+                                                  .now()
+                                                  .month <=
+                                                  _reserveDate.month)
+                                              || (DateTime
+                                                  .now()
+                                                  .year + 1 ==
+                                                  _reserveDate.year &&
+                                                  DateTime
+                                                      .now()
+                                                      .month >
+                                                      _reserveDate
+                                                          .month))
+                                            GlobalProfile
+                                                .reserveDateList.add(
+                                                _reserveDate);
                                         }
-
-                                        if (null ==
-                                            globalRoomSalesInfoListFiltered[index].lng ||
-                                            null == globalRoomSalesInfoListFiltered[index]
-                                                .lat) {
-                                          var addresses = await Geocoder.google(
-                                              'AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c')
-                                              .findAddressesFromQuery(
-                                              globalRoomSalesInfoListFiltered[index]
-                                                  .location);
-                                          var first = addresses.first;
-                                          globalRoomSalesInfoListFiltered[index].lat = first.coordinates.latitude;
-                                          globalRoomSalesInfoListFiltered[index].lng = first.coordinates.longitude;
-                                        }
-
-                                        await AddRecent(
-                                            globalRoomSalesInfoListFiltered[index]
-                                                .id);
-                                        res = await Navigator.push(
-                                            context, // 기본 파라미터, SecondRoute로 전달
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    DetailedRoomInformation(
-                                                        roomSalesInfo: globalRoomSalesInfoListFiltered[index],
-                                                        nbnb: isShortForRoomList ? true : false,
-                                                    )) // SecondRoute를 생성하여 적재
-                                        ).then((value) {
-                                          globalRoomSalesInfoListFiltered[index]
-                                              .ChangeLikesWithValue(value);
-                                          setState(() {
-
-                                          });
-                                          return;
-                                        });
                                       }
-                                    },
-                                    child:
-                                    Container(
-                                      width: screenWidth,
-                                      height: screenHeight * 0.19375,
-                                      child: Padding(
-                                        padding: EdgeInsets.only(
-                                          left: screenWidth * 0.033333,
-                                          //  right: screenWidth * 0.033333,
-                                        ),
-                                        child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                    }
+
+                                    await AddRecent(
+                                        globalRoomSalesInfoListFiltered[index].id);
+
+                                    GlobalProfile.detailReviewList
+                                        .clear();
+
+                                    var detailReviewList = await ApiProvider()
+                                        .post('/Review/SelectRoom',
+                                        jsonEncode({
+                                          "location": globalRoomSalesInfoListFiltered[index]
+                                              .location
+                                        }));
+
+                                    if (detailReviewList != null) {
+                                      for (int i = 0;
+                                      i < detailReviewList.length;
+                                      ++i) {
+                                        GlobalProfile.detailReviewList
+                                            .add(
+                                            DetailReview.fromJson(
+                                                detailReviewList[i]));
+                                      }
+                                    }
+
+                                    var tmp = await ApiProvider()
+                                        .post('/RoomSalesInfo/RoomSelectWithLike',
+                                        jsonEncode({
+                                          "roomID": globalRoomSalesInfoListFiltered[index].id,
+                                          "userID": GlobalProfile.loggedInUser.userID,
+                                        }));
+
+                                    RoomSalesInfo tmpRoom = RoomSalesInfo.fromJson(tmp);
+
+                                    if (null ==
+                                        tmpRoom.lng ||
+                                        null == tmpRoom
+                                            .lat) {
+                                      var addresses = await Geocoder.google(
+                                          'AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c')
+                                          .findAddressesFromQuery(
+                                          tmpRoom
+                                              .location);
+                                      var first = addresses.first;
+                                      tmpRoom.lat = first.coordinates.latitude;
+                                      tmpRoom.lng = first.coordinates.longitude;
+                                    }
+
+
+                                    res = await Navigator.push(
+                                        context,
+                                        // 기본 파라미터, SecondRoute로 전달
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                DetailedRoomInformation(
+                                                  roomSalesInfo: tmpRoom,
+                                                  nbnb:tmpRoom.ShortTerm,
+                                                )) // SecondRoute를 생성하여 적재
+                                    ).then((value) {
+                                      if(null == value) {
+                                        return;
+                                      }
+                                      if (value == false) {
+                                        globalRoomSalesInfoListFiltered[index]
+                                            .ChangeLikesWithValue(false);
+                                        return;
+                                      }
+                                      globalRoomSalesInfoListFiltered[index]
+                                          .ChangeLikesWithValue(value);
+                                      setState(() {
+
+                                      });
+                                      return;
+                                    });;;
+                                    extendedController.reset();
+                                    setState(() {
+
+                                    });
+                                  }
+                                },
+                                child: Container(
+                                  width: screenWidth,
+                                  height: screenHeight * (110/620),
+                                  decoration: BoxDecoration(
+
+                                    color: Color(0xffffffff),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(width: screenWidth*(12/360),),
+                                      Column(
+                                        children: [
+                                          SizedBox(height: screenHeight * 0.00875),
+                                          // 양도이미지
+                                          Container(
+                                            width: screenWidth * 0.3333333,
+                                            height: screenWidth * (100/360),
+                                            child: ClipRRect(
+                                                borderRadius: new BorderRadius.circular(4.0),
+                                                child:     (globalRoomSalesInfoListFiltered[index].imageUrl1=="BasicImage" || globalRoomSalesInfoListFiltered[index].imageUrl1 == null)
+                                                    ?
+                                                FittedBox(
+                                                  fit: BoxFit.cover,
+                                                  child: SvgPicture.asset(
+                                                    mryrInReviewScreen,
+
+                                                  ),
+                                                )
+                                                    :  Stack(
+                                                  children: [
+                                                    FittedBox(
+                                                      fit: BoxFit.cover,
+                                                      child:    getExtendedImage(get_resize_image_name(globalRoomSalesInfoListFiltered[index].imageUrl1,360), 0,extendedController),
+                                                    ),
+                                                    Center(
+                                                      child: SvgPicture.asset(
+                                                          RoomWaterMark,
+                                                          width: screenWidth*(56/360),
+                                                          height:screenHeight*(16/640)
+                                                      ),
+                                                    ),
+                                                  ],
+                                                )
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(
+                                        width: screenWidth * 0.033333,
+                                      ),
+                                      Stack(
+                                        children: [
+                                          Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Column(
+                                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                    children: [
+                                                      SizedBox(height: screenHeight * 0.01875),
+                                                      SizedBox(
+                                                        width: screenWidth*(180/360),
+                                                        child: Row(
+                                                          children: [
+                                                            Wrap(
+                                                              alignment: WrapAlignment.center,
+                                                              spacing: screenWidth * 0.011111,
+                                                              children: [
+                                                                Container(
+                                                                  height: screenHeight * 0.028125,
+                                                                  child: Padding(
+                                                                    padding: EdgeInsets.fromLTRB(
+                                                                        screenWidth * 0.022222,
+                                                                        screenHeight * 0.000225,
+                                                                        screenWidth * 0.022222,0),
+                                                                    child: Align(
+                                                                      alignment: Alignment.center,
+                                                                      child: Text(
+                                                                        "내방니방 직영",
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                            screenWidth*TagFontSize,
+                                                                            color: kPrimaryColor,
+                                                                            fontWeight: FontWeight.bold
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  decoration: BoxDecoration(
+                                                                    borderRadius:
+                                                                    new BorderRadius.circular(4.0),
+                                                                    color: hexToColor('#EEEEEE'),
+                                                                  ),
+                                                                ),
+
+                                                                Container(
+                                                                  height: screenHeight * 0.028125,
+                                                                  child: Padding(
+                                                                    padding: EdgeInsets.fromLTRB(
+                                                                        screenWidth * 0.022222,
+                                                                        screenHeight * 0.000225,
+                                                                        screenWidth * 0.022222,
+                                                                        0),
+                                                                    child: Align(
+                                                                      alignment: Alignment.center,
+                                                                      child: Text(
+                                                                        "하루 가능",
+                                                                        style: TextStyle(
+                                                                            fontSize:
+                                                                            screenWidth*TagFontSize,
+                                                                            color: kPrimaryColor,
+                                                                            fontWeight: FontWeight.bold
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                  decoration: BoxDecoration(
+                                                                    borderRadius:
+                                                                    new BorderRadius.circular(4.0),
+                                                                    color: hexToColor('#EEEEEE'),
+                                                                  ),
+                                                                )
+                                                              ],
+                                                            ),
+
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(
+                                                height: screenHeight * 0.00625,
+                                              ),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.end,
+                                                children: [
+                                                  Text(
+                                                    globalRoomSalesInfoListFiltered[index].DailyRentFeesOffer.toString() +
+                                                        '만원 / 일',
+                                                    style: TextStyle(
+                                                        fontSize: screenHeight * 0.025,
+                                                        fontWeight: FontWeight.bold),
+                                                  ),
+
+                                                  Text(
+                                                    ' ( '+globalRoomSalesInfoListFiltered[index].WeeklyRentFeesOffer.toString() +
+                                                        '만원 / 주 )',
+                                                    style: TextStyle(
+                                                        fontSize: screenWidth * (12/360),
+                                                        color: Color(0xff888888)),
+                                                  ),
+                                                ],
+                                              ),
+
+                                              SizedBox(
+                                                height: screenHeight * 0.00625,
+                                              ),
+                                              Container(
+                                                width:screenWidth*(205/360),
+                                                child: Row(
+                                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                                  children: [
+                                                    Container(
+                                                      width: screenWidth*0.45,
+                                                      height: screenHeight*(36/640),
+                                                      child: Text(
+                                                        globalRoomSalesInfoListFiltered[index].information==null?"":globalRoomSalesInfoListFiltered[index].information,
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow.ellipsis,
+                                                        style: TextStyle(
+                                                            color: hexToColor("#888888")),
+                                                      ),
+                                                    ),
+                                                    Text(timeCheck( globalRoomSalesInfoListFiltered[index].updatedAt.toString()),style: TextStyle(fontSize: screenWidth*(10/360),color: Color(0xff888888)),),
+
+                                                  ],
+                                                ),
+                                              ),
+
+                                            ],
+                                          ),
+                                          Positioned(
+                                            top: screenWidth*(8/360),
+                                            right:screenWidth*(4/360),
+                                            child: GestureDetector(
+
+                                                onTap: () async {
+                                                  var res = await ApiProvider().post('/RoomSalesInfo/Insert/Like', jsonEncode(
+                                                      {
+                                                        "userID" : GlobalProfile.loggedInUser.userID,
+                                                        "roomSaleID": globalRoomSalesInfoListFiltered[index].id,
+                                                      }
+                                                  ));
+                                                  bool sub = !globalRoomSalesInfoListFiltered[index].Likes;
+                                                  globalRoomSalesInfoListFiltered[index].ChangeLikesWithValue(sub);
+                                                  getRoomSalesInfoByIDFromMainTransfer(globalRoomSalesInfoListFiltered[index].id).ChangeLikesWithValue(sub);
+                                                  setState(() {
+
+                                                  });
+
+                                                },
+                                                child:  ( globalRoomSalesInfoListFiltered[index].Likes == null || !globalRoomSalesInfoListFiltered[index].Likes) ?
+                                                SvgPicture.asset(
+                                                  GreyEmptyHeartIcon,
+
+                                                  width: screenHeight * 0.0375,
+                                                  height: screenHeight * 0.0375,
+                                                  color: Color(0xffEEEEEE),
+                                                )
+                                                    : SvgPicture.asset(
+                                                  PurpleFilledHeartIcon,
+                                                  width: screenHeight * 0.0375,
+                                                  height: screenHeight * 0.0375,
+                                                  color: kPrimaryColor,
+                                                )),
+                                          )
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+
+                                ),
+                              ) :
+                              GestureDetector(
+                                onTap: () async {
+                                  if(doubleCheck  ==false) {
+                                    doubleCheck = true;
+
+                                    var t = await ApiProvider()
+                                        .post('/RoomSalesInfo/RoomSelectWithLike',
+                                        jsonEncode({
+                                          "roomID": globalRoomSalesInfoListFiltered[index].id,
+                                          "userID": GlobalProfile.loggedInUser.userID,
+                                        }));
+
+                                    RoomSalesInfo tmpRoom = RoomSalesInfo.fromJson(t);
+
+                                    GlobalProfile.detailReviewList.clear();
+                                    double finalLat;
+                                    double finalLng;
+                                    if (null ==
+                                        tmpRoom.lng ||
+                                        null == tmpRoom
+                                            .lat) {
+                                      var addresses = await Geocoder.google(
+                                          'AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c')
+                                          .findAddressesFromQuery(
+                                          tmpRoom
+                                              .location);
+                                      var first = addresses.first;
+                                      tmpRoom
+                                          .lat = first.coordinates.latitude;
+                                      tmpRoom
+                                          .lng = first.coordinates.longitude;
+                                    }
+                                    else{
+                                      finalLng = tmpRoom.lng;
+                                      finalLat = tmpRoom.lat;
+                                    }
+                                    var detailReviewList = await ApiProvider()
+                                        .post('/Review/ReviewListLngLat',
+                                        jsonEncode({
+                                          "longitude": finalLng,
+                                          "latitude": finalLat,
+                                        }));
+
+                                    if (detailReviewList != null) {
+                                      for (int i = 0;
+                                      i < detailReviewList.length;
+                                      ++i) {
+                                        GlobalProfile.detailReviewList.add(
+                                            DetailReview.fromJson(
+                                                detailReviewList[i]));
+                                      }
+                                    }
+                                    await AddRecent(
+                                        tmpRoom.id);
+                                    res = await Navigator.push(
+                                        context, // 기본 파라미터, SecondRoute로 전달
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                DetailedRoomInformation(
+                                                  roomSalesInfo: tmpRoom,
+                                                  nbnb:tmpRoom.ShortTerm,
+                                                )) // SecondRoute를 생성하여 적재
+                                    ).then((value) {
+                                      if (value == false) {
+                                        globalRoomSalesInfoListFiltered[index]
+                                            .ChangeLikesWithValue(false);
+                                        return;
+                                      }
+                                      globalRoomSalesInfoListFiltered[index]
+                                          .ChangeLikesWithValue(value);
+                                      setState(() {
+
+                                      });
+                                      return;
+                                    });
+                                  }
+
+                                },
+                                child: Container(
+                                  width: screenWidth,
+                                  height: screenHeight * (110/620),
+                                  child: Padding(
+                                    padding: EdgeInsets.only(
+                                      left: screenWidth * 0.033333,
+                                      //  right: screenWidth * 0.033333,
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Column(
+                                          mainAxisAlignment: MainAxisAlignment.start,
                                           children: [
-                                            Column(
-                                              children: [
-                                                SizedBox(height: screenHeight * 0.01875),
-                                                Container(
-                                                  width: screenWidth * 0.3333333,
-                                                  height: screenHeight * 0.15625,
-                                                  child: ClipRRect(
-                                                      borderRadius: new BorderRadius.circular(4.0),
-                                                      child:globalRoomSalesInfoListFiltered[index].imageUrl1=="BasicImage"
-                                                          ?
-                                                      SvgPicture.asset(
-                                                        ProfileIconInMoreScreen,
-                                                        width: screenHeight * (60 / 640),
-                                                        height: screenHeight * (60 / 640),
-                                                      )
-                                                          :  Stack(
-                                                            children: [
-                                                              FittedBox(
+                                            SizedBox(height: screenHeight * 0.00875),
+                                            Container(
+                                              width: screenWidth * 0.3333333,
+                                              height: screenWidth * (100/360),
+                                              child: ClipRRect(
+                                                  borderRadius: new BorderRadius.circular(4.0),
+                                                  child:      globalRoomSalesInfoListFiltered[index].imageUrl1=="BasicImage"
+                                                      ?
+                                                  FittedBox(
+                                                    fit: BoxFit.cover,
+                                                    child: SvgPicture.asset(
+                                                      mryrInReviewScreen,
+
+                                                    ),
+                                                  )
+                                                      :  Stack(
+                                                    children: [
+                                                      FittedBox(
                                                         fit: BoxFit.cover,
                                                         child:    getExtendedImage(get_resize_image_name(globalRoomSalesInfoListFiltered[index].imageUrl1,360), 0,extendedController),
                                                       ),
-                                                              Center(
-                                                                child: SvgPicture.asset(
-                                                                    RoomWaterMark,
-                                                                    width: screenWidth*(56/360),
-                                                                    height:screenHeight*(16/640)
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          )
-                                                  ),
-                                                ),
-                                              ],
+                                                      Center(
+                                                        child: SvgPicture.asset(
+                                                            RoomWaterMark,
+                                                            width: screenWidth*(56/360),
+                                                            height:screenHeight*(16/640)
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  )
+                                              ),
                                             ),
-                                            SizedBox(
-                                              width: screenWidth * 0.033333,
-                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          width: screenWidth * 0.033333,
+                                        ),
+                                        Stack(
+                                          children: [
                                             Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-
                                                 Row(
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
@@ -1488,69 +1845,9 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                                       children: [
                                                         SizedBox(height: screenHeight * 0.01875),
                                                         SizedBox(
-                                                          width: screenWidth*(180/360),
+                                                          width: screenWidth*(185/360),
                                                           child: Row(
                                                             children: [
-                                                              isShortForRoomList ? Wrap(
-                                                                alignment: WrapAlignment.center,
-                                                                spacing: screenWidth * 0.011111,
-                                                                children: [
-                                                                  Container(
-                                                                    height: screenHeight * 0.028125,
-                                                                    child: Padding(
-                                                                      padding: EdgeInsets.fromLTRB(
-                                                                          screenWidth * 0.022222,
-                                                                          screenHeight * 0.000225,
-                                                                          screenWidth * 0.022222,0),
-                                                                      child: Align(
-                                                                        alignment: Alignment.center,
-                                                                        child: Text(
-                                                                          "내방니방 직영",
-                                                                          style: TextStyle(
-                                                                              fontSize:
-                                                                              screenWidth*TagFontSize,
-                                                                              color: kPrimaryColor,
-                                                                              fontWeight: FontWeight.bold
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    decoration: BoxDecoration(
-                                                                      borderRadius:
-                                                                      new BorderRadius.circular(4.0),
-                                                                      color: hexToColor('#EEEEEE'),
-                                                                    ),
-                                                                  ),
-
-                                                                  Container(
-                                                                    height: screenHeight * 0.028125,
-                                                                    child: Padding(
-                                                                      padding: EdgeInsets.fromLTRB(
-                                                                          screenWidth * 0.022222,
-                                                                          screenHeight * 0.000225,
-                                                                          screenWidth * 0.022222,
-                                                                          0),
-                                                                      child: Align(
-                                                                        alignment: Alignment.center,
-                                                                        child: Text(
-                                                                          "하루 가능",
-                                                                          style: TextStyle(
-                                                                              fontSize:
-                                                                              screenWidth*TagFontSize,
-                                                                              color: kPrimaryColor,
-                                                                              fontWeight: FontWeight.bold
-                                                                          ),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                    decoration: BoxDecoration(
-                                                                      borderRadius:
-                                                                      new BorderRadius.circular(4.0),
-                                                                      color: hexToColor('#EEEEEE'),
-                                                                    ),
-                                                                  )
-                                                                ],
-                                                              ) :
                                                               Wrap(
                                                                 alignment: WrapAlignment.center,
                                                                 spacing: screenWidth * 0.011111,
@@ -1566,7 +1863,7 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                                                       child: Align(
                                                                         alignment: Alignment.center,
                                                                         child: Text(
-                                                                          globalRoomSalesInfoList[index].tradingState == 1 ? "신축 건물" : "구축 건물",
+                                                                          globalRoomSalesInfoListFiltered[index].Condition == 1 ? "신축 건물" : "구축 건물",
                                                                           style: TextStyle(
                                                                               fontSize:
                                                                               screenWidth*TagFontSize,
@@ -1589,11 +1886,11 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                                                           screenWidth * 0.022222,
                                                                           screenHeight * 0.000225,
                                                                           screenWidth * 0.022222,
-                                                                          screenHeight * 0),
+                                                                          0),
                                                                       child: Align(
                                                                         alignment: Alignment.center,
                                                                         child: Text(
-                                                                          globalRoomSalesInfoList[index].Floor == 1 ? "반지하" : globalRoomSalesInfoList[index].Floor == 2 ? "1층" : "2층 이상",
+                                                                          globalRoomSalesInfoListFiltered[index].Floor == 1 ? "반지하" : globalRoomSalesInfoListFiltered[index].Floor == 2 ? "1층" : "2층 이상",
                                                                           style: TextStyle(
                                                                               fontSize:
                                                                               screenWidth*TagFontSize,
@@ -1617,46 +1914,15 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                                         ),
                                                       ],
                                                     ),
-                                                    // Column(
-                                                    //   children: [
-                                                    //     SizedBox(height: screenHeight * 0.014),
-                                                    //     GestureDetector(
-                                                    //
-                                                    //         onTap: () async {
-                                                    //           var res = await ApiProvider().post('/RoomSalesInfo/Insert/Like', jsonEncode(
-                                                    //               {
-                                                    //                 "userID" : GlobalProfile.loggedInUser.userID,
-                                                    //                 "roomSaleID": globalRoomSalesInfoListFiltered[index].id,
-                                                    //               }
-                                                    //           ));
-                                                    //
-                                                    //           globalRoomSalesInfoListFiltered[index].ChangeLikes(!globalRoomSalesInfoListFiltered[index].Likes);
-                                                    //           setState(() {
-                                                    //           });
-                                                    //         },
-                                                    //         child:  globalRoomSalesInfoListFiltered[index].Likes ?
-                                                    //         SvgPicture.asset(
-                                                    //           PurpleFilledHeartIcon,
-                                                    //           width: screenHeight * 0.0375,
-                                                    //           height: screenHeight * 0.0375,
-                                                    //           color: kPrimaryColor,
-                                                    //         )
-                                                    //             : SvgPicture.asset(
-                                                    //           GreyEmptyHeartIcon,
-                                                    //           width: screenHeight * 0.0375,
-                                                    //           height: screenHeight * 0.0375,
-                                                    //         )),
-                                                    //   ],
-                                                    // ),
                                                   ],
                                                 ),
                                                 SizedBox(
                                                   height: screenHeight * 0.00625,
                                                 ),
-                                                Text(
 
-                                                  globalRoomSalesInfoListFiltered[index].monthlyRentFeesOffer.toString() +
-                                                      '만원 / 월',
+                                                Text(
+                                                  globalRoomSalesInfoListFiltered[index].jeonse == true?    globalRoomSalesInfoListFiltered[index].depositFeesOffer.toString()+"만원 / 전세" :      globalRoomSalesInfoListFiltered[index].monthlyRentFeesOffer.toString()+"만원 / 월세",
+
                                                   style: TextStyle(
                                                       fontSize: screenHeight * 0.025,
                                                       fontWeight: FontWeight.bold),
@@ -1665,42 +1931,78 @@ class _RoomForBorrowListState extends State<RoomForBorrowList>with SingleTickerP
                                                   height: screenHeight * 0.00625,
                                                 ),
                                                 Text(
-                                                  globalRoomSalesInfoListFiltered[index].termOfLeaseMin +
-                                                      '~' +
-                                                      globalRoomSalesInfoListFiltered[index].termOfLeaseMax,
-                                                  style: TextStyle(color: hexToColor("#888888")),
+                                                    globalRoomSalesInfoListFiltered[index].termOfLeaseMin.toString() + " ~ "+globalRoomSalesInfoListFiltered[index].termOfLeaseMax.toString(),
+                                                    style:TextStyle(
+                                                      fontSize: screenWidth*(12/360),
+                                                      color:hexToColor("#44444444"),
+                                                    )
                                                 ),
                                                 Container(
-                                                  width: screenWidth*0.45,
-                                                  height: screenHeight*(16/640),
-                                                  child: Text(
-                                                    globalRoomSalesInfoListFiltered[index].information,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: TextStyle(
+                                                  width:screenWidth*(205/360),
+                                                  child: Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                                    children: [
+                                                      Container(
+                                                        width: screenWidth*0.45,
+                                                        height: screenHeight*(36/640),
+                                                        child: Text(
+                                                          globalRoomSalesInfoListFiltered[index].information==null?"":globalRoomSalesInfoListFiltered[index].information,
+                                                          maxLines: 2,
+                                                          overflow: TextOverflow.ellipsis,
+                                                          style: TextStyle(
+                                                              color: hexToColor("#888888")),
+                                                        ),
+                                                      ),
+                                                      Text(timeCheck( globalRoomSalesInfoListFiltered[index].updatedAt.toString()),style: TextStyle(fontSize: screenWidth*(10/360),color: Color(0xff888888)),),
 
-                                                        color: hexToColor("#888888")),
+                                                    ],
                                                   ),
                                                 ),
-                                                SizedBox(height: screenHeight*(3/640),),
-                                                // Container(
-                                                //   width: screenWidth*(205/360),
-                                                //   child: Row(
-                                                //     children: [
-                                                //       Spacer(),
-                                                //       Text(timeCheck( globalRoomSalesInfoListFiltered[index].updatedAt.toString()),style: TextStyle(fontSize: screenWidth*(10/360),color: Color(0xff888888)),),
-                                                //     ],
-                                                //   ),
-                                                // ),
+
+
 
                                               ],
                                             ),
+                                            Positioned(
+                                              top: screenWidth*(8/360),
+                                              right:screenWidth*(4/360),
+                                              child: GestureDetector(
+
+                                                  onTap: () async {
+                                                    var res = await ApiProvider().post('/RoomSalesInfo/Insert/Like', jsonEncode(
+                                                        {
+                                                          "userID" : GlobalProfile.loggedInUser.userID,
+                                                          "roomSaleID": globalRoomSalesInfoListFiltered[index].id,
+                                                        }
+                                                    ));
+                                                    bool sub = !globalRoomSalesInfoListFiltered[index].Likes;
+                                                    globalRoomSalesInfoListFiltered[index].ChangeLikesWithValue(sub);
+                                                    getRoomSalesInfoByIDFromMainTransfer(globalRoomSalesInfoListFiltered[index].id).ChangeLikesWithValue(sub);
+                                                    setState(() {
+
+                                                    });
+                                                  },
+                                                  child:  ( globalRoomSalesInfoListFiltered[index].Likes == null || !globalRoomSalesInfoListFiltered[index].Likes) ?
+                                                  SvgPicture.asset(
+                                                    GreyEmptyHeartIcon,
+
+                                                    width: screenHeight * 0.0375,
+                                                    height: screenHeight * 0.0375,
+                                                    color: Color(0xffEEEEEE),
+                                                  )
+                                                      : SvgPicture.asset(
+                                                    PurpleFilledHeartIcon,
+                                                    width: screenHeight * 0.0375,
+                                                    height: screenHeight * 0.0375,
+                                                    color: kPrimaryColor,
+                                                  )),
+                                            )
                                           ],
                                         ),
-                                      ),
+                                      ],
                                     ),
-
                                   ),
-                                ],
+                                ),
                               ),
                         ),
                       ),

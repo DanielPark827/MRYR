@@ -956,7 +956,6 @@ Future getImageGallery(BuildContext context) async {
     Img.Image image = Img.decodeImage(imageFile.readAsBytesSync());
     var compressImg = new File("$path/"+GlobalProfile.loggedInUser.id+"_$rand.jpg")
       ..writeAsBytesSync(Img.encodeJpg(image, quality: ImgEncodeQulity));
-    print('@@@@@@@@@@@@@@@'+byteToMb(compressImg.lengthSync()).toString());
     _UserProvider.AddItemImgList(compressImg);
   }
 
@@ -978,7 +977,6 @@ Future getImageCamera(BuildContext context) async {
     Img.Image image = Img.decodeImage(imageFile.readAsBytesSync());
     var compressImg = new File("$path/"+GlobalProfile.loggedInUser.id+"_$rand.jpg")
       ..writeAsBytesSync(Img.encodeJpg(image, quality: ImgEncodeQulity));
-    print('@@@@@@@@@@@@@@@'+byteToMb(compressImg.lengthSync()).toString());
     _UserProvider.AddItemImgList(compressImg);
   }
 
@@ -1176,7 +1174,6 @@ Future getImageGallery2(BuildContext context, int index) async {
     Img.Image image = Img.decodeImage(imageFile.readAsBytesSync());
     var compressImg = new File("$path/"+GlobalProfile.loggedInUser.id+"_$rand.jpg")
       ..writeAsBytesSync(Img.encodeJpg(image, quality: ImgEncodeQulity));
-    print('@@@@@@@@@@@@@@@'+byteToMb(compressImg.lengthSync()).toString());
     data.ChangeItemImgList(index, compressImg);
   }
 
@@ -1198,7 +1195,6 @@ Future getImageCamera2(BuildContext context, int index) async {
     Img.Image image = Img.decodeImage(imageFile.readAsBytesSync());
     var compressImg = new File("$path/"+GlobalProfile.loggedInUser.id+"_$rand.jpg")
       ..writeAsBytesSync(Img.encodeJpg(image, quality: ImgEncodeQulity));
-    print('@@@@@@@@@@@@@@@'+byteToMb(compressImg.lengthSync()).toString());
     data.ChangeItemImgList(index, compressImg);
   }
 

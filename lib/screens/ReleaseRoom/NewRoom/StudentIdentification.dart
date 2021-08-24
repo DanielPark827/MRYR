@@ -488,7 +488,6 @@ class _StudentIdentificationState extends State<StudentIdentification> {
       Img.Image image = Img.decodeImage(imageFile.readAsBytesSync());
       var compressImg = new File("$path/"+GlobalProfile.loggedInUser.id+"_$rand.jpg")
         ..writeAsBytesSync(Img.encodeJpg(image, quality: ImgEncodeQulity));
-      print('@@@@@@@@@@@@@@@'+byteToMb(compressImg.lengthSync()).toString());
       f = compressImg;//이미지 들어가는
     }
     EasyLoading.dismiss();
@@ -521,7 +520,6 @@ class _StudentIdentificationState extends State<StudentIdentification> {
       Img.Image image = Img.decodeImage(imageFile.readAsBytesSync());
       var compressImg = new File("$path/"+GlobalProfile.loggedInUser.id+"_$rand.jpg")
         ..writeAsBytesSync(Img.encodeJpg(image, quality: ImgEncodeQulity));
-      print('@@@@@@@@@@@@@@@'+byteToMb(compressImg.lengthSync()).toString());
       f = compressImg;//이미지 들어가는
     }
     EasyLoading.dismiss();

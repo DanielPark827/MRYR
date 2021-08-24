@@ -103,8 +103,6 @@ class _RoomWannaLiveState extends State<RoomWannaLive>with SingleTickerProviderS
           GlobalProfile.listForMe.add(_roomSalesInfo);
         }
       }
-      else
-        print("error&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
     });
   }
 

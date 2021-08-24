@@ -805,7 +805,8 @@ class _ItemImgState extends State<ItemImg> {
 
               var addresses = await Geocoder.google('AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c').findAddressesFromQuery(data.Address.toString());
               var first = addresses.first;
-              data.transferType;
+
+
 
               Future.microtask(() async {
                 formData = new FormData.fromMap({
@@ -1275,7 +1276,6 @@ class _ItemImgState extends State<ItemImg> {
       Img.Image image = Img.decodeImage(imageFile.readAsBytesSync());
       var compressImg = new File("$path/"+GlobalProfile.loggedInUser.id+"_$rand.jpg")
         ..writeAsBytesSync(Img.encodeJpg(image, quality: ImgEncodeQulity));
-      print('@@@@@@@@@@@@@@@'+byteToMb(compressImg.lengthSync()).toString());
       _UserProvider.ItemImgList.add(compressImg);
     }
     setState(() {
@@ -1300,7 +1300,6 @@ class _ItemImgState extends State<ItemImg> {
       Img.Image image = Img.decodeImage(imageFile.readAsBytesSync());
       var compressImg = new File("$path/"+GlobalProfile.loggedInUser.id+"_$rand.jpg")
         ..writeAsBytesSync(Img.encodeJpg(image, quality: ImgEncodeQulity));
-      print('@@@@@@@@@@@@@@@'+byteToMb(compressImg.lengthSync()).toString());
       _UserProvider.ItemImgList.add(compressImg);
     }
 
@@ -1501,7 +1500,6 @@ class _ItemImgState extends State<ItemImg> {
       Img.Image image = Img.decodeImage(imageFile.readAsBytesSync());
       var compressImg = new File("$path/"+GlobalProfile.loggedInUser.id+"_$rand.jpg")
         ..writeAsBytesSync(Img.encodeJpg(image, quality: ImgEncodeQulity));
-      print('@@@@@@@@@@@@@@@'+byteToMb(compressImg.lengthSync()).toString());
       data.ChangeItemImgList(index, compressImg);
     }
 
@@ -1525,7 +1523,6 @@ class _ItemImgState extends State<ItemImg> {
       Img.Image image = Img.decodeImage(imageFile.readAsBytesSync());
       var compressImg = new File("$path/"+GlobalProfile.loggedInUser.id+"_$rand.jpg")
         ..writeAsBytesSync(Img.encodeJpg(image, quality: ImgEncodeQulity));
-      print('@@@@@@@@@@@@@@@'+byteToMb(compressImg.lengthSync()).toString());
       data.ChangeItemImgList(index, compressImg);//이미지 들어가는
     }
     setState(() {

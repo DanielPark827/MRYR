@@ -27,7 +27,7 @@ enum Status { LOADING, COMPLETED, ERROR }
 class ApiProvider {
   //디버그용
   final String _baseUrl = "http://13.124.127.27:50002";
-  //릴리즈용
+//  릴리즈용
   final String _imgBaseUrl = "https://mryr-development.s3.ap-northeast-2.amazonaws.com/";
   //  final String _imgBaseUrl = "https://mryr-production.s3.ap-northeast-2.amazonaws.com/";
 

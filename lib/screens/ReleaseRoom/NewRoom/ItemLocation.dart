@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geocoder/geocoder.dart';
 import 'package:mryr/constants/AppConfig.dart';
 import 'package:mryr/constants/GlobalAsset.dart';
 import 'package:mryr/model/EnterRoomInfoProvider.dart';
@@ -132,6 +133,11 @@ class _ItemLocationState extends State<ItemLocation> {
                     });
 
                     CheckForItemLocation(data);
+                    var addresses = await Geocoder.google('AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c').findAddressesFromQuery(data.Address.toString());
+                    var first = addresses.first;
+
+                    var finalLat = first.coordinates.latitude;
+                    var finalLng = first.coordinates.longitude;
                   },
                   child: Row(
                     children: [

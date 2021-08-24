@@ -362,7 +362,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     _passwordController.text;
 
 
-                                    var result = await ApiProvider().post("/User/DebugLogin", jsonEncode(
+                                    var result = await ApiProvider().post("/User/Login", jsonEncode(
                                         {
                                           "id" : _idController.text,
                                           "password" : _passwordController.text,

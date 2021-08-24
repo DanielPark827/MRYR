@@ -578,7 +578,7 @@ class _PutItemInfoState extends State<PutItemInfo> {
                                   },
                                 )),
                             Text(
-                              "평",
+                              "㎡",
                               style: TextStyle(
                                   fontSize: screenWidth * (16 / 360),
                                   fontWeight: FontWeight.bold),

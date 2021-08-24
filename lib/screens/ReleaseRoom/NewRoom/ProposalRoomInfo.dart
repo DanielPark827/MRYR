@@ -108,10 +108,8 @@ class _ProposalRoomInfoState extends State<ProposalRoomInfo> with SingleTickerPr
         }
       }
 
-      print('sdfs8');
       return true;
     } else {
-      print('no');
       return false;
     }
   }

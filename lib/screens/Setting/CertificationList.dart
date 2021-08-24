@@ -9,6 +9,9 @@ import 'package:mryr/utils/ExtendedImage.dart';
 import 'package:mryr/widget/MainReleaseRoomScreen/StringForMainReleaseRoomScreen.dart';
 import 'package:mryr/widget/MoreScreen/StringForMoreScreen.dart';
 
+import '../../userData/Chat.dart';
+import '../Chat/ImagePage.dart';
+
 class CertificationList extends StatefulWidget {
   @override
   _CertificationListState createState() => _CertificationListState();
@@ -114,30 +117,38 @@ class _CertificationListState extends State<CertificationList>with SingleTickerP
 
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Container(
-                            width: screenWidth,
-                            height: screenWidth*(3/4),
-                            child: ClipRRect(
-                                borderRadius: new BorderRadius.circular(4.0),
-                                child:    GlobalProfile.certificationPicture[index].imageUrl=="BasicImage" ||  GlobalProfile.certificationPicture[index].imageUrl==null
-                                    ?
-                                SvgPicture.asset(
-                                  mryrInReviewScreen,
-                                  width:
-                                  screenHeight *
-                                      (60 /
-                                          640),
-                                  height:
-                                  screenHeight *
-                                      (60 /
-                                          640),
-                                )
-                                    :
+                          GestureDetector(
+                            onTap:(){
+                              Navigator.push(
+                                  context, // 기본 파라미터, SecondRoute로 전달
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          ImagePage(imageUrl :GlobalProfile.certificationPicture[index].imageUrl)) // SecondRoute를 생성하여 적재
+                              );
+                            },
+                            child: Container(
+                              width: screenWidth,
+                              height: screenWidth,
+                              child: ClipRRect(
+                                  borderRadius: new BorderRadius.circular(4.0),
+                                  child:    GlobalProfile.certificationPicture[index].imageUrl=="BasicImage" ||  GlobalProfile.certificationPicture[index].imageUrl==null
+                                      ?
+                                  SvgPicture.asset(
+                                    mryrInReviewScreen,
+                                    width:
+                                    screenHeight *
+                                        (60 /
+                                            640),
+                                    height:
+                                    screenHeight *
+                                        (60 /
+                                            640),
+                                  )
+                                      :
 
-                                FittedBox(
-                                  fit: BoxFit.cover,
-                                  child:    getExtendedImage( GlobalProfile.certificationPicture[index].imageUrl, 0,extendedController),
-                                )
+
+                                  getExtendedImage( GlobalProfile.certificationPicture[index].imageUrl, 0,extendedController)
+                              ),
                             ),
                           ),
                           Container(height: 10),

@@ -29,7 +29,6 @@ class TutorialMainScreenInSetting extends StatelessWidget {
     if(null != GlobalProfile.roomSalesInfo) {
       return true;
     } else {
-      print('no');
       return false;
     }
   }

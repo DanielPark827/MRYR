@@ -170,7 +170,7 @@ Row ReleaseRoomAndReverseListInMoreScreen(BuildContext context,double screenWidt
                   width: screenWidth * (12 / 360),
                 ),
                 Text(
-                  "양도하기",
+                  "양도하기",//mryr@mryr.com
                   style: TextStyle(
                       fontSize: screenWidth * (12 / 360),
                       //fontSize: screenHeight * (12 / 640),

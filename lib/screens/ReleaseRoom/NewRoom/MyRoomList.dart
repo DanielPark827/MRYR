@@ -203,7 +203,13 @@ class _MyRoomListState extends State<MyRoomList>
                                               height: screenHeight * (12 / 640),
                                             ),
                                       GestureDetector(
-                                        onTap: () {
+                                        onTap: () async{
+                                          var res = await ApiProvider().post('/Information/AdminCheck', jsonEncode(
+                                              {
+                                                "userID" : GlobalProfile.loggedInUser.userID,
+                                              }
+                                          ));
+                                          var adminCheck= res;
                                           Navigator.push(
                                               context, // 기본 파라미터, SecondRoute로 전달
                                               MaterialPageRoute(
@@ -212,7 +218,7 @@ class _MyRoomListState extends State<MyRoomList>
                                                         roomSalesInfo: GlobalProfile
                                                                 .roomSalesInfoList[
                                                             index],
-                                                        nbnb: false,
+                                                        nbnb: adminCheck == true? true :false,
                                                       ))).then((value) {
                                             setState(() {});
                                           }); // SecondRoute를 생성하여 적재

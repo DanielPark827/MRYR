@@ -12,6 +12,7 @@ import 'package:mryr/network/ApiProvider.dart';
 import 'package:mryr/screens/BorrowRoom/ReportScreen.dart';
 import 'package:mryr/screens/BorrowRoom/model/ModelRoomLikes.dart';
 import 'package:mryr/screens/Chat/ChatSendFromRoom.dart';
+import 'package:mryr/screens/ReleaseRoom/ModifyReleaseRoom/ModifyAdminRoom.dart';
 import 'package:mryr/screens/ReleaseRoom/ModifyReleaseRoom/ModifyRoomItemInfo.dart';
 import 'package:mryr/screens/Review/ReviewScreenInMapDetail.dart';
 import 'package:mryr/screens/Review/SearchMapForReview.dart';
@@ -282,7 +283,6 @@ class _DetailedRoomInformationState extends State<DetailedRoomInformation> with 
 
     //예약된 날짜 받아오기
       for(int i =1 ;i<=12; i++){
-        print(DateTime.now().month);
         int oneWeekDay;
         if(DateTime.now().month<=i) {
           oneWeekDay = DateTime(DateTime
@@ -484,10 +484,6 @@ class _DetailedRoomInformationState extends State<DetailedRoomInformation> with 
         }
       }
 
-    mayReserve;
-      for(int i =0 ;i<mayReserve.length; i++){
-        print(mayReserve[i]);
-      }
 
   }
 
@@ -565,7 +561,6 @@ class _DetailedRoomInformationState extends State<DetailedRoomInformation> with 
     RoomListScreenProvider data = Provider.of<RoomListScreenProvider>(context);
     //   SocketProvider socket = Provider.of<SocketProvider>(context);
 
-    print(DateTime(DateTime.now().year,1, 1).weekday.toString());
 
     List<String> ImgList = [];
     if(widget.roomSalesInfo.imageUrl1!="BasicImage") ImgList.add(widget.roomSalesInfo.imageUrl1);
@@ -629,14 +624,33 @@ class _DetailedRoomInformationState extends State<DetailedRoomInformation> with 
               myRoomCheck(widget.roomSalesInfo.id)?
               GestureDetector(
                   onTap: () async {
-                    Navigator.push(
-                        context, // 기본 파라미터, SecondRoute로 전달
-                        MaterialPageRoute(
-                            builder: (context) =>
-                                ModifyRoomItemInfo(
-                                  roomSalesInfo: widget.roomSalesInfo,
-                                )) // SecondRoute를 생성하여 적재
-                    );
+                    var res = await ApiProvider().post('/Information/AdminCheck', jsonEncode(
+                        {
+                          "userID" : GlobalProfile.loggedInUser.userID,
+                        }
+                    ));
+                    var adminCheck= res;
+
+                    if(adminCheck == true){
+                      Navigator.push(
+                          context, // 기본 파라미터, SecondRoute로 전달
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  ModifyAdminRoom(
+                                    roomSalesInfo: widget.roomSalesInfo,
+                                  )) // SecondRoute를 생성하여 적재
+                      );
+                    }
+                    else {
+                      Navigator.push(
+                          context, // 기본 파라미터, SecondRoute로 전달
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  ModifyRoomItemInfo(
+                                    roomSalesInfo: widget.roomSalesInfo,
+                                  )) // SecondRoute를 생성하여 적재
+                      );
+                    }
                   },
                   child: SvgPicture.asset(GreyModify)) : SizedBox(),
               FlagForModify ?SizedBox () : SizedBox(width: screenWidth*0.0333333,),
@@ -790,7 +804,9 @@ class _DetailedRoomInformationState extends State<DetailedRoomInformation> with 
                       ),),
                     ],
                   ),
-                )  :    Padding(
+                )  :  Container(),
+                SizedBox(height: screenHeight*(4/640),),
+                Padding(
                   padding: EdgeInsets.symmetric(horizontal: screenWidth*(12/360)),
                   child: Container(
                     width: screenWidth*(330/360),

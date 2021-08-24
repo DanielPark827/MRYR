@@ -14,6 +14,7 @@ import 'package:mryr/screens/Registration/RegistrationPage.dart';
 import 'package:mryr/screens/ReleaseRoom/NewRoom/MyRoomList.dart';
 import 'package:mryr/screens/Setting/CertificationList.dart';
 import 'package:mryr/screens/Setting/PersonalInfoRule.dart';
+import 'package:mryr/screens/Setting/ReleaseShortRoom.dart';
 import 'package:mryr/screens/Setting/Setting.dart';
 import 'package:mryr/screens/Setting/UsingRule.dart';
 import 'package:mryr/userData/CertificationPicture.dart';
@@ -470,6 +471,23 @@ class _MoreScreenState extends State<MoreScreen>with SingleTickerProviderStateMi
                   Row(children: [
                     SizedBox(width: screenWidth*(24/360),),
                     Text("신분증리스트",style: TextStyle(fontSize: screenWidth*(12/360),color: Color(0xff222222)),),
+                  ],),),
+                ):Container(),
+                adminCheck == true? Container(height: 1,width: screenWidth,color: Color(0xfff8f8f8),):Container(),
+                adminCheck == true? GestureDetector(
+                  onTap: ()async{
+
+                    Navigator.push(
+                        context, // 기본 파라미터, SecondRoute로 전달
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                ReleaseShortRoom()) // SecondRoute를 생성하여 적재
+                    );
+                  },
+                  child: Container(width: screenWidth,height: screenWidth*(40/360),color: Colors.white, child:
+                  Row(children: [
+                    SizedBox(width: screenWidth*(24/360),),
+                    Text("단기매물등록",style: TextStyle(fontSize: screenWidth*(12/360),color: Color(0xff222222)),),
                   ],),),
                 ):Container(),
                 adminCheck == true? Container(height: 1,width: screenWidth,color: Color(0xfff8f8f8),):Container(),

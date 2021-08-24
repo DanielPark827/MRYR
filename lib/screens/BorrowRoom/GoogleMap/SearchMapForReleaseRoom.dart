@@ -67,6 +67,8 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
   String _markerImageUrl = (Platform.isIOS) ?'assets/images/logo/test2.png' : 'assets/images/logo/testandroid.png';
   bool flagRoomList = false;
 
+  int curRegionRoom = 0;
+
   List<RoomSalesInfo> selectedItemList = [];
 
   final Color _clusterColor = kPrimaryColor;
@@ -99,7 +101,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
     return prefs.getStringList(KeyForRecent);
   }
 
-  void _onMapCreated(GoogleMapController controller) {
+  void _onMapCreated(GoogleMapController controller) async {
     _controller.complete(controller);
 
 
@@ -108,6 +110,45 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
     });
 
     _initMarkers();
+
+    LatLngBounds llb = await controller.getVisibleRegion();
+
+    double lat1 = llb.southwest.latitude;
+    double lat2 = llb.northeast.latitude;
+    double lon1 = llb.southwest.longitude;
+    double lon2 = llb.northeast.longitude;
+
+    var tmp ;
+
+    if(isShortForRoomList){
+      tmp = await ApiProvider().post('/RoomSalesInfo/ShortMapRoiList', jsonEncode(
+          {
+            "userID" : GlobalProfile.loggedInUser.userID,
+            "lat1":lat1,
+            "lat2":lat2,
+            "lon1":lon1,
+            "lon2":lon2,
+          }
+      ));
+
+    } else {
+      tmp = await ApiProvider().post('/RoomSalesInfo/TransferMapRoiList', jsonEncode(
+          {
+            "userID" : GlobalProfile.loggedInUser.userID,
+            "lat1":lat1,
+            "lat2":lat2,
+            "lon1":lon1,
+            "lon2":lon2,
+          }
+      ));
+
+    }
+    if(null != tmp) {
+      curRegionRoom = tmp.size.toInt();
+    }
+
+    setState(() {
+    });
   }
 
   void _initMarkers() async {
@@ -221,6 +262,44 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
       if(flagRoomList) {
         flagRoomList = false;
       }
+      GoogleMapController controller = await _controller.future;
+      LatLngBounds llb = await controller.getVisibleRegion();
+
+      double lat1 = llb.southwest.latitude;
+      double lat2 = llb.northeast.latitude;
+      double lon1 = llb.southwest.longitude;
+      double lon2 = llb.northeast.longitude;
+
+      var tmp ;
+
+      if(isShortForRoomList){
+        tmp = await ApiProvider().post('/RoomSalesInfo/ShortMapRoiList', jsonEncode(
+            {
+              "userID" : GlobalProfile.loggedInUser.userID,
+              "lat1":lat1,
+              "lat2":lat2,
+              "lon1":lon1,
+              "lon2":lon2,
+            }
+        ));
+
+      } else {
+        tmp = await ApiProvider().post('/RoomSalesInfo/TransferMapRoiList', jsonEncode(
+            {
+              "userID" : GlobalProfile.loggedInUser.userID,
+              "lat1":lat1,
+              "lat2":lat2,
+              "lon1":lon1,
+              "lon2":lon2,
+            }
+        ));
+
+      }
+      if(null != tmp) {
+        curRegionRoom = tmp.length.toInt();
+      }
+
+
       setState(() {
       });
       return;
@@ -256,6 +335,49 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
     setState(() {
       _areMarkersLoading = false;
     });
+
+    GoogleMapController controller = await _controller.future;
+    LatLngBounds llb = await controller.getVisibleRegion();
+
+    double lat1 = llb.southwest.latitude;
+    double lat2 = llb.northeast.latitude;
+    double lon1 = llb.southwest.longitude;
+    double lon2 = llb.northeast.longitude;
+
+    var tmp ;
+
+    if(isShortForRoomList){
+      tmp = await ApiProvider().post('/RoomSalesInfo/ShortMapRoiList', jsonEncode(
+          {
+            "userID" : GlobalProfile.loggedInUser.userID,
+            "lat1":lat1,
+            "lat2":lat2,
+            "lon1":lon1,
+            "lon2":lon2,
+          }
+      ));
+
+    } else {
+      tmp = await ApiProvider().post('/RoomSalesInfo/TransferMapRoiList', jsonEncode(
+          {
+            "userID" : GlobalProfile.loggedInUser.userID,
+            "lat1":lat1,
+            "lat2":lat2,
+            "lon1":lon1,
+            "lon2":lon2,
+          }
+      ));
+
+    }
+    if(null != tmp) {
+      curRegionRoom = tmp.length.toInt();
+    }
+
+
+    setState(() {
+    });
+    return;
+
   }
 
   ////////////////////////////////////////////////////
@@ -473,7 +595,9 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                                   ),
                                 );
                                 SearchLocation = item.name;
-                                await AddRecentRegion(item.name, item.lat, item.lng);
+                                var s = item.runtimeType.toString();
+                                if(item.runtimeType.toString() != "PlaceDetail")
+                                  await AddRecentRegion(item.name, item.lat, item.lng);
                               }
                               setState(() {
                               });
@@ -1522,7 +1646,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                 ],
               ),
             ),
-            ShortFilterFlag && isShortForRoomList ? Container(
+            if (ShortFilterFlag && isShortForRoomList) Container(
               width :screenWidth,
               height : screenHeight,
               color:Colors.white,
@@ -1552,6 +1676,24 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
 
                           )
                         ),
+                        Expanded(child: SizedBox()),
+                        GestureDetector(
+                          onTap:(){
+                            resetRoomAll();
+                            ShortFilterFlag = false;
+                            setState(() {
+
+                            });
+                          },
+                          child: Text(
+                              '초기화',
+                              style:TextStyle(
+                                fontSize:screenWidth*(12/360),
+
+                              )
+                          ),
+                        ),
+                        widthPadding(screenWidth,10),
                        ],
                     ),
                     heightPadding(screenHeight,14),
@@ -1965,8 +2107,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                   ],
                 ),
               ),
-            ):
-            ShortFilterFlag && !isShortForRoomList ? Container(
+            ) else ShortFilterFlag && !isShortForRoomList ? Container(
               width :screenWidth,
               height : screenHeight,
               color:Colors.white,
@@ -1996,6 +2137,24 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
 
                             )
                         ),
+                        Expanded(child: SizedBox()),
+                        GestureDetector(
+                          onTap:(){
+                            resetTransferAll();
+                            ShortFilterFlag = false;
+                            setState(() {
+
+                            });
+                          },
+                          child: Text(
+                              '초기화',
+                              style:TextStyle(
+                                fontSize:screenWidth*(12/360),
+
+                              )
+                          ),
+                        ),
+                        widthPadding(screenWidth,10),
                       ],
                     ),
                     heightPadding(screenHeight,14),
@@ -2834,25 +2993,55 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
         GestureDetector(
           onTap: () async {
             //매물 리스트
-            EasyLoading.show(status: "",maskType: EasyLoadingMaskType.black);
-            // var list = await ApiProvider().get('/RoomSalesInfo/SelectList');
-            //
-            // globalRoomSalesInfoList.clear();
-            // if (list != null) {
-            //   for (int i = 0; i < list.length; ++i) {
-            //     globalRoomSalesInfoList.add(RoomSalesInfo.fromJson(list[i]));
-            //   }
-            // }
-            //
-            //
-            // nbnbRoom.clear();
-            // //내방니방직영
-            // var tmp= await ApiProvider().get('/RoomSalesInfo/NbnbRooms');
-            // if(null != tmp){
-            //   for(int i = 0;i<tmp.length;i++){
-            //     nbnbRoom.add(RoomSalesInfo.fromJson(tmp[i]));
-            //   }
-            // }
+            // EasyLoading.show(status: "",maskType: EasyLoadingMaskType.black);
+            GoogleMapController controller = await _controller.future;
+            LatLngBounds llb = await controller.getVisibleRegion();
+
+            double lat1 = llb.southwest.latitude;
+            double lat2 = llb.northeast.latitude;
+            double lon1 = llb.southwest.longitude;
+            double lon2 = llb.northeast.longitude;
+
+            var tmp ;
+
+            if(isShortForRoomList){
+              tmp = await ApiProvider().post('/RoomSalesInfo/ShortMapRoiList', jsonEncode(
+                  {
+                    "userID" : GlobalProfile.loggedInUser.userID,
+                    "lat1":lat1,
+                    "lat2":lat2,
+                    "lon1":lon1,
+                    "lon2":lon2,
+                  }
+              ));
+
+              if (tmp.length != 0) {
+                nbnbRoom.clear();
+                if(null != tmp){
+                  for(int i = 0;i<tmp.length;i++){
+                    nbnbRoom.add(RoomSalesInfo.fromJsonLittle(tmp[i]));
+                  }
+                }
+              }
+            } else {
+              tmp = await ApiProvider().post('/RoomSalesInfo/TransferMapRoiList', jsonEncode(
+                  {
+                    "userID" : GlobalProfile.loggedInUser.userID,
+                    "lat1":lat1,
+                    "lat2":lat2,
+                    "lon1":lon1,
+                    "lon2":lon2,
+                  }
+              ));
+
+                if(tmp.length != 0){ globalRoomSalesInfoList.clear();
+                if(null != tmp){
+                for(int i = 0;i<tmp.length;i++){
+                  globalRoomSalesInfoList.add(RoomSalesInfo.fromJsonLittle(tmp[i]));
+                }
+              }}
+    }
+
 
             navigationNumProvider.setNum(1,flagForNavigate: true);
             Navigator.push(
@@ -2861,7 +3050,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
                     builder: (context) =>
                         MainPage()) // SecondRoute를 생성하여 적재
             );
-            EasyLoading.dismiss();
+            // EasyLoading.dismiss();
           },
           child: Container(
             height: screenHeight*(60/640),
@@ -2869,7 +3058,7 @@ class _SearchMapForBorrowRoomState extends State<SearchMapForBorrowRoom> with Si
             color: kPrimaryColor,
             child: Center(
               child: Text(
-                '모든 방 보기',
+                '모든 방 보기 ('+curRegionRoom.toString()+')',
                 style: TextStyle(
                     fontSize: MediaQuery.of(context).size.width*(16/360),
                     color: Colors.white,

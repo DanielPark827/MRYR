@@ -29,7 +29,6 @@ class _SearchPageForMapForRoomState extends State<SearchPageForMapForRoom> with 
 
     RecentList = await prefs.getStringList(KeyForRecent);
     RecentListIndex = await RecentList.length;
-    print("RecentListIndex : "+" ${RecentList}");
     return true;
   }
 
@@ -37,7 +36,6 @@ class _SearchPageForMapForRoomState extends State<SearchPageForMapForRoom> with 
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setStringList(KeyForRecent, []);
     RecentList = await prefs.getStringList(KeyForRecent);
-    print("RecentList : "+"    ${RecentList}");
 
   }
   AnimationController extendedController;

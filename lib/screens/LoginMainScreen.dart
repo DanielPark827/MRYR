@@ -68,7 +68,6 @@ class _LoginMainScreenState extends State<LoginMainScreen> {
   }
   _initKakaoTalkInstalled() async{
     final installed = await isKakaoTalkInstalled();
-    print('kakao Install : '+installed.toString());
     setState(() {
       _isKakaoTalkInstalled = installed;
     });
@@ -77,9 +76,6 @@ class _LoginMainScreenState extends State<LoginMainScreen> {
     try{
       var token = await AuthApi.instance.issueAccessToken(authCode);
       AccessTokenStore.instance.toStore(token);
-      print("토큰%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%"
-          "");
-      print(token);
       GlobalProfile.kakaoInfo = await UserApi.instance.me();
 
       var result2 = await ApiProvider().post('/User/KakaoLogin', jsonEncode(
@@ -89,8 +85,6 @@ class _LoginMainScreenState extends State<LoginMainScreen> {
       ));
 
       if(result2["result"] == "0616"){  //result['Code'] == 0616 ?
-        print("확인");
-        print(GlobalProfile.kakaoInfo.kakaoAccount.email.toString());
         GlobalProfile.IdForKakaoLogin =GlobalProfile.kakaoInfo.kakaoAccount.email.toString();
         GlobalProfile.PhoneForKakaoLogin =GlobalProfile.kakaoInfo.kakaoAccount.phoneNumber.toString();
 
@@ -319,27 +313,19 @@ class _LoginMainScreenState extends State<LoginMainScreen> {
                             return null;
                           }
 
-                          print(apple_login_result);
                           switch (apple_login_result.status) {
                             case AuthorizationStatus.authorized:
                             // Store user ID
                               final SharedPreferences prefs = await SharedPreferences.getInstance();
 
                               print('apple good');
-                              print(apple_login_result.credential.email);
-                              print(apple_login_result.credential.fullName.familyName);
-                              print(apple_login_result.credential.fullName.givenName);
-                              print(apple_login_result.credential.user);
 
                               if (apple_login_result.credential.fullName.familyName == null) {
                                 //두번째 로그인이면
                                 //family 로 판단하는 이유는,
                                 //email 숨기기 하면 ㄹㅇ 처음로그인이어도 email null 임
 
-                                print('apple login not FIRST');
                                 apple = apple_login_result.credential.user;
-                                print('print global apple');
-                                print(apple); //good
 
                                 //email = prefs.getString('autoLoginAppleId');
                                 //name = prefs.getString('autoLoginApplePw');
@@ -352,9 +338,6 @@ class _LoginMainScreenState extends State<LoginMainScreen> {
                                 email = apple_login_result.credential.email; //이메일 저장
                                 name = apple_login_result.credential.fullName.familyName + apple_login_result.credential.fullName.givenName; //이름 정보 저장 for 닉네임 부분에 설정
                                 apple = apple_login_result.credential.user;
-                                print(email);
-                                print(name);
-                                print(apple); //good
 
                                 //prefs.setString('autoLoginAppleId', email);
                                 //prefs.setString('autoLoginApplePw', name);
@@ -368,10 +351,10 @@ class _LoginMainScreenState extends State<LoginMainScreen> {
                                   } ));
 
                               if (result['result'] == '0616') { //이름, 닉네임, 성별 추가입력 페이지로 이동
-                                print('go to add personal info');
+
 
                                 //그리고 우선 , 추가입력 페이지의 이름 입력란 안에 앞서 받아둔 name 값 넣어 두기 (가능하면 ,,)
-                                print("확인");
+
                                 //애플아이디 넣어야함
                                 GlobalProfile.IdForAppleLogin =result['result'];
                                 //애플 이름 닉네임 성별 등록으로 이동

@@ -9,7 +9,6 @@ import 'package:mryr/dummyData/DummyUser.dart';
 import 'package:mryr/model/DateInLookForRoomsScreenProvider.dart';
 import 'package:mryr/model/EnterRoomInfoProvider.dart';
 import 'package:mryr/network/ApiProvider.dart';
-import 'package:mryr/screens/ReleaseRoom/model/ModelModifyReleaseRoom.dart';
 import 'package:mryr/userData/GlobalProfile.dart';
 import 'package:mryr/userData/NeedRoomInfo.dart';
 import 'package:mryr/userData/Room.dart';
@@ -353,8 +352,6 @@ class _ModifyRoomItemInfoState extends State<ModifyRoomItemInfo> {
                           RoomSalesInfo.fromJsonLittle(tmp[i]));
                     }
                   }
-                  print("mainTransferList[0].Likes.toString() : " +
-                      mainTransferList[0].Likes.toString());
 
                   //매물 리스트
                   var list = await ApiProvider().post(

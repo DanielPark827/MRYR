@@ -63,8 +63,6 @@ class DateInReleaseRoomsScreenProvider extends ChangeNotifier{
   void setStringDate(List<String> tmp){
     pickedString[0] = tmp[0];
     pickedString[1] = tmp[1];
-    print(pickedString[0]);
-    print(pickedString[1]);
     notifyListeners();
   }
 

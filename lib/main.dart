@@ -110,7 +110,6 @@ class _LifeCycleManagerState extends State<LifeCycleManager> with WidgetsBinding
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    print('state = $state');
 
   /*  List<StoppableService> services = [
       socket

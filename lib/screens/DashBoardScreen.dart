@@ -103,7 +103,7 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
     RecentList = await prefs.getStringList(KeyForRecent);
     if(RecentList != null)
       RecentListIndex = await RecentList.length;
-    print("RecentListIndex : "+" ${RecentList}");
+
     return true;
   }
   AnimationController extendedController;
@@ -129,17 +129,20 @@ class _DashBoardScreenState extends State<DashBoardScreen>with SingleTickerProvi
     });
 
     Timer.periodic(Duration(seconds: 5), (Timer timer) {
+      if(currentPage == null) currentPage = 0;
       if (currentPage < 2) {
         currentPage++;
       } else {
         currentPage = 0;
       }
 
-      _PageController.animateToPage(
-        currentPage,
-        duration: Duration(milliseconds: 350),
-        curve: Curves.easeIn,
-      );
+      if(_PageController.hasClients) {
+        _PageController.animateToPage(
+          currentPage,
+          duration: Duration(milliseconds: 350),
+          curve: Curves.easeIn,
+        );
+      }
     });
   }
 

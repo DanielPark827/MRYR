@@ -10,6 +10,7 @@ import 'package:mryr/constants/AppConfig.dart';
 import 'package:mryr/constants/GlobalAsset.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mryr/constants/KeySharedPreferences.dart';
+import 'package:mryr/screens/BorrowRoom/model/UnivCoordi.dart';
 
 class addressComplteForBorrowRoom extends StatefulWidget {
   @override
@@ -24,6 +25,21 @@ class _addressComplteForBorrowRoomState extends State<addressComplteForBorrowRoo
   PlaceDetail placeDetail;
   Completer<GoogleMapController> _controller = Completer();
   Set<Marker> _markers = Set();
+
+  final _scrollController = ScrollController();
+  List<UnivCoordi> univList = [
+    new UnivCoordi("인하대학교",37.45021798095106, 126.65347727041605),
+    new UnivCoordi("서강대학교",37.55106326296553, 126.9409271973989),
+    new UnivCoordi("홍익대학교 서울캠퍼스",37.551628162095426, 126.92493754832599),
+    new UnivCoordi("연세대학교 신촌캠퍼스",37.56596256890242, 126.93861491459872),
+    new UnivCoordi("이화여자대학교",37.56204588299348, 126.94679098390817),
+    new UnivCoordi("서울대학교",37.456773497452616, 126.95007068576113),
+    new UnivCoordi("중앙대학교 서울캠퍼스",37.50523276969037, 126.95710119925293),
+    new UnivCoordi("숭실대학교",37.496389155514194, 126.95686472756978),
+
+  ];
+
+
 
   @override
   void initState() {
@@ -165,7 +181,57 @@ class _addressComplteForBorrowRoomState extends State<addressComplteForBorrowRoo
                   ),
                 ],
               ),
-              heightPadding(screenHeight, 40),
+              heightPadding(screenHeight, 20),
+              Row(
+                children: [
+                  widthPadding(screenWidth,20),
+                  Text(
+                    '우리지역 바로가기',
+                    style: TextStyle(
+                        fontSize: screenWidth*(16/360),
+                        fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ],
+              ),
+              heightPadding(screenHeight, 12),
+              SizedBox(
+                height: screenHeight*((50*(univList.length/2))/640),
+                width: screenWidth,
+                child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 250,
+                        childAspectRatio: 4 / 1,
+                        crossAxisSpacing: 0,
+                        mainAxisSpacing: 0),
+                    itemCount: univList.length,
+                    itemBuilder: (BuildContext ctx, index) {
+                      return GestureDetector(
+                        onTap: (){
+                          PlaceDetail tmp = new PlaceDetail(name: univList[index].title, lat: univList[index].lat, lng: univList[index].lng);
+                          Navigator.pop(context, tmp);
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: Text(
+                              univList[index].title,
+                              style: TextStyle(
+                                fontWeight:FontWeight.bold,
+                                fontSize:screenWidth*(12/360),
+                              ),
+                          ),
+                          decoration: BoxDecoration(
+                              border:Border.all(
+                                color: hexToColor('#EEEEEE'),
+                                width: screenWidth*(1/360)
+                              ),
+
+                          )
+                        ),
+                      );
+                    }),
+              ),
+              heightPadding(screenHeight, 34),
               Row(
                 children: [
                   widthPadding(screenWidth,20),
@@ -197,6 +263,7 @@ class _addressComplteForBorrowRoomState extends State<addressComplteForBorrowRoo
               ),
               heightPadding(screenHeight,12),
               Divider(height: 1, color: hexToColor('#EEEEEE'),),
+
               FutureBuilder(
                   future: init(),
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
@@ -232,11 +299,12 @@ class _addressComplteForBorrowRoomState extends State<addressComplteForBorrowRoo
                     // 데이터를 정상적으로 받아오게 되면 다음 부분을 실행하게 되는 것이다.
                     else {
                       return SizedBox(
-                        height: screenHeight*(500/640),
+                        height: screenHeight*((44*regionList.length)/640),
                         child: ListView.builder(
                           primary: true,
                           shrinkWrap: true,
                           itemCount: regionList.length,
+                            physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (BuildContext context, int index) => GestureDetector(
                             onTap: (){
                               PlaceDetail tmp = new PlaceDetail(name: regionList[index], lat: latList[index], lng: longList[index]);
@@ -266,6 +334,7 @@ class _addressComplteForBorrowRoomState extends State<addressComplteForBorrowRoo
                       );
                     }
                   }),
+              Container(width: screenWidth,height: 1,color: hexToColor('#EEEEEE'),),
             ],
           ),
         ),

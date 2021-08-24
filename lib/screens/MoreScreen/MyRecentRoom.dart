@@ -47,7 +47,6 @@ class _MyRecentRoomState extends State<MyRecentRoom> with SingleTickerProviderSt
 
     RecentList = await prefs.getStringList(KeyForRecent);
     RecentListIndex = await RecentList.length;
-    print("RecentListIndex : "+" ${RecentList}");
     return true;
   }
   AnimationController extendedController;
@@ -93,13 +92,11 @@ class _MyRecentRoomState extends State<MyRecentRoom> with SingleTickerProviderSt
         }
       }
 
-      print('sdfs5');
       setState(() {
 
       });
       return true;
     } else {
-      print('no');
       return false;
     }
   }
@@ -131,10 +128,8 @@ class _MyRecentRoomState extends State<MyRecentRoom> with SingleTickerProviderSt
         }
       }
 
-      print('sdfs6');
       return true;
     } else {
-      print('no');
       return false;
     }
   }
@@ -159,9 +154,7 @@ class _MyRecentRoomState extends State<MyRecentRoom> with SingleTickerProviderSt
       subList.add(index.toString());
       prefs.setStringList(KeyForRecent, subList);
     }
-
-    print("ddddddddddddddddd"+"${subList.length.toString()}"+"    ${subList}");
-  }
+}
 
 
 

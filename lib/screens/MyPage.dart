@@ -902,7 +902,6 @@ class _MyPageState extends State<MyPage> with SingleTickerProviderStateMixin {
                                                       var code = await UserApi
                                                           .instance
                                                           .logout();
-                                                      print(code.toString());
                                                     } catch (e) {
                                                       print(e);
                                                     }
@@ -1119,8 +1118,6 @@ class _MyPageState extends State<MyPage> with SingleTickerProviderStateMixin {
                                                             await UserApi
                                                                 .instance
                                                                 .logout();
-                                                        print(
-                                                            code.toString());
                                                       } catch (e) {
                                                         print(e);
                                                       }
@@ -1203,7 +1200,6 @@ class _MyPageState extends State<MyPage> with SingleTickerProviderStateMixin {
   Future getImageGallery(BuildContext context) async {
     var imageFile =
         await ImagePicker.pickImage(source: ImageSource.gallery); //camera
-    print(imageFile);
     if (imageFile == null) return;
 
     final tempDir = await getTemporaryDirectory();

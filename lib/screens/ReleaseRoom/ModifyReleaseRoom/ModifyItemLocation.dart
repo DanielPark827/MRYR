@@ -133,8 +133,6 @@ class _ModifyItemLocationState extends State<ModifyItemLocation> {
                     });
                     var addresses = await Geocoder.google('AIzaSyDLuchPkN8r8G0by9NXrzgB23tw47j6w0c').findAddressesFromQuery(data.Address.toString());
                     var first = addresses.first;
-                    print(first.coordinates.longitude);
-                    print(first.coordinates.latitude);
 
                     CheckForItemLocation(data);
                   },

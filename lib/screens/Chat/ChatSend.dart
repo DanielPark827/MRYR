@@ -804,7 +804,6 @@ class _ChatSendScreenState extends State<ChatSendScreen>with SingleTickerProvide
       Img.Image image = Img.decodeImage(imageFile.readAsBytesSync());
       var compressImg = new File("$path/"+GlobalProfile.loggedInUser.id+"_$rand.jpg")
         ..writeAsBytesSync(Img.encodeJpg(image, quality: ImgEncodeQulity));
-      print('@@@@@@@@@@@@@@@'+byteToMb(compressImg.lengthSync()).toString());
       filesList.add(compressImg);//이미지 들어가는
     }
 
